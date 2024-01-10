@@ -6,7 +6,9 @@ title: "About me"
 
 ### Background
 
-My name is **Rachel Robertson** and I am a second-year MPH Epidemiology student at UGA. I recently received my undergraduate degree in Biology here and decided to continue my academic journey. I became interested in public health following the SARS-CoV-2 pandemic and decided to explore CPH courses through ‘Double Dawgs’ at UGA. This led to me where I am today! ![This is me!](My%20Picture)
+My name is **Rachel Robertson** and I am a second-year MPH Epidemiology student at UGA. I recently received my undergraduate degree in Biology here and decided to continue my academic journey. I became interested in public health following the SARS-CoV-2 pandemic and decided to explore CPH courses through ‘Double Dawgs’ at UGA. This led to me where I am today!
+
+![*This is me*](IMG_7103.jpg){width="50%"}
 
 ### Research
 
