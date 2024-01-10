@@ -9,7 +9,7 @@
   {
     "objectID": "starter-analysis-exercise/results/readme.html",
     "href": "starter-analysis-exercise/results/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "This folder contains results produced by the code, such as figures and tables.\nDepending on the size and type of your project, you can either place it all in a single folder or create sub-folders. For instance you could create a folder for figures, another for tables. Or you could create a sub-folder for dataset 1, another for dataset 2. Or you could have a subfolder for exploratory analysis, another for final analysis. The options are endless, choose whatever makes sense for your project. For this template, there is just a a single folder, but having sub-folders is often a good idea."
   },
@@ -107,14 +107,14 @@
   {
     "objectID": "starter-analysis-exercise/data/readme.html",
     "href": "starter-analysis-exercise/data/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "The folders inside this folder should contain all data at various stages.\nThis data is being loaded/manipulated/changed/saved with code from the code folders.\nYou should place the raw data in the raw_data folder and not edit it. Ever!\nIdeally, load the raw data into R and do all changes there with code, so everything is automatically reproducible and documented.\nSometimes, you need to edit the files in the format you got. For instance, Excel files are sometimes so poorly formatted that it’s close to impossible to read them into R, or the persons you got the data from used color to code some information, which of course won’t import into R. In those cases, you might have to make modifications in a software other than R. If you need to make edits in whatever format you got the data (e.g. Excel), make a copy and place those copies in a separate folder, AND ONLY EDIT THOSE COPIES. Also, write down somewhere the edits you made.\nAdd as many sub-folders as suitable. If you only have a single processing step, one sub-folder for processed data is enough. If you have multiple stages of cleaning and processing, additional sub-folders might be useful. Adjust based on the complexity of your project.\nI suggest you save your processed and cleaned data as RDS or RDA/Rdata files. This preserves coding like factors, characters, numeric, etc. If you save as CSV, that information would get lost. However, CSV is better for sharing with others since it’s plain text. If you do CSV, you might want to write down somewhere what each variable is.\nSee here for some suggestions on how to store your processed data:\nhttp://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata"
   },
   {
     "objectID": "starter-analysis-exercise/code/readme.html",
     "href": "starter-analysis-exercise/code/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "Place your various R or Quarto files in the appropriate folders.\nYou can either have fewer large scripts, or multiple scripts that do only specific actions. Those can be R or Quarto files. In either case, document the scripts and what goes on in them so well that someone else (including future you) can easily figure out what is happening.\nThe scripts should load the appropriate data (e.g. raw or processed), perform actions, and save results (e.g. processed data, figures, computed values) in the appropriate folders. Document somewhere what inputs each script takes and where output is placed.\nIf scripts need to be run in a specific order, document this. Either as comments in the script, or in a separate text file such as this readme file. Ideally of course in both locations.\nDepending on your specific project, you might want to have further folders/sub-folders."
   },
@@ -151,61 +151,103 @@
     "href": "aboutme.html",
     "title": "About me",
     "section": "",
-    "text": "Add some text and a figure describing myself.\nFor details, see the exercise instructions."
+    "text": "My name is Rachel Robertson and I am a second-year MPH Epidemiology student at UGA. I recently received my undergraduate degree in Biology here and decided to continue my academic journey. I became interested in public health following the SARS-CoV-2 pandemic and decided to explore CPH courses through ‘Double Dawgs’ at UGA. This led to me where I am today! \n\n\n\nI have had the wonderful opportunity to do infectious disease research with the Brindley Lab at UGA. Although not public health-related, this virology research gave me a solid basis for the academic world. From this, I also got two poster presentations under my belt: the UGA Center for Undergraduate Research Opportunities and the American Society of Virology conferences. Over the summer, I was able to complete mosquito surveillance in Georgia with a program called, SECVBD, in collaboration with supervisors from the DPH. It was rough, but fun fieldwork that involved traveling to Georgia parks and trapping live mosquitoes. Currently, I am looking forward to beginning research with the SRH lab on Crisis Pregnancy Centers and women’s health!\n\n\n\nThe College of Public Health has sent me through several courses that gave me experience in SAS and STATA, but little to none in R. I have used a few data visualization platforms, such as Tableau and Bio-render, and worked with a team to create presentations. Two examples of such are a tick-borne disease map in the U.S. and a poster exploring the microbial composition in water fountains at UGA. I’d like to take these experiences and build upon them with the knowledge of R to create more complex and relevant projects.\n\n\n\nIn my free time, you can probably find me gaming with my friends. We sometimes play multi-player computer games, but mainly we get together to play Dungeons and Dragons. I also enjoy painting as a hobby and learning other visual art media, like watercolors, graphic design, and crocheting.\n\n\n\nIn this video, Tanisha Batra, a data science graduate, presents her capstone on creating a model to predict the popularity of a song on Spotify. I thought this was interesting because I love music, but I did not expect her findings."
+  },
+  {
+    "objectID": "aboutme.html#background",
+    "href": "aboutme.html#background",
+    "title": "About me",
+    "section": "",
+    "text": "My name is Rachel Robertson and I am a second-year MPH Epidemiology student at UGA. I recently received my undergraduate degree in Biology here and decided to continue my academic journey. I became interested in public health following the SARS-CoV-2 pandemic and decided to explore CPH courses through ‘Double Dawgs’ at UGA. This led to me where I am today!"
+  },
+  {
+    "objectID": "aboutme.html#research",
+    "href": "aboutme.html#research",
+    "title": "About me",
+    "section": "",
+    "text": "I have had the wonderful opportunity to do infectious disease research with the Brindley Lab at UGA. Although not public health-related, this virology research gave me a solid basis for the academic world. From this, I also got two poster presentations under my belt: the UGA Center for Undergraduate Research Opportunities and the American Society of Virology conferences. Over the summer, I was able to complete mosquito surveillance in Georgia with a program called, SECVBD, in collaboration with supervisors from the DPH. It was rough, but fun fieldwork that involved traveling to Georgia parks and trapping live mosquitoes. Currently, I am looking forward to beginning research with the SRH lab on Crisis Pregnancy Centers and women’s health!"
+  },
+  {
+    "objectID": "aboutme.html#experience",
+    "href": "aboutme.html#experience",
+    "title": "About me",
+    "section": "",
+    "text": "The College of Public Health has sent me through several courses that gave me experience in SAS and STATA, but little to none in R. I have used a few data visualization platforms, such as Tableau and Bio-render, and worked with a team to create presentations. Two examples of such are a tick-borne disease map in the U.S. and a poster exploring the microbial composition in water fountains at UGA. I’d like to take these experiences and build upon them with the knowledge of R to create more complex and relevant projects."
+  },
+  {
+    "objectID": "aboutme.html#interests",
+    "href": "aboutme.html#interests",
+    "title": "About me",
+    "section": "",
+    "text": "In my free time, you can probably find me gaming with my friends. We sometimes play multi-player computer games, but mainly we get together to play Dungeons and Dragons. I also enjoy painting as a hobby and learning other visual art media, like watercolors, graphic design, and crocheting."
+  },
+  {
+    "objectID": "aboutme.html#fun-stuff",
+    "href": "aboutme.html#fun-stuff",
+    "title": "About me",
+    "section": "",
+    "text": "In this video, Tanisha Batra, a data science graduate, presents her capstone on creating a model to predict the popularity of a song on Spotify. I thought this was interesting because I love music, but I did not expect her findings."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Rachel’s website and data analysis portfolio",
+    "title": "Rachel’s Website and Data Analysis Portfolio",
     "section": "",
-    "text": "Hello everyone\nWelcome to my website and data analysis portfolio\n\nUse the ‘Menu Bar’ above to get more information about ⋅⋅*\nHave fun!\n\nFeel free to change this text any way you want 😁!"
+    "text": "Use the ‘Menu Bar’ above to learn more ‘About me’ and my ‘Projects’"
+  },
+  {
+    "objectID": "index.html#hello-everyone",
+    "href": "index.html#hello-everyone",
+    "title": "Rachel’s Website and Data Analysis Portfolio",
+    "section": "",
+    "text": "Use the ‘Menu Bar’ above to learn more ‘About me’ and my ‘Projects’"
   },
   {
     "objectID": "starter-analysis-exercise/code/analysis-code/readme.html",
     "href": "starter-analysis-exercise/code/analysis-code/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "This folder contains code to do some simple exploratory analysis and statistical analysis on the processed/cleaned data. The code produces a few tables and figures, which are saved in the results folder.\nIt’s the same code done 3 times:\n\nFirst, there is an R script that you can run which does all the computations.\nSecond, there is a Quarto file which contains exactly the same code as the R script.\nThird, my current favorite, is a Quarto file with an approach where the code is pulled in from the R script and run.\n\nThe last version has the advantage of having code in one place for easy writing/debugging, and then being able to pull the code into the Quarto file for a nice combination of text/commentary and code.\nEach way of doing this is a reasonable approach, pick whichever one you prefer or makes the most sense for your setup. Whichever approach you choose, add ample documentation/commentary so you and others can easily understand what’s going on and what is done."
   },
   {
     "objectID": "starter-analysis-exercise/code/eda-code/readme.html",
     "href": "starter-analysis-exercise/code/eda-code/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "This folder contains code to do some simple exploratory data analysis (EDA) on the processed/cleaned data. The code produces a few tables and figures, which are saved in the appropriate results sub-folder."
   },
   {
     "objectID": "starter-analysis-exercise/code/processing-code/readme.html",
     "href": "starter-analysis-exercise/code/processing-code/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "This folder contains code for processing data.\nCurrently, there is just a single Quarto file to illustrate how the processing can look like.\nInstead of a Quarto file that contains code, it is also possible to use R scripts or a combination of R scripts and Quarto code. Those approaches are illustrated in the full dataanalysis-template repository."
   },
   {
     "objectID": "starter-analysis-exercise/data/raw-data/readme.html",
     "href": "starter-analysis-exercise/data/raw-data/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "This folder contains a simple made-up data-set in an Excel file.\nIt contains the variables Height, Weight and Gender of a few imaginary individuals.\nThe dataset purposefully contains some faulty entries that need to be cleaned.\nGenerally, any dataset should contain some meta-data explaining what each variable in the dataset is. (This is often called a Codebook.) For this simple example, the codebook is given as a second sheet in the Excel file.\nThis raw data-set should generally not be edited by hand. It should instead be loaded and processed/cleaned using code."
   },
   {
     "objectID": "starter-analysis-exercise/products/readme.html",
     "href": "starter-analysis-exercise/products/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "The folders inside this folder should contain all the products of your project.\nFor a classical academic project, this will be a peer-reviewed manuscript, and should be placed into a manuscript folder.\nFor our case, since we’ll want to put it on the website, we call it a report.\nOften you need a library of references in bibtex format, as well as a CSL style file that determines reference formatting. Since those files might be used by several of the products, I’m placing them in the main products folder. Feel free to re-organize."
   },
   {
     "objectID": "starter-analysis-exercise/results/figures/readme.html",
     "href": "starter-analysis-exercise/results/figures/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "Folder for all figures.\nYou can create further sub-folders if that makes sense."
   },
   {
     "objectID": "starter-analysis-exercise/results/tables-files/readme.html",
     "href": "starter-analysis-exercise/results/tables-files/readme.html",
-    "title": "YOURNAME Data Analysis Portfolio",
+    "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "Folder for all tables (generally stored as Rds files) and other files.\nYou can create further sub-folders if that makes sense."
   }

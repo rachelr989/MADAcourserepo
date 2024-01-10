@@ -2,24 +2,24 @@
 title: "About me"
 ---
 
-# Read 'About me' Here
+## *Read 'About me' Here*
 
-## Background
+### Background
 
-My name is **Rachel Robertson** and I am a second-year MPH Epidemiology student at UGA. I recently received my undergraduate degree in Biology here and decided to continue my academic journey. I became interested in public health following the SARS-CoV-2 pandemic and decided to explore CPH courses through ‘Double Dawgs’ at UGA. This led to me where I am today! ![This is me!](C:\Users\rrsta\OneDrive\Desktop\MADAcourseexercises\MADAcourserepo\IMG_7103.jpg)
+My name is **Rachel Robertson** and I am a second-year MPH Epidemiology student at UGA. I recently received my undergraduate degree in Biology here and decided to continue my academic journey. I became interested in public health following the SARS-CoV-2 pandemic and decided to explore CPH courses through ‘Double Dawgs’ at UGA. This led to me where I am today! ![This is me!](My%20Picture)
 
-## Research
+### Research
 
 I have had the wonderful opportunity to do infectious disease research with the Brindley Lab at UGA. Although not public health-related, this virology research gave me a solid basis for the academic world. From this, I also got two poster presentations under my belt: the UGA Center for Undergraduate Research Opportunities and the American Society of Virology conferences. Over the summer, I was able to complete mosquito surveillance in Georgia with a program called, SECVBD, in collaboration with supervisors from the DPH. It was rough, but fun fieldwork that involved traveling to Georgia parks and trapping live mosquitoes. Currently, I am looking forward to beginning research with the SRH lab on Crisis Pregnancy Centers and women’s health!
 
-## Experience
+### Experience
 
 The College of Public Health has sent me through several courses that gave me experience in SAS and STATA, but little to none in R. I have used a few data visualization platforms, such as Tableau and Bio-render, and worked with a team to create presentations. Two examples of such are a tick-borne disease map in the U.S. and a poster exploring the microbial composition in water fountains at UGA. I’d like to take these experiences and build upon them with the knowledge of R to create more complex and relevant projects.
 
-## Interests
+### Interests
 
 In my free time, you can probably find me gaming with my friends. We sometimes play multi-player computer games, but mainly we get together to play Dungeons and Dragons. I also enjoy painting as a hobby and learning other visual art media, like watercolors, graphic design, and crocheting.
 
-## Fun Stuff!
+### Fun Stuff!
 
 In [this video](https://www.youtube.com/watch?v=IKmzUodHg9U&ab_channel=Sponteni), Tanisha Batra, a data science graduate, presents her capstone on creating a model to predict the popularity of a song on Spotify. I thought this was interesting because I love music, but I did not expect her findings.
