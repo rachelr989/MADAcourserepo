@@ -1,15 +1,9 @@
 ---
-title: "My website and data analysis portfolio"
+title: "Rachel's Website and Data Analysis Portfolio"
 ---
 
-# Hello
+## Hello Everyone
 
-### And hello again
+#### Welcome to my website and data analysis portfolio!
 
-Welcome to **my website** and _data analysis portfolio._ 
-
-
-* Please use the `Menu Bar` above to look around.
-* Have fun!
-
-**Feel free to change this text any way you want 😁!**
+-   Use the 'Menu Bar' above to learn more **'About me'** and my **'Projects'**
