@@ -6,8 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Your Name">
-<meta name="dcterms.date" content="2024-01-10">
+<meta name="author" content="Rachel Robertson">
+<meta name="dcterms.date" content="2024-01-18">
 
 <title>Rachel Robertson Data Analysis Portfolio - Manuscript/Report Template for a Data Analysis Project</title>
 <style>
@@ -162,6 +162,7 @@ div.csl-indent {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Manuscript/Report Template for a Data Analysis Project</h1>
+<p class="subtitle lead">Starter Analysis Project</p>
 </div>
 
 
@@ -171,14 +172,14 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Your Name </p>
+             <p>Rachel Robertson </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 10, 2024</p>
+      <p class="date">January 18, 2024</p>
     </div>
   </div>
   
@@ -190,8 +191,94 @@ div.csl-indent {
 </header>
 
 
-<p>The structure below is one possible setup for a data analysis project (including the course project). For a manuscript, adjust as needed. You don’t need to have exactly these sections, but the content covering those sections should be addressed.</p>
+<section id="cora-hirst-contributed-to-the-starter-analysis-portion-of-this-project" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="cora-hirst-contributed-to-the-starter-analysis-portion-of-this-project"><span class="header-section-number">0.1</span> <em>Cora Hirst</em> contributed to the “Starter Analysis” portion of this project</h2>
+<p>The following is a template for the final analysis project. The “Starter Analysis” figures and table are featured below.</p>
+<p>#Starter Analysis #### Box Plot Cora produced a box plot displaying hair color versus height. Because there were one ginger and two blondes, of the same height, the box plot is not evenly distributed.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../results/figures/haircolor-height-boxplots.png" class="img-fluid figure-img"></p>
+<figcaption>Height (y-axis) plotted against hair color (x axis).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="scatter-plot" class="level4" data-number="0.1.0.1">
+<h4 data-number="0.1.0.1" class="anchored" data-anchor-id="scatter-plot"><span class="header-section-number">0.1.0.1</span> Scatter Plot</h4>
+<p>Cora produced a scatter plot of weight versus haircount. The scatter plot displays no trend between the two variables.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../results/figures/weight-haircut-scatterplot.png" class="img-fluid figure-img"></p>
+<figcaption>Weight (y axis) versus haircount (x axis).</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="linear-model" class="level4" data-number="0.1.0.2">
+<h4 data-number="0.1.0.2" class="anchored" data-anchor-id="linear-model"><span class="header-section-number">0.1.0.2</span> Linear Model</h4>
+<p>I produced a linear model fitting haircolor and haircount to the outcome of height. I had to change the variable names to exclude spaces so that the linear model function would recognize the variables.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Linear model fit table.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">term</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">statistic</th>
+<th style="text-align: right;">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">196.0050251</td>
+<td style="text-align: right;">68.7506205</td>
+<td style="text-align: right;">2.8509565</td>
+<td style="text-align: right;">0.0463510</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haircolorblonde</td>
+<td style="text-align: right;">17.0251256</td>
+<td style="text-align: right;">21.3696883</td>
+<td style="text-align: right;">0.7966951</td>
+<td style="text-align: right;">0.4702399</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haircolorbrown</td>
+<td style="text-align: right;">11.1340034</td>
+<td style="text-align: right;">16.3855004</td>
+<td style="text-align: right;">0.6795034</td>
+<td style="text-align: right;">0.5341073</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Haircolorginger</td>
+<td style="text-align: right;">28.0653266</td>
+<td style="text-align: right;">24.4315134</td>
+<td style="text-align: right;">1.1487347</td>
+<td style="text-align: right;">0.3146867</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Haircount</td>
+<td style="text-align: right;">-0.0003839</td>
+<td style="text-align: right;">0.0006569</td>
+<td style="text-align: right;">-0.5844580</td>
+<td style="text-align: right;">0.5902885</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
 <p>This uses MS Word as output format. <a href="https://quarto.org/docs/output-formats/ms-word.html">See here</a> for more information. You can switch to other formats, like html or pdf. See <a href="https://quarto.org/">the Quarto documentation</a> for other formats.</p>
+</section>
+</section>
 <section id="summaryabstract" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Summary/Abstract</h1>
 <p><em>Write a summary of your project.</em></p>
@@ -249,19 +336,19 @@ Table&nbsp;1: Data summary table.
 <div class="cell-output-display">
 <table class="do-not-create-environment cell table table-sm table-striped small">
 <colgroup>
-<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 4%">
+<col style="width: 6%">
 <col style="width: 7%">
-<col style="width: 5%">
 <col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 8%">
-<col style="width: 9%">
+<col style="width: 14%">
 <col style="width: 6%">
 <col style="width: 5%">
 <col style="width: 5%">
-<col style="width: 6%">
-<col style="width: 6%">
-<col style="width: 6%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 5%">
 <col style="width: 6%">
 <col style="width: 6%">
 </colgroup>
@@ -303,6 +390,23 @@ Table&nbsp;1: Data summary table.
 <td style="text-align: left;">NA</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">Haircolor</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">bla: 3, bro: 3, blo: 2, gin: 1</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">numeric</td>
 <td style="text-align: left;">Height</td>
 <td style="text-align: right;">0</td>
@@ -319,7 +423,7 @@ Table&nbsp;1: Data summary table.
 <td style="text-align: right;">183</td>
 <td style="text-align: left;">▂▁▃▃▇</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">numeric</td>
 <td style="text-align: left;">Weight</td>
 <td style="text-align: right;">0</td>
@@ -335,6 +439,23 @@ Table&nbsp;1: Data summary table.
 <td style="text-align: right;">80</td>
 <td style="text-align: right;">110</td>
 <td style="text-align: left;">▇▂▃▂▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">Haircount</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">106666.66667</td>
+<td style="text-align: right;">15612.49500</td>
+<td style="text-align: right;">90000</td>
+<td style="text-align: right;">95000</td>
+<td style="text-align: right;">100000</td>
+<td style="text-align: right;">120000</td>
+<td style="text-align: right;">135000</td>
+<td style="text-align: left;">▇▅▂▅▂</td>
 </tr>
 </tbody>
 </table>
@@ -362,6 +483,7 @@ Figure&nbsp;1: Height and weight stratified by gender.
 </div>
 </div>
 </div>
+<p>~Figure 1. Weight (y axis) versus height (x axis) stratified by gender~</p>
 </section>
 <section id="full-analysis" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="full-analysis"><span class="header-section-number">4.3</span> Full analysis</h2>
@@ -421,6 +543,7 @@ Table&nbsp;2: Linear model fit table.
 </figure>
 </div>
 </div>
+<p>~Table 1. Linear Model of Gender and weight~</p>
 <div style="page-break-after: always;"></div>
 </section>
 </section>

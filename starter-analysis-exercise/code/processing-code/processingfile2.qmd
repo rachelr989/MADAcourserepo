@@ -109,9 +109,9 @@ skimr::skim(d4)
 
 To take a look at the new variables, I used the skim function to make sure the new numerical variable of haircount is clean. There are no missing variables, and all the observations fall within the range specified in the codebook. After checking the hair color variable type using the glimpse() function, I realized it needs to be changed to a factor variable. I took another glimpse at the data to confirm my change worked correctly. 
 ```{r}
-skim(d4$`Haircount`)
+skim(d4$Haircount)
 glimpse(d4)
-d4$`Haircolor` <- as.factor(d4$`Haircolor`)
+d4$Haircolor <- as.factor(d4$Haircolor)
 glimpse(d4)
 ```
 

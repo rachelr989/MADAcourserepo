@@ -97,7 +97,7 @@ ggsave(filename = figure_file, plot=p4)
 I will use geom_boxplot() to create a boxplot with the new categorical variable of hair color on the x-axis and height on the y axis. The boxplot looks a little strange for the blonde hair category because both blondes in the dataset are 166 in tall, and the ginger boxplot is strange because there is only one observation for a person with ginger hair color.
 
 ```{r}
-p5 <- mydata %>% ggplot(aes(x=`Hair color`, y=Height)) + geom_boxplot()
+p5 <- mydata %>% ggplot(aes(x=Haircolor, y=Height)) + geom_boxplot()
 plot(p5)
 View(mydata)
 figure_file = here("starter-analysis-exercise", "results", "figures", "haircolor-height-boxplots.png")
@@ -107,7 +107,7 @@ ggsave(filename = figure_file, plot=p5)
 I will use geom_point() to create a scatter plot with the weight on the x-axis and the new numerical variable of haircount on the y-axis. There seems to be a random distribution of haircount in relation to weight.
 
 ```{r}
-p6 <- mydata %>% ggplot(aes(x=Weight, y=`Hair count`)) + geom_point()
+p6 <- mydata %>% ggplot(aes(x=Weight, y=Haircount)) + geom_point()
 plot(p6)
 figure_file = here("starter-analysis-exercise", "results", "figures","weight-haircut-scatterplot.png")
 ggsave(filename = figure_file, plot = p6)
