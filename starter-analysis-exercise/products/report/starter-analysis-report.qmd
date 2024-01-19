@@ -19,7 +19,7 @@ The following is a template for the final analysis project. The "Starter Analysi
 library(here)
 library(knitr)
 ```
-#Starter Analysis
+### Starter Analysis
 #### Box Plot 
 Cora produced a box plot displaying hair color versus height.
 Because there were one ginger and two blondes, of the same height, the box plot is not evenly distributed.
