@@ -1,5 +1,201 @@
 ---
 title: "R Coding Exercise"
+author: "Rachel Robertson"
+date: "10/23/24"
+output: html_document
 ---
 
-Placeholder file for the future R coding exercise.
+# Set working directory to source file
+setwd(C:/Users/rrsta/OneDrive/Desktop/MADAcourseexercises/MADAcourserepo/coding-exercise)
+
+# Setting up dslabs
+library(dslabs)
+
+# Exploring gapminder dataframe
+## Viewing help file from gapminder 
+help(gapminder)
+## Viewing the structure of gapminder
+str(gapminder)
+## Viewing the data summary statistics of gapminder data
+summary(gapminder)
+## Determining the type of object gapminder is
+class(gapminder)
+
+# Assign african countries to a variable called africa data
+## Accessing tidyverse package
+library(tidyverse)
+## Create a new variable including the Regions Western Africa and Eastern Africa only
+### Assigning the Continents into values "Africa" or "Other
+library(tidyverse)
+
+d2 <- gapminder %>%
+  mutate(africadata = case_when(
+    continent %in% c("Africa") ~ "Africa",
+    TRUE ~ "Other"
+  ))
+
+print(d2)
+
+## Dropping the "Other" values for africa data
+library(dplyr)
+
+d3 <- d2 %>%
+  filter(africadata != "Other")
+  
+print(d3)
+## Checking the number of values in africadata
+summary(d3$africadata)
+>The number of values is correct and africa data only includes the continent Africa
+
+# Creating 2 New objects
+## Creating object containing infant_mortality and life_expectancy under d4
+d4 <- d3 %>%
+  select(life_expectancy, infant_mortality)
+  
+print(d4)
+## Creating object containing population and life_expectancy under d5
+d5 <- d3 %>%
+  select(life_expectancy, population)
+  
+print(d5)
+library(ggplot2)
+
+# Create a plot of d4 and d5
+## Plot life expectancy as a funciton of infant mortality
+### Openning the ggplot2 library
+library (ggplot2)
+
+lifevim_plot2 <- ggplot(d4, aes(x = infant_mortality, y = life_expectancy), color=country) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. Infant Mortality",
+       x = "Infant Mortality",
+       y = "Life Expectancy")
+    
+  print(lifevim_plot2)
+
+## Plot life expectancy as a function of populaiton size using ggplot2
+lifevpop_plot <- ggplot(d5, aes(x = log(population), y = life_expectancy)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. log(Population)",
+       x = "Log(Population)",
+       y = "Life Expectancy")
+      
+  print(lifevpop_plot)
+
+# Looking at differences in life_expectancy versus mortality by other variables
+>I begin by looking at differences in infant_morality and life_expancy by country using the same plot, but with color
+
+lifevim_plot2 <- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = country)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. Infant Mortality",
+       x = "Infant Mortality",
+       y = "Life Expectancy")
+    
+  print(lifevim_plot2)
+
+>I observe differences in the rate depending on the country. 
+
+>I check to made sure the differences are not due to regional trends
+
+lifevim_plot3 <- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = region)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. Infant Mortality",
+       x = "Infant Mortality",
+       y = "Life Expectancy")
+    
+  print(lifevim_plot3)
+
+>It seems that country is the determinant of infant mortality and life expectancy, so I do a faceted plot to confirm
+
+lifevim_plot4 <- ggplot(d3, aes(x = infant_mortality, y = life_expectancy)) +
+  geom_point() +
+  facet_wrap(~country) +
+  labs(title = "Life Expectancy vs. Infant Mortality by Country",
+       x = "Infant Mortality",
+       y = "Life Expectancy")
+
+print(lifevim_plot4)
+>The explaination for the streaks in the life expectancy versus infant mortality trends is that infant mortality differs by country, which leads life expectancy to also differ by African country.
+
+>Now, I will confirm that the life_expectancy and population streaks are also due to differeces in the country
+
+lifevpop_plot2 <- ggplot(d3, aes(x = log(population), y = life_expectancy, color = country)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. log(Population) by Country",
+       x = "Log(Population)",
+       y = "Life Expectancy")
+      
+  print(lifevpop_plot2)
+  
+>Each country contains a different colorred streak, confirming that life expectancy is positively related to population depending on each country. This is because the life expectancy differs for each country, resulting in different population sums, despite havign a similar overall trend.
+
+>I will now examine differences in the plot by year to see if this differs by country
+>I first dot his with the life expectancy versus infant mortality plot
+
+lifevim_plot5 <- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = country)) +
+  geom_point() +
+   facet_grid(year ~ ., scales = "free_y") +
+  labs(title = "Life Expectancy vs. Infant Mortality stratified by year and colored by country",
+       x = "Infant Mortality",
+       y = "Life Expectancy")
+    
+  print(lifevim_plot5)
+>With each line representing a year, it seems that the life expectancy moves upwards each year. I will now confirm that this is also the case for the life expectancy versus population.
+
+lifevpop_plot3 <- ggplot(d3, aes(x = log(population), y = life_expectancy, color = country)) +
+  geom_point() +
+   facet_grid(year ~ ., scales = "free_y") +
+  labs(title = "Life Expectancy vs. log(Population) by Country",
+       x = "Log(Population)",
+       y = "Life Expectancy")
+      
+  print(lifevpop_plot3)
+>This upwards trend is displayed by country in this plot as well, confirming that the country and year impact the life expectancy-based trends.
+
+# Now I will use a code to find which years have missing values for infant mortality
+missingvalues <- unique(d3[!complete.cases(d3$infant_mortality), "year"])
+
+print(missingvalues)
+
+# Creating a new object for just the values with the year 2000
+d7 <- d3 %>%
+ filter(year == 2000)
+# Checking that the new object is correct
+ str(d7)
+ summary(d7)
+ 
+# Remaking the plots with the year 2000 only
+## Plot with life expectancy versus infant mortality
+lifevim_plot6 <- ggplot(d7, aes(x = infant_mortality, y = life_expectancy)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. Infant Mortality in 2000",
+       x = "Infant Mortality",
+       y = "Life Expectancy")
+    
+  print(lifevim_plot6)
+>A negative trend is still observed between infant mortality and life expectancy int heyear 2000.
+
+## Plot with life expectancy versus log(population)
+lifevpop_plot4 <- ggplot(d7, aes(x = log(population), y = life_expectancy)) +
+  geom_point() +
+  labs(title = "Life Expectancy vs. log(Population) by Country",
+       x = "Log(Population)",
+       y = "Life Expectancy")
+      
+  print(lifevpop_plot4)
+>There is no trend observed between log(population) and life expectancy in this case, so we will test this using a linear model.
+
+# Linear model of previous plots to test for trends in the year 2000
+## Model for life expectancy versus infant mortality in 2000
+lmfit_lifevim <- lm(life_expectancy ~ infant_mortality, d7)  
+lmtable_lifevim <- broom::tidy(lmfit_lifevim)
+print(lmtable_lifevim)
+>Model table reflects the negative trend between infant mortality and life expectancy in the year 2000
+
+## Model for life expectancy versus log(population) in 2000
+lmfit_lifevpop <- lm(life_expectancy ~ log(population), d7)  
+lmtable_lifevpop <- broom::tidy(lmfit_lifevpop)
+print(lmtable_lifevpop)
+>There is a slight negative trend in life expectancy and log(population), however this is NOT statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000.
+
+

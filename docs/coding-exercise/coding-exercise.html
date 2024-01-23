@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Rachel Robertson">
+<meta name="dcterms.date" content="2024-10-23">
 
 <title>Rachel Robertson Data Analysis Portfolio - R Coding Exercise</title>
 <style>
@@ -146,7 +148,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rachel Robertson </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 23, 2024</p>
+    </div>
+  </div>
   
     
   </div>
@@ -156,9 +170,135 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Placeholder file for the future R coding exercise.</p>
+<section id="set-working-directory-to-source-file" class="level1">
+<h1>Set working directory to source file</h1>
+<p>setwd(C:/Users/rrsta/OneDrive/Desktop/MADAcourseexercises/MADAcourserepo/coding-exercise)</p>
+</section>
+<section id="setting-up-dslabs" class="level1">
+<h1>Setting up dslabs</h1>
+<p>library(dslabs)</p>
+</section>
+<section id="exploring-gapminder-dataframe" class="level1">
+<h1>Exploring gapminder dataframe</h1>
+<section id="viewing-help-file-from-gapminder" class="level2">
+<h2 class="anchored" data-anchor-id="viewing-help-file-from-gapminder">Viewing help file from gapminder</h2>
+<p>help(gapminder) ## Viewing the structure of gapminder str(gapminder) ## Viewing the data summary statistics of gapminder data summary(gapminder) ## Determining the type of object gapminder is class(gapminder)</p>
+</section>
+</section>
+<section id="assign-african-countries-to-a-variable-called-africa-data" class="level1">
+<h1>Assign african countries to a variable called africa data</h1>
+<section id="accessing-tidyverse-package" class="level2">
+<h2 class="anchored" data-anchor-id="accessing-tidyverse-package">Accessing tidyverse package</h2>
+<p>library(tidyverse) ## Create a new variable including the Regions Western Africa and Eastern Africa only ### Assigning the Continents into values “Africa” or “Other library(tidyverse)</p>
+<p>d2 &lt;- gapminder %&gt;% mutate(africadata = case_when( continent %in% c(“Africa”) ~ “Africa”, TRUE ~ “Other” ))</p>
+<p>print(d2)</p>
+</section>
+<section id="dropping-the-other-values-for-africa-data" class="level2">
+<h2 class="anchored" data-anchor-id="dropping-the-other-values-for-africa-data">Dropping the “Other” values for africa data</h2>
+<p>library(dplyr)</p>
+<p>d3 &lt;- d2 %&gt;% filter(africadata != “Other”)</p>
+<p>print(d3) ## Checking the number of values in africadata summary(d3$africadata) &gt;The number of values is correct and africa data only includes the continent Africa</p>
+</section>
+</section>
+<section id="creating-2-new-objects" class="level1">
+<h1>Creating 2 New objects</h1>
+<section id="creating-object-containing-infant_mortality-and-life_expectancy-under-d4" class="level2">
+<h2 class="anchored" data-anchor-id="creating-object-containing-infant_mortality-and-life_expectancy-under-d4">Creating object containing infant_mortality and life_expectancy under d4</h2>
+<p>d4 &lt;- d3 %&gt;% select(life_expectancy, infant_mortality)</p>
+<p>print(d4) ## Creating object containing population and life_expectancy under d5 d5 &lt;- d3 %&gt;% select(life_expectancy, population)</p>
+<p>print(d5) library(ggplot2)</p>
+</section>
+</section>
+<section id="create-a-plot-of-d4-and-d5" class="level1">
+<h1>Create a plot of d4 and d5</h1>
+<section id="plot-life-expectancy-as-a-funciton-of-infant-mortality" class="level2">
+<h2 class="anchored" data-anchor-id="plot-life-expectancy-as-a-funciton-of-infant-mortality">Plot life expectancy as a funciton of infant mortality</h2>
+<section id="openning-the-ggplot2-library" class="level3">
+<h3 class="anchored" data-anchor-id="openning-the-ggplot2-library">Openning the ggplot2 library</h3>
+<p>library (ggplot2)</p>
+<p>lifevim_plot2 &lt;- ggplot(d4, aes(x = infant_mortality, y = life_expectancy), color=country) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
+<p>print(lifevim_plot2)</p>
+</section>
+</section>
+<section id="plot-life-expectancy-as-a-function-of-populaiton-size-using-ggplot2" class="level2">
+<h2 class="anchored" data-anchor-id="plot-life-expectancy-as-a-function-of-populaiton-size-using-ggplot2">Plot life expectancy as a function of populaiton size using ggplot2</h2>
+<p>lifevpop_plot &lt;- ggplot(d5, aes(x = log(population), y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;log(Population)”, x = “Log(Population)”, y = “Life Expectancy”)</p>
+<p>print(lifevpop_plot)</p>
+</section>
+</section>
+<section id="looking-at-differences-in-life_expectancy-versus-mortality-by-other-variables" class="level1">
+<h1>Looking at differences in life_expectancy versus mortality by other variables</h1>
+<blockquote class="blockquote">
+<p>I begin by looking at differences in infant_morality and life_expancy by country using the same plot, but with color</p>
+</blockquote>
+<p>lifevim_plot2 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = country)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
+<p>print(lifevim_plot2)</p>
+<blockquote class="blockquote">
+<p>I observe differences in the rate depending on the country.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>I check to made sure the differences are not due to regional trends</p>
+</blockquote>
+<p>lifevim_plot3 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = region)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
+<p>print(lifevim_plot3)</p>
+<blockquote class="blockquote">
+<p>It seems that country is the determinant of infant mortality and life expectancy, so I do a faceted plot to confirm</p>
+</blockquote>
+<p>lifevim_plot4 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy)) + geom_point() + facet_wrap(~country) + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality by Country”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
+<p>print(lifevim_plot4) &gt;The explaination for the streaks in the life expectancy versus infant mortality trends is that infant mortality differs by country, which leads life expectancy to also differ by African country.</p>
+<blockquote class="blockquote">
+<p>Now, I will confirm that the life_expectancy and population streaks are also due to differeces in the country</p>
+</blockquote>
+<p>lifevpop_plot2 &lt;- ggplot(d3, aes(x = log(population), y = life_expectancy, color = country)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;log(Population) by Country”, x = “Log(Population)”, y = “Life Expectancy”)</p>
+<p>print(lifevpop_plot2)</p>
+<blockquote class="blockquote">
+<p>Each country contains a different colorred streak, confirming that life expectancy is positively related to population depending on each country. This is because the life expectancy differs for each country, resulting in different population sums, despite havign a similar overall trend.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>I will now examine differences in the plot by year to see if this differs by country I first dot his with the life expectancy versus infant mortality plot</p>
+</blockquote>
+<p>lifevim_plot5 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = country)) + geom_point() + facet_grid(year ~ ., scales = “free_y”) + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality stratified by year and colored by country”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
+<p>print(lifevim_plot5) &gt;With each line representing a year, it seems that the life expectancy moves upwards each year. I will now confirm that this is also the case for the life expectancy versus population.</p>
+<p>lifevpop_plot3 &lt;- ggplot(d3, aes(x = log(population), y = life_expectancy, color = country)) + geom_point() + facet_grid(year ~ ., scales = “free_y”) + labs(title = “Life Expectancy vs.&nbsp;log(Population) by Country”, x = “Log(Population)”, y = “Life Expectancy”)</p>
+<p>print(lifevpop_plot3) &gt;This upwards trend is displayed by country in this plot as well, confirming that the country and year impact the life expectancy-based trends.</p>
+</section>
+<section id="now-i-will-use-a-code-to-find-which-years-have-missing-values-for-infant-mortality" class="level1">
+<h1>Now I will use a code to find which years have missing values for infant mortality</h1>
+<p>missingvalues &lt;- unique(d3[!complete.cases(d3$infant_mortality), “year”])</p>
+<p>print(missingvalues)</p>
+</section>
+<section id="creating-a-new-object-for-just-the-values-with-the-year-2000" class="level1">
+<h1>Creating a new object for just the values with the year 2000</h1>
+<p>d7 &lt;- d3 %&gt;% filter(year == 2000) # Checking that the new object is correct str(d7) summary(d7)</p>
+</section>
+<section id="remaking-the-plots-with-the-year-2000-only" class="level1">
+<h1>Remaking the plots with the year 2000 only</h1>
+<section id="plot-with-life-expectancy-versus-infant-mortality" class="level2">
+<h2 class="anchored" data-anchor-id="plot-with-life-expectancy-versus-infant-mortality">Plot with life expectancy versus infant mortality</h2>
+<p>lifevim_plot6 &lt;- ggplot(d7, aes(x = infant_mortality, y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality in 2000”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
+<p>print(lifevim_plot6) &gt;A negative trend is still observed between infant mortality and life expectancy int heyear 2000.</p>
+</section>
+<section id="plot-with-life-expectancy-versus-logpopulation" class="level2">
+<h2 class="anchored" data-anchor-id="plot-with-life-expectancy-versus-logpopulation">Plot with life expectancy versus log(population)</h2>
+<p>lifevpop_plot4 &lt;- ggplot(d7, aes(x = log(population), y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;log(Population) by Country”, x = “Log(Population)”, y = “Life Expectancy”)</p>
+<p>print(lifevpop_plot4) &gt;There is no trend observed between log(population) and life expectancy in this case, so we will test this using a linear model.</p>
+</section>
+</section>
+<section id="linear-model-of-previous-plots-to-test-for-trends-in-the-year-2000" class="level1">
+<h1>Linear model of previous plots to test for trends in the year 2000</h1>
+<section id="model-for-life-expectancy-versus-infant-mortality-in-2000" class="level2">
+<h2 class="anchored" data-anchor-id="model-for-life-expectancy-versus-infant-mortality-in-2000">Model for life expectancy versus infant mortality in 2000</h2>
+<p>lmfit_lifevim &lt;- lm(life_expectancy ~ infant_mortality, d7)<br>
+lmtable_lifevim &lt;- broom::tidy(lmfit_lifevim) print(lmtable_lifevim) &gt;Model table reflects the negative trend between infant mortality and life expectancy in the year 2000</p>
+</section>
+<section id="model-for-life-expectancy-versus-logpopulation-in-2000" class="level2">
+<h2 class="anchored" data-anchor-id="model-for-life-expectancy-versus-logpopulation-in-2000">Model for life expectancy versus log(population) in 2000</h2>
+<p>lmfit_lifevpop &lt;- lm(life_expectancy ~ log(population), d7)<br>
+lmtable_lifevpop &lt;- broom::tidy(lmfit_lifevpop) print(lmtable_lifevpop) &gt;There is a slight negative trend in life expectancy and log(population), however this is NOT statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

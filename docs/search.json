@@ -186,7 +186,7 @@
     "href": "coding-exercise/coding-exercise.html",
     "title": "R Coding Exercise",
     "section": "",
-    "text": "Placeholder file for the future R coding exercise."
+    "text": "setwd(C:/Users/rrsta/OneDrive/Desktop/MADAcourseexercises/MADAcourserepo/coding-exercise)"
   },
   {
     "objectID": "starter-analysis-exercise/code/analysis-code/readme.html",
@@ -250,5 +250,75 @@
     "title": "Rachel Robertson Data Analysis Portfolio",
     "section": "",
     "text": "Folder for all tables (generally stored as Rds files) and other files.\nYou can create further sub-folders if that makes sense."
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#viewing-help-file-from-gapminder",
+    "href": "coding-exercise/coding-exercise.html#viewing-help-file-from-gapminder",
+    "title": "R Coding Exercise",
+    "section": "Viewing help file from gapminder",
+    "text": "Viewing help file from gapminder\nhelp(gapminder) ## Viewing the structure of gapminder str(gapminder) ## Viewing the data summary statistics of gapminder data summary(gapminder) ## Determining the type of object gapminder is class(gapminder)"
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#accessing-tidyverse-package",
+    "href": "coding-exercise/coding-exercise.html#accessing-tidyverse-package",
+    "title": "R Coding Exercise",
+    "section": "Accessing tidyverse package",
+    "text": "Accessing tidyverse package\nlibrary(tidyverse) ## Create a new variable including the Regions Western Africa and Eastern Africa only ### Assigning the Continents into values “Africa” or “Other library(tidyverse)\nd2 &lt;- gapminder %&gt;% mutate(africadata = case_when( continent %in% c(“Africa”) ~ “Africa”, TRUE ~ “Other” ))\nprint(d2)"
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#dropping-the-other-values-for-africa-data",
+    "href": "coding-exercise/coding-exercise.html#dropping-the-other-values-for-africa-data",
+    "title": "R Coding Exercise",
+    "section": "Dropping the “Other” values for africa data",
+    "text": "Dropping the “Other” values for africa data\nlibrary(dplyr)\nd3 &lt;- d2 %&gt;% filter(africadata != “Other”)\nprint(d3) ## Checking the number of values in africadata summary(d3$africadata) &gt;The number of values is correct and africa data only includes the continent Africa"
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#creating-object-containing-infant_mortality-and-life_expectancy-under-d4",
+    "href": "coding-exercise/coding-exercise.html#creating-object-containing-infant_mortality-and-life_expectancy-under-d4",
+    "title": "R Coding Exercise",
+    "section": "Creating object containing infant_mortality and life_expectancy under d4",
+    "text": "Creating object containing infant_mortality and life_expectancy under d4\nd4 &lt;- d3 %&gt;% select(life_expectancy, infant_mortality)\nprint(d4) ## Creating object containing population and life_expectancy under d5 d5 &lt;- d3 %&gt;% select(life_expectancy, population)\nprint(d5) library(ggplot2)"
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#plot-life-expectancy-as-a-funciton-of-infant-mortality",
+    "href": "coding-exercise/coding-exercise.html#plot-life-expectancy-as-a-funciton-of-infant-mortality",
+    "title": "R Coding Exercise",
+    "section": "Plot life expectancy as a funciton of infant mortality",
+    "text": "Plot life expectancy as a funciton of infant mortality\n\nOpenning the ggplot2 library\nlibrary (ggplot2)\nlifevim_plot2 &lt;- ggplot(d4, aes(x = infant_mortality, y = life_expectancy), color=country) + geom_point() + labs(title = “Life Expectancy vs. Infant Mortality”, x = “Infant Mortality”, y = “Life Expectancy”)\nprint(lifevim_plot2)"
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#plot-life-expectancy-as-a-function-of-populaiton-size-using-ggplot2",
+    "href": "coding-exercise/coding-exercise.html#plot-life-expectancy-as-a-function-of-populaiton-size-using-ggplot2",
+    "title": "R Coding Exercise",
+    "section": "Plot life expectancy as a function of populaiton size using ggplot2",
+    "text": "Plot life expectancy as a function of populaiton size using ggplot2\nlifevpop_plot &lt;- ggplot(d5, aes(x = log(population), y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs. log(Population)”, x = “Log(Population)”, y = “Life Expectancy”)\nprint(lifevpop_plot)"
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#plot-with-life-expectancy-versus-infant-mortality",
+    "href": "coding-exercise/coding-exercise.html#plot-with-life-expectancy-versus-infant-mortality",
+    "title": "R Coding Exercise",
+    "section": "Plot with life expectancy versus infant mortality",
+    "text": "Plot with life expectancy versus infant mortality\nlifevim_plot6 &lt;- ggplot(d7, aes(x = infant_mortality, y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs. Infant Mortality in 2000”, x = “Infant Mortality”, y = “Life Expectancy”)\nprint(lifevim_plot6) &gt;A negative trend is still observed between infant mortality and life expectancy int heyear 2000."
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#plot-with-life-expectancy-versus-logpopulation",
+    "href": "coding-exercise/coding-exercise.html#plot-with-life-expectancy-versus-logpopulation",
+    "title": "R Coding Exercise",
+    "section": "Plot with life expectancy versus log(population)",
+    "text": "Plot with life expectancy versus log(population)\nlifevpop_plot4 &lt;- ggplot(d7, aes(x = log(population), y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs. log(Population) by Country”, x = “Log(Population)”, y = “Life Expectancy”)\nprint(lifevpop_plot4) &gt;There is no trend observed between log(population) and life expectancy in this case, so we will test this using a linear model."
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#model-for-life-expectancy-versus-infant-mortality-in-2000",
+    "href": "coding-exercise/coding-exercise.html#model-for-life-expectancy-versus-infant-mortality-in-2000",
+    "title": "R Coding Exercise",
+    "section": "Model for life expectancy versus infant mortality in 2000",
+    "text": "Model for life expectancy versus infant mortality in 2000\nlmfit_lifevim &lt;- lm(life_expectancy ~ infant_mortality, d7)\nlmtable_lifevim &lt;- broom::tidy(lmfit_lifevim) print(lmtable_lifevim) &gt;Model table reflects the negative trend between infant mortality and life expectancy in the year 2000"
+  },
+  {
+    "objectID": "coding-exercise/coding-exercise.html#model-for-life-expectancy-versus-logpopulation-in-2000",
+    "href": "coding-exercise/coding-exercise.html#model-for-life-expectancy-versus-logpopulation-in-2000",
+    "title": "R Coding Exercise",
+    "section": "Model for life expectancy versus log(population) in 2000",
+    "text": "Model for life expectancy versus log(population) in 2000\nlmfit_lifevpop &lt;- lm(life_expectancy ~ log(population), d7)\nlmtable_lifevpop &lt;- broom::tidy(lmfit_lifevpop) print(lmtable_lifevpop) &gt;There is a slight negative trend in life expectancy and log(population), however this is NOT statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000."
   }
 ]
