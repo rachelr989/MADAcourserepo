@@ -332,5 +332,5 @@ fit_1 <- lm(rate ~ region, data = murders)
 #Printing summary of the regression model
 summary(fit_1)
 ```
-Here, we see that the p-values for all regions are statistically significant, which suggests that region has an effect on gun murder rate. From our estimates, we can also see that Northeast, North Central, and West regions have lower gun murder rates than our intercept (South region).
+Here, we see that the p-values for all regions are statistically significant, which suggests that being in the south region has an effect on gun murder rates. From our estimates, we can also see that Northeast, North Central, and West regions have lower gun murder rates than our intercept (South region).
 
