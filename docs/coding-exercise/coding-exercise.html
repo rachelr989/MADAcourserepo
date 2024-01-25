@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -170,134 +204,745 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="set-working-directory-to-source-file" class="level1">
-<h1>Set working directory to source file</h1>
-<p>setwd(C:/Users/rrsta/OneDrive/Desktop/MADAcourseexercises/MADAcourserepo/coding-exercise)</p>
-</section>
-<section id="setting-up-dslabs" class="level1">
-<h1>Setting up dslabs</h1>
-<p>library(dslabs)</p>
-</section>
-<section id="exploring-gapminder-dataframe" class="level1">
-<h1>Exploring gapminder dataframe</h1>
-<section id="viewing-help-file-from-gapminder" class="level2">
-<h2 class="anchored" data-anchor-id="viewing-help-file-from-gapminder">Viewing help file from gapminder</h2>
-<p>help(gapminder) ## Viewing the structure of gapminder str(gapminder) ## Viewing the data summary statistics of gapminder data summary(gapminder) ## Determining the type of object gapminder is class(gapminder)</p>
-</section>
-</section>
-<section id="assign-african-countries-to-a-variable-called-africa-data" class="level1">
-<h1>Assign african countries to a variable called africa data</h1>
-<section id="accessing-tidyverse-package" class="level2">
-<h2 class="anchored" data-anchor-id="accessing-tidyverse-package">Accessing tidyverse package</h2>
-<p>library(tidyverse) ## Create a new variable including the Regions Western Africa and Eastern Africa only ### Assigning the Continents into values “Africa” or “Other library(tidyverse)</p>
-<p>d2 &lt;- gapminder %&gt;% mutate(africadata = case_when( continent %in% c(“Africa”) ~ “Africa”, TRUE ~ “Other” ))</p>
-<p>print(d2)</p>
-</section>
-<section id="dropping-the-other-values-for-africa-data" class="level2">
-<h2 class="anchored" data-anchor-id="dropping-the-other-values-for-africa-data">Dropping the “Other” values for africa data</h2>
-<p>library(dplyr)</p>
-<p>d3 &lt;- d2 %&gt;% filter(africadata != “Other”)</p>
-<p>print(d3) ## Checking the number of values in africadata summary(d3$africadata) &gt;The number of values is correct and africa data only includes the continent Africa</p>
+<section id="coding-excercise" class="level1">
+<h1>Coding Excercise</h1>
+<p>Today I will practice coding by working with the gapminder data from the dslabs package. First I will load the packages that I need by using the library() function.</p>
+<section id="setting-up-the-packages" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-the-packages">Setting up the packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dslabs)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 </section>
-<section id="creating-2-new-objects" class="level1">
-<h1>Creating 2 New objects</h1>
-<section id="creating-object-containing-infant_mortality-and-life_expectancy-under-d4" class="level2">
-<h2 class="anchored" data-anchor-id="creating-object-containing-infant_mortality-and-life_expectancy-under-d4">Creating object containing infant_mortality and life_expectancy under d4</h2>
-<p>d4 &lt;- d3 %&gt;% select(life_expectancy, infant_mortality)</p>
-<p>print(d4) ## Creating object containing population and life_expectancy under d5 d5 &lt;- d3 %&gt;% select(life_expectancy, population)</p>
-<p>print(d5) library(ggplot2)</p>
+<section id="data-exploration" class="level1">
+<h1>Data Exploration</h1>
+<section id="exploring-gapminder-dataframe" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-gapminder-dataframe">Exploring gapminder dataframe</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">help</span>(gapminder) <span class="do">## Viewing help file from gapminder </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>starting httpd help server ... done</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(gapminder) <span class="do">## Viewing the structure of gapminder</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   10545 obs. of  9 variables:
+ $ country         : Factor w/ 185 levels "Albania","Algeria",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ year            : int  1960 1960 1960 1960 1960 1960 1960 1960 1960 1960 ...
+ $ infant_mortality: num  115.4 148.2 208 NA 59.9 ...
+ $ life_expectancy : num  62.9 47.5 36 63 65.4 ...
+ $ fertility       : num  6.19 7.65 7.32 4.43 3.11 4.55 4.82 3.45 2.7 5.57 ...
+ $ population      : num  1636054 11124892 5270844 54681 20619075 ...
+ $ gdp             : num  NA 1.38e+10 NA NA 1.08e+11 ...
+ $ continent       : Factor w/ 5 levels "Africa","Americas",..: 4 1 1 2 2 3 2 5 4 3 ...
+ $ region          : Factor w/ 22 levels "Australia and New Zealand",..: 19 11 10 2 15 21 2 1 22 21 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gapminder) <span class="do">## Viewing the data summary statistics of gapminder data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                country           year      infant_mortality life_expectancy
+ Albania            :   57   Min.   :1960   Min.   :  1.50   Min.   :13.20  
+ Algeria            :   57   1st Qu.:1974   1st Qu.: 16.00   1st Qu.:57.50  
+ Angola             :   57   Median :1988   Median : 41.50   Median :67.54  
+ Antigua and Barbuda:   57   Mean   :1988   Mean   : 55.31   Mean   :64.81  
+ Argentina          :   57   3rd Qu.:2002   3rd Qu.: 85.10   3rd Qu.:73.00  
+ Armenia            :   57   Max.   :2016   Max.   :276.90   Max.   :83.90  
+ (Other)            :10203                  NA's   :1453                    
+   fertility       population             gdp               continent   
+ Min.   :0.840   Min.   :3.124e+04   Min.   :4.040e+07   Africa  :2907  
+ 1st Qu.:2.200   1st Qu.:1.333e+06   1st Qu.:1.846e+09   Americas:2052  
+ Median :3.750   Median :5.009e+06   Median :7.794e+09   Asia    :2679  
+ Mean   :4.084   Mean   :2.701e+07   Mean   :1.480e+11   Europe  :2223  
+ 3rd Qu.:6.000   3rd Qu.:1.523e+07   3rd Qu.:5.540e+10   Oceania : 684  
+ Max.   :9.220   Max.   :1.376e+09   Max.   :1.174e+13                  
+ NA's   :187     NA's   :185         NA's   :2972                       
+             region    
+ Western Asia   :1026  
+ Eastern Africa : 912  
+ Western Africa : 912  
+ Caribbean      : 741  
+ South America  : 684  
+ Southern Europe: 684  
+ (Other)        :5586  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(gapminder) <span class="do">## Determining the type of object gapminder is</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+</div>
 </section>
 </section>
-<section id="create-a-plot-of-d4-and-d5" class="level1">
-<h1>Create a plot of d4 and d5</h1>
+<section id="data-processing" class="level1">
+<h1>Data Processing</h1>
+<section id="assign-african-countries-to-a-variable-called-africa-data" class="level2">
+<h2 class="anchored" data-anchor-id="assign-african-countries-to-a-variable-called-africa-data">Assign african countries to a variable called africa data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>africadata <span class="ot">&lt;-</span> gapminder <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(continent <span class="sc">==</span> <span class="st">"Africa"</span>) </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="do">##I filter the data to only include data from Africa in the new object entitled africadata</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(africadata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         country          year      infant_mortality life_expectancy
+ Algeria     :  57   Min.   :1960   Min.   : 11.40   Min.   :13.20  
+ Angola      :  57   1st Qu.:1974   1st Qu.: 62.20   1st Qu.:48.23  
+ Benin       :  57   Median :1988   Median : 93.40   Median :53.98  
+ Botswana    :  57   Mean   :1988   Mean   : 95.12   Mean   :54.38  
+ Burkina Faso:  57   3rd Qu.:2002   3rd Qu.:124.70   3rd Qu.:60.10  
+ Burundi     :  57   Max.   :2016   Max.   :237.40   Max.   :77.60  
+ (Other)     :2565                  NA's   :226                     
+   fertility       population             gdp               continent   
+ Min.   :1.500   Min.   :    41538   Min.   :4.659e+07   Africa  :2907  
+ 1st Qu.:5.160   1st Qu.:  1605232   1st Qu.:8.373e+08   Americas:   0  
+ Median :6.160   Median :  5570982   Median :2.448e+09   Asia    :   0  
+ Mean   :5.851   Mean   : 12235961   Mean   :9.346e+09   Europe  :   0  
+ 3rd Qu.:6.860   3rd Qu.: 13888152   3rd Qu.:6.552e+09   Oceania :   0  
+ Max.   :8.450   Max.   :182201962   Max.   :1.935e+11                  
+ NA's   :51      NA's   :51          NA's   :637                        
+                       region   
+ Eastern Africa           :912  
+ Western Africa           :912  
+ Middle Africa            :456  
+ Northern Africa          :342  
+ Southern Africa          :285  
+ Australia and New Zealand:  0  
+ (Other)                  :  0  </code></pre>
+</div>
+</div>
+<p>The number of values is correct in the Summary data, so I will continue to creating new objects</p>
+</section>
+<section id="creating-object-containing-infant_mortality-and-life_expectancy-under-d2" class="level2">
+<h2 class="anchored" data-anchor-id="creating-object-containing-infant_mortality-and-life_expectancy-under-d2">Creating object containing infant_mortality and life_expectancy under d2</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> africadata <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(life_expectancy, infant_mortality) <span class="do">##I create an object from africadata that only includes the life expectancy and infant mortality from that object.</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(d2) <span class="do">##I check to make sure that the object includes the two variables life expectancy and infant mortality only</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> life_expectancy infant_mortality
+ Min.   :13.20   Min.   : 11.40  
+ 1st Qu.:48.23   1st Qu.: 62.20  
+ Median :53.98   Median : 93.40  
+ Mean   :54.38   Mean   : 95.12  
+ 3rd Qu.:60.10   3rd Qu.:124.70  
+ Max.   :77.60   Max.   :237.40  
+                 NA's   :226     </code></pre>
+</div>
+</div>
+</section>
+<section id="creating-object-containing-population-and-life_expectancy-under-d3" class="level2">
+<h2 class="anchored" data-anchor-id="creating-object-containing-population-and-life_expectancy-under-d3">Creating object containing population and life_expectancy under d3</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> africadata <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(life_expectancy, population) <span class="do">##I make a new object from africadata that only includes the life expectancy and population variables</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(d3) <span class="do">##I check to confirm that the columns are correct</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> life_expectancy   population       
+ Min.   :13.20   Min.   :    41538  
+ 1st Qu.:48.23   1st Qu.:  1605232  
+ Median :53.98   Median :  5570982  
+ Mean   :54.38   Mean   : 12235961  
+ 3rd Qu.:60.10   3rd Qu.: 13888152  
+ Max.   :77.60   Max.   :182201962  
+                 NA's   :51         </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="plots" class="level1">
+<h1>Plots</h1>
 <section id="plot-life-expectancy-as-a-funciton-of-infant-mortality" class="level2">
 <h2 class="anchored" data-anchor-id="plot-life-expectancy-as-a-funciton-of-infant-mortality">Plot life expectancy as a funciton of infant mortality</h2>
-<section id="openning-the-ggplot2-library" class="level3">
-<h3 class="anchored" data-anchor-id="openning-the-ggplot2-library">Openning the ggplot2 library</h3>
-<p>library (ggplot2)</p>
-<p>lifevim_plot2 &lt;- ggplot(d4, aes(x = infant_mortality, y = life_expectancy), color=country) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
-<p>print(lifevim_plot2)</p>
-</section>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>lifevim_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(d2, <span class="fu">aes</span>(<span class="at">x =</span> infant_mortality, <span class="at">y =</span> life_expectancy)) <span class="sc">+</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. Infant Mortality"</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Infant Mortality"</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>) <span class="do">## I use ggplot and the d2 object to plot infant mortality versus life expectancy</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevim_plot) <span class="do">## I print the plot below</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 226 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="plot-life-expectancy-as-a-function-of-populaiton-size-using-ggplot2" class="level2">
 <h2 class="anchored" data-anchor-id="plot-life-expectancy-as-a-function-of-populaiton-size-using-ggplot2">Plot life expectancy as a function of populaiton size using ggplot2</h2>
-<p>lifevpop_plot &lt;- ggplot(d5, aes(x = log(population), y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;log(Population)”, x = “Log(Population)”, y = “Life Expectancy”)</p>
-<p>print(lifevpop_plot)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lifevpop_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(d3, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(population), <span class="at">y =</span> life_expectancy)) <span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. log(Population)"</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Log(Population)"</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>) <span class="do">## I use ggplot to plot the log of population as log(pop) versus life expectancy</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevpop_plot) <span class="do">## I print this plot</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 51 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
+<section id="looking-at-differences-in-life_expectancy-versus-infant_mortality-by-other-variables" class="level2">
+<h2 class="anchored" data-anchor-id="looking-at-differences-in-life_expectancy-versus-infant_mortality-by-other-variables">Looking at differences in life_expectancy versus infant_mortality by other variables</h2>
+<p>I begin by looking at differences in infant_morality and life_expectancy by country using the same plot, but with color.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>lifevim_plot2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(africadata, <span class="fu">aes</span>(<span class="at">x =</span> infant_mortality, <span class="at">y =</span> life_expectancy, <span class="at">color =</span> country)) <span class="sc">+</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. Infant Mortality"</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Infant Mortality"</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>) <span class="do">##I make a plot using africadata because this includes country as well as infant mortality and life expectancy</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevim_plot2) <span class="do">## I print the plot to check it</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 226 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>I observe differences in the rate depending on the country. Next, I will check to made sure the differences are not due to regional trends.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>lifevim_plot3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(africadata, <span class="fu">aes</span>(<span class="at">x =</span> infant_mortality, <span class="at">y =</span> life_expectancy, <span class="at">color =</span> region)) <span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. Infant Mortality"</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Infant Mortality"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevim_plot3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 226 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There are multiple streaks of the same color, but on different linear planes. It seems that country is the determinant of infant mortality and life expectancy, so I do a faceted plot to show eahc individual country and confirm this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>lifevim_plot4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(africadata, <span class="fu">aes</span>(<span class="at">x =</span> infant_mortality, <span class="at">y =</span> life_expectancy)) <span class="sc">+</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>country) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. Infant Mortality by Country"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Infant Mortality"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>) <span class="do">## ChatGPT offered the facet_wrap function which separately plots the country variable by value</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lifevim_plot4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 226 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>With this plot, you can see that each country has a streat that decreases over time. The explaination for the streaks in the life expectancy versus infant mortality trends is that infant mortality differs by country, which leads life expectancy to also differ by African country. The rates change over the timeframe displayed.</p>
 </section>
-<section id="looking-at-differences-in-life_expectancy-versus-mortality-by-other-variables" class="level1">
-<h1>Looking at differences in life_expectancy versus mortality by other variables</h1>
-<blockquote class="blockquote">
-<p>I begin by looking at differences in infant_morality and life_expancy by country using the same plot, but with color</p>
-</blockquote>
-<p>lifevim_plot2 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = country)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
-<p>print(lifevim_plot2)</p>
-<blockquote class="blockquote">
-<p>I observe differences in the rate depending on the country.</p>
-</blockquote>
-<blockquote class="blockquote">
-<p>I check to made sure the differences are not due to regional trends</p>
-</blockquote>
-<p>lifevim_plot3 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = region)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
-<p>print(lifevim_plot3)</p>
-<blockquote class="blockquote">
-<p>It seems that country is the determinant of infant mortality and life expectancy, so I do a faceted plot to confirm</p>
-</blockquote>
-<p>lifevim_plot4 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy)) + geom_point() + facet_wrap(~country) + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality by Country”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
-<p>print(lifevim_plot4) &gt;The explaination for the streaks in the life expectancy versus infant mortality trends is that infant mortality differs by country, which leads life expectancy to also differ by African country.</p>
-<blockquote class="blockquote">
-<p>Now, I will confirm that the life_expectancy and population streaks are also due to differeces in the country</p>
-</blockquote>
-<p>lifevpop_plot2 &lt;- ggplot(d3, aes(x = log(population), y = life_expectancy, color = country)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;log(Population) by Country”, x = “Log(Population)”, y = “Life Expectancy”)</p>
-<p>print(lifevpop_plot2)</p>
-<blockquote class="blockquote">
-<p>Each country contains a different colorred streak, confirming that life expectancy is positively related to population depending on each country. This is because the life expectancy differs for each country, resulting in different population sums, despite havign a similar overall trend.</p>
-</blockquote>
-<blockquote class="blockquote">
-<p>I will now examine differences in the plot by year to see if this differs by country I first dot his with the life expectancy versus infant mortality plot</p>
-</blockquote>
-<p>lifevim_plot5 &lt;- ggplot(d3, aes(x = infant_mortality, y = life_expectancy, color = country)) + geom_point() + facet_grid(year ~ ., scales = “free_y”) + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality stratified by year and colored by country”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
-<p>print(lifevim_plot5) &gt;With each line representing a year, it seems that the life expectancy moves upwards each year. I will now confirm that this is also the case for the life expectancy versus population.</p>
-<p>lifevpop_plot3 &lt;- ggplot(d3, aes(x = log(population), y = life_expectancy, color = country)) + geom_point() + facet_grid(year ~ ., scales = “free_y”) + labs(title = “Life Expectancy vs.&nbsp;log(Population) by Country”, x = “Log(Population)”, y = “Life Expectancy”)</p>
-<p>print(lifevpop_plot3) &gt;This upwards trend is displayed by country in this plot as well, confirming that the country and year impact the life expectancy-based trends.</p>
+<section id="now-i-will-confirm-that-the-life_expectancy-and-population-streaks-are-also-due-to-differeces-in-the-country" class="level2">
+<h2 class="anchored" data-anchor-id="now-i-will-confirm-that-the-life_expectancy-and-population-streaks-are-also-due-to-differeces-in-the-country">Now, I will confirm that the life_expectancy and population streaks are also due to differeces in the country</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>lifevpop_plot2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(africadata, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(population), <span class="at">y =</span> life_expectancy, <span class="at">color =</span> country)) <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. log(Population) by Country"</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Log(Population)"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevpop_plot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 51 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Each country contains a different colored streak, confirming that life expectancy is positively related to population depending on each country. This is because the life expectancy differs for each country, resulting in different population sums, despite having a similar overall trend.</p>
+<p>I will now examine differences in the plot by year to see if this differs by country. I first do this with the life expectancy versus infant mortality plot</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>lifevim_plot5 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(africadata, <span class="fu">aes</span>(<span class="at">x =</span> infant_mortality, <span class="at">y =</span> life_expectancy, <span class="at">color =</span> country)) <span class="sc">+</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">facet_grid</span>(year <span class="sc">~</span> ., <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. Infant Mortality stratified by year and colored by country"</span>,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Infant Mortality"</span>,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>) <span class="do">## Adding the year variable to the facet grid allow year to be seperated. ChatGPT suggested using scaled= free_y as to not make a seperate plot for eahc year, but display the differences on the same plot</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevim_plot5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 226 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>With each line representing a year, it seems that the life expectancy moves upwards each year. I will now confirm that this is also the case for the life expectancy versus population.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>lifevpop_plot3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(africadata, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(population), <span class="at">y =</span> life_expectancy, <span class="at">color =</span> country)) <span class="sc">+</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">facet_grid</span>(year <span class="sc">~</span> ., <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. log(Population) by Country"</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Log(Population)"</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevpop_plot3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 51 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This upwards trend is displayed by country in this plot as well, confirming that the country and year impact the life expectancy-based trends.</p>
 </section>
-<section id="now-i-will-use-a-code-to-find-which-years-have-missing-values-for-infant-mortality" class="level1">
-<h1>Now I will use a code to find which years have missing values for infant mortality</h1>
-<p>missingvalues &lt;- unique(d3[!complete.cases(d3$infant_mortality), “year”])</p>
-<p>print(missingvalues)</p>
+<section id="now-i-will-use-a-code-to-find-which-years-have-missing-values-for-infant-mortality" class="level2">
+<h2 class="anchored" data-anchor-id="now-i-will-use-a-code-to-find-which-years-have-missing-values-for-infant-mortality">Now I will use a code to find which years have missing values for infant mortality</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>missingvalues <span class="ot">&lt;-</span> <span class="fu">unique</span>(africadata[<span class="sc">!</span><span class="fu">complete.cases</span>(africadata<span class="sc">$</span>infant_mortality), <span class="st">"year"</span>]) <span class="do">## This shows which years in the variable are not complete cases (or are 0)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(missingvalues)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 1960 1961 1962 1963 1964 1965 1966 1967 1968 1969 1970 1971 1972 1973 1974
+[16] 1975 1976 1977 1978 1979 1980 1981 2016</code></pre>
+</div>
+</div>
+<p>It seems that many years are missing between 1960-1981 and also in 2016.</p>
 </section>
-<section id="creating-a-new-object-for-just-the-values-with-the-year-2000" class="level1">
-<h1>Creating a new object for just the values with the year 2000</h1>
-<p>d7 &lt;- d3 %&gt;% filter(year == 2000) # Checking that the new object is correct str(d7) summary(d7)</p>
+<section id="creating-a-new-object-for-just-the-values-with-the-year-2000" class="level2">
+<h2 class="anchored" data-anchor-id="creating-a-new-object-for-just-the-values-with-the-year-2000">Creating a new object for just the values with the year 2000</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>d4 <span class="ot">&lt;-</span> africadata <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2000</span>) <span class="do">## this will give me an object from africadata only including the data from 2000</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking that the new object is correct</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a> <span class="fu">str</span>(d4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   51 obs. of  9 variables:
+ $ country         : Factor w/ 185 levels "Albania","Algeria",..: 2 3 18 22 26 27 29 31 32 33 ...
+ $ year            : int  2000 2000 2000 2000 2000 2000 2000 2000 2000 2000 ...
+ $ infant_mortality: num  33.9 128.3 89.3 52.4 96.2 ...
+ $ life_expectancy : num  73.3 52.3 57.2 47.6 52.6 46.7 54.3 68.4 45.3 51.5 ...
+ $ fertility       : num  2.51 6.84 5.98 3.41 6.59 7.06 5.62 3.7 5.45 7.35 ...
+ $ population      : num  31183658 15058638 6949366 1736579 11607944 ...
+ $ gdp             : num  5.48e+10 9.13e+09 2.25e+09 5.63e+09 2.61e+09 ...
+ $ continent       : Factor w/ 5 levels "Africa","Americas",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ region          : Factor w/ 22 levels "Australia and New Zealand",..: 11 10 20 17 20 5 10 20 10 10 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">summary</span>(d4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         country        year      infant_mortality life_expectancy
+ Algeria     : 1   Min.   :2000   Min.   : 12.30   Min.   :37.60  
+ Angola      : 1   1st Qu.:2000   1st Qu.: 60.80   1st Qu.:51.75  
+ Benin       : 1   Median :2000   Median : 80.30   Median :54.30  
+ Botswana    : 1   Mean   :2000   Mean   : 78.93   Mean   :56.36  
+ Burkina Faso: 1   3rd Qu.:2000   3rd Qu.:103.30   3rd Qu.:60.00  
+ Burundi     : 1   Max.   :2000   Max.   :143.30   Max.   :75.00  
+ (Other)     :45                                                  
+   fertility       population             gdp               continent 
+ Min.   :1.990   Min.   :    81154   Min.   :2.019e+08   Africa  :51  
+ 1st Qu.:4.150   1st Qu.:  2304687   1st Qu.:1.274e+09   Americas: 0  
+ Median :5.550   Median :  8799165   Median :3.238e+09   Asia    : 0  
+ Mean   :5.156   Mean   : 15659800   Mean   :1.155e+10   Europe  : 0  
+ 3rd Qu.:5.960   3rd Qu.: 17391242   3rd Qu.:8.654e+09   Oceania : 0  
+ Max.   :7.730   Max.   :122876723   Max.   :1.329e+11                
+                                                                      
+                       region  
+ Eastern Africa           :16  
+ Western Africa           :16  
+ Middle Africa            : 8  
+ Northern Africa          : 6  
+ Southern Africa          : 5  
+ Australia and New Zealand: 0  
+ (Other)                  : 0  </code></pre>
+</div>
+</div>
+</section>
 </section>
 <section id="remaking-the-plots-with-the-year-2000-only" class="level1">
 <h1>Remaking the plots with the year 2000 only</h1>
 <section id="plot-with-life-expectancy-versus-infant-mortality" class="level2">
 <h2 class="anchored" data-anchor-id="plot-with-life-expectancy-versus-infant-mortality">Plot with life expectancy versus infant mortality</h2>
-<p>lifevim_plot6 &lt;- ggplot(d7, aes(x = infant_mortality, y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;Infant Mortality in 2000”, x = “Infant Mortality”, y = “Life Expectancy”)</p>
-<p>print(lifevim_plot6) &gt;A negative trend is still observed between infant mortality and life expectancy int heyear 2000.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>lifevim_plot6 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(d4, <span class="fu">aes</span>(<span class="at">x =</span> infant_mortality, <span class="at">y =</span> life_expectancy)) <span class="sc">+</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. Infant Mortality in 2000"</span>,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Infant Mortality"</span>,</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevim_plot6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A negative trend is still observed between infant mortality and life expectancy int heyear 2000.</p>
 </section>
 <section id="plot-with-life-expectancy-versus-logpopulation" class="level2">
 <h2 class="anchored" data-anchor-id="plot-with-life-expectancy-versus-logpopulation">Plot with life expectancy versus log(population)</h2>
-<p>lifevpop_plot4 &lt;- ggplot(d7, aes(x = log(population), y = life_expectancy)) + geom_point() + labs(title = “Life Expectancy vs.&nbsp;log(Population) by Country”, x = “Log(Population)”, y = “Life Expectancy”)</p>
-<p>print(lifevpop_plot4) &gt;There is no trend observed between log(population) and life expectancy in this case, so we will test this using a linear model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>lifevpop_plot4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(d4, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(population), <span class="at">y =</span> life_expectancy)) <span class="sc">+</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Life Expectancy vs. log(Population) by Country"</span>,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Log(Population)"</span>,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Life Expectancy"</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(lifevpop_plot4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There is no trend observed between log(population) and life expectancy in this case, so we will test this using a linear model.</p>
 </section>
 </section>
 <section id="linear-model-of-previous-plots-to-test-for-trends-in-the-year-2000" class="level1">
 <h1>Linear model of previous plots to test for trends in the year 2000</h1>
 <section id="model-for-life-expectancy-versus-infant-mortality-in-2000" class="level2">
 <h2 class="anchored" data-anchor-id="model-for-life-expectancy-versus-infant-mortality-in-2000">Model for life expectancy versus infant mortality in 2000</h2>
-<p>lmfit_lifevim &lt;- lm(life_expectancy ~ infant_mortality, d7)<br>
-lmtable_lifevim &lt;- broom::tidy(lmfit_lifevim) print(lmtable_lifevim) &gt;Model table reflects the negative trend between infant mortality and life expectancy in the year 2000</p>
+<p>I will use the lm() function to create a linear model of life expectancy as the outcome and infant mortality as the factor.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>lmfit_lifevim <span class="ot">&lt;-</span> <span class="fu">lm</span>(life_expectancy <span class="sc">~</span> infant_mortality, d4) <span class="do">## Linear model from life expectancy and infant mortality in the year 2000  </span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>lmtable_lifevim <span class="ot">&lt;-</span> broom<span class="sc">::</span><span class="fu">tidy</span>(lmfit_lifevim) <span class="do">## tidyverse includes the broom function to produce a table from the linear model above</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lmtable_lifevim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 5
+  term             estimate std.error statistic  p.value
+  &lt;chr&gt;               &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)        71.3      2.43       29.4  8.91e-33
+2 infant_mortality   -0.189    0.0287     -6.59 2.83e- 8</code></pre>
+</div>
+</div>
+<p>The linear model table reflects the negative trend between infant mortality and life expectancy in the year 2000.</p>
 </section>
 <section id="model-for-life-expectancy-versus-logpopulation-in-2000" class="level2">
 <h2 class="anchored" data-anchor-id="model-for-life-expectancy-versus-logpopulation-in-2000">Model for life expectancy versus log(population) in 2000</h2>
-<p>lmfit_lifevpop &lt;- lm(life_expectancy ~ log(population), d7)<br>
-lmtable_lifevpop &lt;- broom::tidy(lmfit_lifevpop) print(lmtable_lifevpop) &gt;There is a slight negative trend in life expectancy and log(population), however this is NOT statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000.</p>
-
-
+<p>Next, we will use the same process to create a linear model of life expectancy and log(population) in the year 2000.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>lmfit_lifevpop <span class="ot">&lt;-</span> <span class="fu">lm</span>(life_expectancy <span class="sc">~</span> <span class="fu">log</span>(population), d4)  </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>lmtable_lifevpop <span class="ot">&lt;-</span> broom<span class="sc">::</span><span class="fu">tidy</span>(lmfit_lifevpop)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lmtable_lifevpop)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 5
+  term            estimate std.error statistic    p.value
+  &lt;chr&gt;              &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 (Intercept)       65.3      12.5       5.22  0.00000365
+2 log(population)   -0.571     0.794    -0.719 0.476     </code></pre>
+</div>
+</div>
+<p>There is a slight negative trend in life expectancy and log(population), however this is <strong>not</strong> statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000.</p>
 </section>
+</section>
+<section id="this-section-contributed-by-cassia-roth" class="level1">
+<h1>This section contributed by <strong>Cassia Roth</strong></h1>
+<p>First, I will load all of the necessary packages to run the data analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Loading packages</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dslabs)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at C:/Users/rrsta/OneDrive/Desktop/MADAcourseexercises/MADAcourserepo</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(renv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'renv'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    modify</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    embed, update</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:utils':
+
+    history, upgrade</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    autoload, load, remove</code></pre>
+</div>
+</div>
+<p>Next, I will explore the murders dataset from <code>dslabs</code>. This dataset contains information about the number of gun murders in each state in the United States in 2010, as well as the population and region of each state. Gun murder data were collected from FBI reports. You can see more about the dataset at <a href="https://cran.r-project.org/web/packages/dslabs/dslabs.pdf">dslabs</a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Looking at help file for murders data</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">help</span>(murders)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Getting overview of data structure</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(murders)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   51 obs. of  5 variables:
+ $ state     : chr  "Alabama" "Alaska" "Arizona" "Arkansas" ...
+ $ abb       : chr  "AL" "AK" "AZ" "AR" ...
+ $ region    : Factor w/ 4 levels "Northeast","South",..: 2 4 4 2 4 4 1 2 2 2 ...
+ $ population: num  4779736 710231 6392017 2915918 37253956 ...
+ $ total     : num  135 19 232 93 1257 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Getting summary of data</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(murders)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    state               abb                      region     population      
+ Length:51          Length:51          Northeast    : 9   Min.   :  563626  
+ Class :character   Class :character   South        :17   1st Qu.: 1696962  
+ Mode  :character   Mode  :character   North Central:12   Median : 4339367  
+                                       West         :13   Mean   : 6075769  
+                                                          3rd Qu.: 6636084  
+                                                          Max.   :37253956  
+     total       
+ Min.   :   2.0  
+ 1st Qu.:  24.5  
+ Median :  97.0  
+ Mean   : 184.4  
+ 3rd Qu.: 268.0  
+ Max.   :1257.0  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Determining type of object</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(murders)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+</div>
+<p>The dataset includes 51 observations of six variables (state, abb, region, population, total, rate) for the year 2010 only.</p>
+<p>I will now assign the murders dataset to a new variable called <code>murders_data_south</code> in which I explore murder rates in the south region, since that is where we are currently based.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Assigning murders dataset to new variable `murders_data_south`</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>murders_data_south <span class="ot">&lt;-</span> murders <span class="sc">%&gt;%</span> </span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(region <span class="sc">==</span> <span class="st">"South"</span>)</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Getting overview of data structure for `murders_data_south`</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(murders_data_south)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   17 obs. of  5 variables:
+ $ state     : chr  "Alabama" "Arkansas" "Delaware" "District of Columbia" ...
+ $ abb       : chr  "AL" "AR" "DE" "DC" ...
+ $ region    : Factor w/ 4 levels "Northeast","South",..: 2 2 2 2 2 2 2 2 2 2 ...
+ $ population: num  4779736 2915918 897934 601723 19687653 ...
+ $ total     : num  135 93 38 99 669 376 116 351 293 120 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Getting summary of `murders_data_south`</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(murders_data_south)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    state               abb                      region     population      
+ Length:17          Length:17          Northeast    : 0   Min.   :  601723  
+ Class :character   Class :character   South        :17   1st Qu.: 2967297  
+ Mode  :character   Mode  :character   North Central: 0   Median : 4625364  
+                                       West         : 0   Mean   : 6804378  
+                                                          3rd Qu.: 8001024  
+                                                          Max.   :25145561  
+     total      
+ Min.   : 27.0  
+ 1st Qu.:111.0  
+ Median :207.0  
+ Mean   :246.8  
+ 3rd Qu.:293.0  
+ Max.   :805.0  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Getting unique entries for the variable 'state'</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>unique_states <span class="ot">&lt;-</span> <span class="fu">unique</span>(murders_data_south<span class="sc">$</span>state)</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the unique entries</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(unique_states)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Alabama"              "Arkansas"             "Delaware"            
+ [4] "District of Columbia" "Florida"              "Georgia"             
+ [7] "Kentucky"             "Louisiana"            "Maryland"            
+[10] "Mississippi"          "North Carolina"       "Oklahoma"            
+[13] "South Carolina"       "Tennessee"            "Texas"               
+[16] "Virginia"             "West Virginia"       </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co">#In this chunk, I asked ChatGPT how to get a list of the unique character entries for the variable state.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The dataset includes 17 states in the South region, listed above.</p>
+<p>Now, let’s begin to look at the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Plotting</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating a bar plot of murders in absolute numbers in the South by state, 2010</span></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>plot_7 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(murders_data_south, <span class="fu">aes</span>(<span class="at">x =</span> state, <span class="at">y =</span> total)) <span class="sc">+</span></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"purple"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Murders in Absolute Numbers by State, South 2010"</span>,</span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"State"</span>,</span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Total"</span>) <span class="sc">+</span></span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a><span class="co">#Displaying</span></span>
+<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(plot_7)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Saving as a figure</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>figure_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"figures"</span>,<span class="st">"murders_pop.png"</span>)</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> figure_file, <span class="at">plot=</span>plot_7)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Saving 7 x 5 in image</code></pre>
+</div>
+</div>
+<p>When looking at the absolute number of gun murders in the South region for the year 2010, we can see that Texas has the highest number of murders. But, we also know that Texas has a large population, so this doesn’t give us an accurate picture of which state is most dangerous in relation to gun violence.</p>
+<p>To better get an idea of which states in the South region are most dangerous, we need to look at rates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculating murder rate (total murders per 100,000 population)</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>murders_data_south<span class="sc">$</span>rate <span class="ot">&lt;-</span> (murders_data_south<span class="sc">$</span>total <span class="sc">/</span> murders_data_south<span class="sc">$</span>population) <span class="sc">*</span> <span class="dv">100000</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating a bar plot of murder rates in the South by state, 2010</span></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>plot_8 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(murders_data_south, <span class="fu">aes</span>(<span class="at">x =</span> state, <span class="at">y =</span> rate)) <span class="sc">+</span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"purple"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Murder Rates in Southern States, 2010"</span>,</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"State"</span>,</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Murder Rate per 100,000 Population"</span>) <span class="sc">+</span></span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a><span class="co">#Displaying</span></span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(plot_8)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Saving as a figure</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>figure_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"figures"</span>,<span class="st">"murders_rates_south.png"</span>)</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> figure_file, <span class="at">plot=</span>plot_8)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Saving 7 x 5 in image</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co">#To refresh my memory on how to plot in R, I asked ChatGPT the following: if the data.frame is murders_data_south, and the variables are total and population and state, how do I plot murder rates in R? And if the data.frame is murders_data_south, and the variables are total, population, rate, and state, how do I plot murder rates in R?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>When we look at murder rates per 100,000 people, we see that Texas is <em>not</em> the most dangerous state. In fact, the most dangerous state is not even a state at all! It is the District of Columbia, which is technically a district. It doesn’t have representation in Congress (senators or representatives) even though its <a href="https://www.history.com/news/washington-dc-statehood-reconstruction">population</a> is larger than both Wyoming and Vermont, which have two senators and one representative each.</p>
+<p>To better understand the south within a national picture, let’s compare rates by region.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculating murder rate (total murders per 100,000 population)</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>murders<span class="sc">$</span>rate <span class="ot">&lt;-</span> (murders<span class="sc">$</span>total <span class="sc">/</span> murders<span class="sc">$</span>population) <span class="sc">*</span> <span class="dv">100000</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Aggregating the data to get the mean murder rate for each region, 2010</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>region_summary <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(rate <span class="sc">~</span> region, <span class="at">data =</span> murders, <span class="at">FUN =</span> mean)</span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating a bar plot of murder rates by region, 2010</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>plot_9 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(region_summary, <span class="fu">aes</span>(<span class="at">x =</span> region, <span class="at">y =</span> rate)) <span class="sc">+</span></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Mean Murder Rates by Region, 2010"</span>,</span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Region"</span>,</span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Mean Murder Rate per 100,000 Population"</span>) <span class="sc">+</span></span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a><span class="co">#Displaying</span></span>
+<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(plot_9)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Saving as a figure</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>figure_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"figures"</span>,<span class="st">"murders_rates_region.png"</span>)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">filename =</span> figure_file, <span class="at">plot=</span>plot_9)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Saving 7 x 5 in image</code></pre>
+</div>
+</div>
+<p>Zooming out, we can see that the out of the four regions represented in this dataset, the south has the highest murder rate per 100,000. <a href="https://www.nytimes.com/1998/07/26/weekinreview/ideas-trends-southern-curse-why-america-s-murder-rate-is-so-high.html">Historians</a> have debated why the south has higher murder rates for decades, with emphasis on <a href="https://www.csmonitor.com/USA/Society/2023/0602/Untangling-the-roots-of-violence-What-can-we-learn-from-the-South">the legacies of slavery</a> and subsequent rural violence and racial animosity.</p>
+<p>Now, let’s explore some possible correlations to further understand our data. First, I will perform a simple linear regression model with rate as the dependent (outcome) variable and region as the independent (predictor) variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Simple model fits_1 for rate based on region</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Making 'South' as the reference level</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>murders<span class="sc">$</span>region <span class="ot">&lt;-</span> <span class="fu">relevel</span>(murders<span class="sc">$</span>region, <span class="at">ref =</span> <span class="st">"South"</span>)</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Here, I had to use ChatGPT to understand how to make South the reference level.</span></span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a><span class="co">#Fitting linear regression model for murder rate and region</span></span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a>fit_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(rate <span class="sc">~</span> region, <span class="at">data =</span> murders)</span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a><span class="co">#Printing summary of the regression model</span></span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = rate ~ region, data = murders)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.9599 -1.2076 -0.4764  0.7392 12.0357 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           4.4170     0.5392   8.192 1.32e-10 ***
+regionNortheast      -2.5695     0.9165  -2.804  0.00732 ** 
+regionNorth Central  -2.2350     0.8382  -2.666  0.01048 *  
+regionWest           -2.5836     0.8191  -3.154  0.00280 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.223 on 47 degrees of freedom
+Multiple R-squared:  0.2298,    Adjusted R-squared:  0.1807 
+F-statistic: 4.675 on 3 and 47 DF,  p-value: 0.006131</code></pre>
+</div>
+</div>
+<p>Here, we see that the p-values for all regions are statistically significant, which suggests that being in the south region has an effect on gun murder rates. From our estimates, we can also see that Northeast, North Central, and West regions have lower gun murder rates than our intercept (South region).</p>
+
+
 </section>
 
 </main> <!-- /main -->
