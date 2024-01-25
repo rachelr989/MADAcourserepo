@@ -198,4 +198,139 @@ lmtable_lifevpop <- broom::tidy(lmfit_lifevpop)
 print(lmtable_lifevpop)
 >There is a slight negative trend in life expectancy and log(population), however this is NOT statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000.
 
+This section contributed by **Cassia Roth**
+
+First, I will load all of the necessary packages to run the data analysis.
+```{r}
+#Loading packages
+library(dslabs)
+library(dplyr)
+library(ggplot2)
+library(here)
+library(renv)
+```
+Next, I will explore the murders dataset from `dslabs`. This dataset contains information about the number of gun murders in each state in the United States in 2010, as well as the population and region of each state. Gun murder data were collected from FBI reports. You can see more about the dataset at [dslabs](https://cran.r-project.org/web/packages/dslabs/dslabs.pdf).
+```{r}
+#Looking at help file for murders data
+help(murders)
+
+#Getting overview of data structure
+str(murders)
+
+#Getting summary of data
+summary(murders)
+
+#Determining type of object
+class(murders)
+```
+The dataset includes 51 observations of six variables (state, abb, region, population, total, rate) for the year 2010 only.
+
+I will now assign the murders dataset to a new variable called `murders_data_south` in which I explore murder rates in the south region, since that is where we are currently based.
+```{r}
+#Assigning murders dataset to new variable `murders_data_south`
+murders_data_south <- murders %>% 
+  filter(region == "South")
+
+#Getting overview of data structure for `murders_data_south`
+str(murders_data_south)
+
+#Getting summary of `murders_data_south`
+summary(murders_data_south)
+
+#Getting unique entries for the variable 'state'
+unique_states <- unique(murders_data_south$state)
+
+# Print the unique entries
+print(unique_states)
+
+#In this chunk, I asked ChatGPT how to get a list of the unique character entries for the variable state.
+```
+The dataset includes 17 states in the South region, listed above.
+
+Now, let's begin to look at the data. 
+```{r}
+#Plotting
+
+#Creating a bar plot of murders in absolute numbers in the South by state, 2010
+plot_7 <- ggplot(murders_data_south, aes(x = state, y = total)) +
+  geom_bar(stat = "identity", fill = "purple", color = "black") +
+  labs(title = "Murders in Absolute Numbers by State, South 2010",
+       x = "State",
+       y = "Total") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#Displaying
+print(plot_7)
+
+#Saving as a figure
+figure_file = here("coding-exercise","results", "figures","murders_pop.png")
+ggsave(filename = figure_file, plot=plot_7)
+```
+When looking at the absolute number of gun murders in the South region for the year 2010, we can see that Texas has the highest number of murders. But, we also know that Texas has a large population, so this doesn't give us an accurate picture of which state is most dangerous in relation to gun violence.
+
+To better get an idea of which states in the South region are most dangerous, we need to look at rates.
+```{r}
+# Calculating murder rate (total murders per 100,000 population)
+murders_data_south$rate <- (murders_data_south$total / murders_data_south$population) * 100000
+
+#Creating a bar plot of murder rates in the South by state, 2010
+plot_8 <- ggplot(murders_data_south, aes(x = state, y = rate)) +
+  geom_bar(stat = "identity", fill = "purple", color = "black") +
+  labs(title = "Murder Rates in Southern States, 2010",
+       x = "State",
+       y = "Murder Rate per 100,000 Population") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#Displaying
+print(plot_8)
+
+#Saving as a figure
+figure_file = here("coding-exercise","results", "figures","murders_rates_south.png")
+ggsave(filename = figure_file, plot=plot_8)
+
+#To refresh my memory on how to plot in R, I asked ChatGPT the following: if the data.frame is murders_data_south, and the variables are total and population and state, how do I plot murder rates in R? And if the data.frame is murders_data_south, and the variables are total, population, rate, and state, how do I plot murder rates in R?
+```
+When we look at murder rates per 100,000 people, we see that Texas is _not_ the most dangerous state. In fact, the most dangerous state is not even a state at all! It is the District of Columbia, which is technically a district. It doesn't have representation in Congress (senators or representatives) even though its [population](https://www.history.com/news/washington-dc-statehood-reconstruction) is larger than both Wyoming and Vermont, which have two senators and one representative each.
+
+To better understand the south within a national picture, let's compare rates by region.
+```{r}
+# Calculating murder rate (total murders per 100,000 population)
+murders$rate <- (murders$total / murders$population) * 100000
+
+#Aggregating the data to get the mean murder rate for each region, 2010
+region_summary <- aggregate(rate ~ region, data = murders, FUN = mean)
+
+#Creating a bar plot of murder rates by region, 2010
+plot_9 <- ggplot(region_summary, aes(x = region, y = rate)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Mean Murder Rates by Region, 2010",
+       x = "Region",
+       y = "Mean Murder Rate per 100,000 Population") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#Displaying
+print(plot_9)
+
+#Saving as a figure
+figure_file = here("coding-exercise","results", "figures","murders_rates_region.png")
+ggsave(filename = figure_file, plot=plot_9)
+```
+Zooming out, we can see that the out of the four regions represented in this dataset, the south has the highest murder rate per 100,000. [Historians](https://www.nytimes.com/1998/07/26/weekinreview/ideas-trends-southern-curse-why-america-s-murder-rate-is-so-high.html) have debated why the south has higher murder rates for decades, with emphasis on [the legacies of slavery](https://www.csmonitor.com/USA/Society/2023/0602/Untangling-the-roots-of-violence-What-can-we-learn-from-the-South) and subsequent rural violence and racial animosity.
+
+Now, let's explore some possible correlations to further understand our data. First, I will perform a simple linear regression model with rate as the dependent (outcome) variable and region as the independent (predictor) variable.
+```{r} 
+#Simple model fits_1 for rate based on region
+
+#Making 'South' as the reference level
+murders$region <- relevel(murders$region, ref = "South")
+
+#Here, I had to use ChatGPT to understand how to make South the reference level.
+
+#Fitting linear regression model for murder rate and region
+fit_1 <- lm(rate ~ region, data = murders)
+
+#Printing summary of the regression model
+summary(fit_1)
+```
+Here, we see that the p-values for all regions are statistically significant, which suggests that being in the south region has an effect on gun murder rates. From our estimates, we can also see that Northeast, North Central, and West regions have lower gun murder rates than our intercept (South region).
 
