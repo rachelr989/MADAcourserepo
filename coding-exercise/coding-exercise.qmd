@@ -198,7 +198,7 @@ lmtable_lifevpop <- broom::tidy(lmfit_lifevpop)
 print(lmtable_lifevpop)
 >There is a slight negative trend in life expectancy and log(population), however this is NOT statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000.
 
-This section contributed by **Cassia Roth**
+##This section contributed by **Cassia Roth**
 
 First, I will load all of the necessary packages to run the data analysis.
 ```{r}
