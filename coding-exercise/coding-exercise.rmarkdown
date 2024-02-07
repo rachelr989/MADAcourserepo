@@ -5,18 +5,22 @@ date: "1/23/24"
 output: html_document
 ---
 
+
 # Coding Excercise
 Today I will practice coding by working with the gapminder data from the dslabs package. First I will load the packages that I need by using the library() function.
 
 ## Setting up the packages
+
 ```{r}
 library(dslabs)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
 ```
+
 # Data Exploration
 ## Exploring gapminder dataframe
+
 ```{r}
 help(gapminder) ## Viewing help file from gapminder 
 str(gapminder) ## Viewing the structure of gapminder
@@ -24,8 +28,10 @@ summary(gapminder) ## Viewing the data summary statistics of gapminder data
 class(gapminder) ## Determining the type of object gapminder is
 ```
 
+
 # Data Processing
 ## Assign african countries to a variable called africa data
+
 ```{r}
 
 africadata <- gapminder %>%
@@ -34,9 +40,11 @@ africadata <- gapminder %>%
 
 summary(africadata)
 ```
+
 The number of values is correct in the Summary data, so I will continue to creating new objects
 
 ## Creating object containing infant_mortality and life_expectancy under d2
+
 ```{r}
 d2 <- africadata %>%
   select(life_expectancy, infant_mortality) ##I create an object from africadata that only includes the life expectancy and infant mortality from that object.
@@ -44,7 +52,9 @@ d2 <- africadata %>%
 summary(d2) ##I check to make sure that the object includes the two variables life expectancy and infant mortality only
 ```
 
+
 ## Creating object containing population and life_expectancy under d3
+
 ```{r}
 d3 <- africadata %>%
   select(life_expectancy, population) ##I make a new object from africadata that only includes the life expectancy and population variables
@@ -53,8 +63,10 @@ summary(d3) ##I check to confirm that the columns are correct
 ```
 
 
+
 # Plots
 ## Plot life expectancy as a funciton of infant mortality
+
 
 ```{r}
 lifevim_plot <- ggplot(d2, aes(x = infant_mortality, y = life_expectancy)) +
@@ -67,7 +79,9 @@ lifevim_plot <- ggplot(d2, aes(x = infant_mortality, y = life_expectancy)) +
 ```
 
 
+
 ## Plot life expectancy as a function of populaiton size using ggplot2
+
 ```{r}
 lifevpop_plot <- ggplot(d3, aes(x = log(population), y = life_expectancy)) +
   geom_point() +
@@ -78,8 +92,10 @@ lifevpop_plot <- ggplot(d3, aes(x = log(population), y = life_expectancy)) +
   print(lifevpop_plot) ## I print this plot
 ```
 
+
 ## Looking at differences in life_expectancy versus infant_mortality by other variables
 I begin by looking at differences in infant_morality and life_expectancy by country using the same plot, but with color.
+
 ```{r}
 lifevim_plot2 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectancy, color = country)) +
   geom_point() +
@@ -90,7 +106,9 @@ lifevim_plot2 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectanc
   print(lifevim_plot2) ## I print the plot to check it
 ```
 
+
 I observe differences in the rate depending on the country. Next, I will check to made sure the differences are not due to regional trends.
+
 ```{r}
 lifevim_plot3 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectancy, color = region)) +
   geom_point() +
@@ -101,7 +119,9 @@ lifevim_plot3 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectanc
   print(lifevim_plot3)
 ```
 
+
 There are multiple streaks of the same color, but on different linear planes. It seems that country is the determinant of infant mortality and life expectancy, so I do a faceted plot to show eahc individual country and confirm this.
+
 
 ```{r}
 lifevim_plot4 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectancy)) +
@@ -112,9 +132,11 @@ lifevim_plot4 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectanc
        y = "Life Expectancy") ## ChatGPT offered the facet_wrap function which separately plots the country variable by value
 print(lifevim_plot4)
 ```
+
 With this plot, you can see that each country has a streat that decreases over time. The explaination for the streaks in the life expectancy versus infant mortality trends is that infant mortality differs by country, which leads life expectancy to also differ by African country. The rates change over the timeframe displayed.
 
 ## Now, I will confirm that the life_expectancy and population streaks are also due to differeces in the country
+
 ```{r}
 lifevpop_plot2 <- ggplot(africadata, aes(x = log(population), y = life_expectancy, color = country)) +
   geom_point() +
@@ -125,9 +147,11 @@ lifevpop_plot2 <- ggplot(africadata, aes(x = log(population), y = life_expectanc
   print(lifevpop_plot2)
 ```
 
+
 Each country contains a different colored streak, confirming that life expectancy is positively related to population depending on each country. This is because the life expectancy differs for each country, resulting in different population sums, despite having a similar overall trend.
 
 I will now examine differences in the plot by year to see if this differs by country. I first do this with the life expectancy versus infant mortality plot
+
 ```{r}
 lifevim_plot5 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectancy, color = country)) +
   geom_point() +
@@ -140,7 +164,9 @@ lifevim_plot5 <- ggplot(africadata, aes(x = infant_mortality, y = life_expectanc
 ```
 
 
+
 With each line representing a year, it seems that the life expectancy moves upwards each year. I will now confirm that this is also the case for the life expectancy versus population.
+
 
 ```{r}
 lifevpop_plot3 <- ggplot(africadata, aes(x = log(population), y = life_expectancy, color = country)) +
@@ -153,17 +179,21 @@ lifevpop_plot3 <- ggplot(africadata, aes(x = log(population), y = life_expectanc
   print(lifevpop_plot3)
 ```
 
+
 This upwards trend is displayed by country in this plot as well, confirming that the country and year impact the life expectancy-based trends.
 
 ## Now I will use a code to find which years have missing values for infant mortality
+
 ```{r}
 missingvalues <- unique(africadata[!complete.cases(africadata$infant_mortality), "year"]) ## This shows which years in the variable are not complete cases (or are 0)
 
 print(missingvalues)
 ```
+
 It seems that many years are missing between 1960-1981 and also in 2016.
 
 ## Creating a new object for just the values with the year 2000
+
 ```{r}
 d4 <- africadata %>%
  filter(year == 2000) ## this will give me an object from africadata only including the data from 2000
@@ -172,9 +202,11 @@ d4 <- africadata %>%
  str(d4)
  summary(d4)
 ```
+
  
 # Remaking the plots with the year 2000 only
 ## Plot with life expectancy versus infant mortality
+
 ```{r}
 lifevim_plot6 <- ggplot(d4, aes(x = infant_mortality, y = life_expectancy)) +
   geom_point() +
@@ -185,9 +217,11 @@ lifevim_plot6 <- ggplot(d4, aes(x = infant_mortality, y = life_expectancy)) +
   print(lifevim_plot6)
 ```
 
+
 A negative trend is still observed between infant mortality and life expectancy int heyear 2000.
 
 ## Plot with life expectancy versus log(population)
+
 ```{r}
 lifevpop_plot4 <- ggplot(d4, aes(x = log(population), y = life_expectancy)) +
   geom_point() +
@@ -197,31 +231,37 @@ lifevpop_plot4 <- ggplot(d4, aes(x = log(population), y = life_expectancy)) +
       
   print(lifevpop_plot4)
 ```
+
 There is no trend observed between log(population) and life expectancy in this case, so we will test this using a linear model.
 
 # Linear model of previous plots to test for trends in the year 2000
 ## Model for life expectancy versus infant mortality in 2000
 I will use the lm() function to create a linear model of life expectancy as the outcome and infant mortality as the factor. 
+
 ```{r}
 lmfit_lifevim <- lm(life_expectancy ~ infant_mortality, d4) ## Linear model from life expectancy and infant mortality in the year 2000  
 lmtable_lifevim <- broom::tidy(lmfit_lifevim) ## tidyverse includes the broom function to produce a table from the linear model above
 print(lmtable_lifevim)
 ```
 
+
 The linear model table reflects the negative trend between infant mortality and life expectancy in the year 2000.
 
 ## Model for life expectancy versus log(population) in 2000
 Next, we will use the same process to create a linear model of life expectancy and log(population) in the year 2000.
+
 ```{r}
 lmfit_lifevpop <- lm(life_expectancy ~ log(population), d4)  
 lmtable_lifevpop <- broom::tidy(lmfit_lifevpop)
 print(lmtable_lifevpop)
 ```
+
 There is a slight negative trend in life expectancy and log(population), however this is **not** statistically significant, with a p-value of 0.5. Therefore no trend is observed for the year 2000.
 
 # This section contributed by **Cassia Roth**
 
 First, I will load all of the necessary packages to run the data analysis.
+
 ```{r}
 #Loading packages
 library(dslabs)
@@ -230,7 +270,9 @@ library(ggplot2)
 library(here)
 library(renv)
 ```
+
 Next, I will explore the murders dataset from `dslabs`. This dataset contains information about the number of gun murders in each state in the United States in 2010, as well as the population and region of each state. Gun murder data were collected from FBI reports. You can see more about the dataset at [dslabs](https://cran.r-project.org/web/packages/dslabs/dslabs.pdf).
+
 ```{r}
 #Looking at help file for murders data
 help(murders)
@@ -244,9 +286,11 @@ summary(murders)
 #Determining type of object
 class(murders)
 ```
+
 The dataset includes 51 observations of six variables (state, abb, region, population, total, rate) for the year 2010 only.
 
 I will now assign the murders dataset to a new variable called `murders_data_south` in which I explore murder rates in the south region, since that is where we are currently based.
+
 ```{r}
 #Assigning murders dataset to new variable `murders_data_south`
 murders_data_south <- murders %>% 
@@ -266,9 +310,11 @@ print(unique_states)
 
 #In this chunk, I asked ChatGPT how to get a list of the unique character entries for the variable state.
 ```
+
 The dataset includes 17 states in the South region, listed above.
 
 Now, let's begin to look at the data. 
+
 ```{r}
 #Plotting
 
@@ -287,9 +333,11 @@ print(plot_7)
 figure_file = here("coding-exercise","results", "figures","murders_pop.png")
 ggsave(filename = figure_file, plot=plot_7)
 ```
+
 When looking at the absolute number of gun murders in the South region for the year 2010, we can see that Texas has the highest number of murders. But, we also know that Texas has a large population, so this doesn't give us an accurate picture of which state is most dangerous in relation to gun violence.
 
 To better get an idea of which states in the South region are most dangerous, we need to look at rates.
+
 ```{r}
 # Calculating murder rate (total murders per 100,000 population)
 murders_data_south$rate <- (murders_data_south$total / murders_data_south$population) * 100000
@@ -311,9 +359,11 @@ ggsave(filename = figure_file, plot=plot_8)
 
 #To refresh my memory on how to plot in R, I asked ChatGPT the following: if the data.frame is murders_data_south, and the variables are total and population and state, how do I plot murder rates in R? And if the data.frame is murders_data_south, and the variables are total, population, rate, and state, how do I plot murder rates in R?
 ```
+
 When we look at murder rates per 100,000 people, we see that Texas is _not_ the most dangerous state. In fact, the most dangerous state is not even a state at all! It is the District of Columbia, which is technically a district. It doesn't have representation in Congress (senators or representatives) even though its [population](https://www.history.com/news/washington-dc-statehood-reconstruction) is larger than both Wyoming and Vermont, which have two senators and one representative each.
 
 To better understand the south within a national picture, let's compare rates by region.
+
 ```{r}
 # Calculating murder rate (total murders per 100,000 population)
 murders$rate <- (murders$total / murders$population) * 100000
@@ -336,9 +386,11 @@ print(plot_9)
 figure_file = here("coding-exercise","results", "figures","murders_rates_region.png")
 ggsave(filename = figure_file, plot=plot_9)
 ```
+
 Zooming out, we can see that the out of the four regions represented in this dataset, the south has the highest murder rate per 100,000. [Historians](https://www.nytimes.com/1998/07/26/weekinreview/ideas-trends-southern-curse-why-america-s-murder-rate-is-so-high.html) have debated why the south has higher murder rates for decades, with emphasis on [the legacies of slavery](https://www.csmonitor.com/USA/Society/2023/0602/Untangling-the-roots-of-violence-What-can-we-learn-from-the-South) and subsequent rural violence and racial animosity.
 
 Now, let's explore some possible correlations to further understand our data. First, I will perform a simple linear regression model with rate as the dependent (outcome) variable and region as the independent (predictor) variable.
+
 ```{r} 
 #Simple model fits_1 for rate based on region
 
@@ -353,5 +405,7 @@ fit_1 <- lm(rate ~ region, data = murders)
 #Printing summary of the regression model
 summary(fit_1)
 ```
+
 Here, we see that the p-values for all regions are statistically significant, which suggests that being in the south region has an effect on gun murder rates. From our estimates, we can also see that Northeast, North Central, and West regions have lower gun murder rates than our intercept (South region).
+
 

@@ -1,0 +1,209 @@
+---
+title: "CDC Data Exercise"
+author: "Rachel Robertson"
+date: "2/6/24"
+output: html_document
+---
+# Introduction
+## Data on Botulism in the U.S.
+This data contains suspected botulism cases in the United States dating back to the year 1899. This data is provided by the CDC Botulism Consultation Service, the Alaska Division of Public Health, and California Department of Public Health.These organizations are the only sources of non-infant botulism anti-toxin in the U.S. and they collect epidemiological and medical information from suspected botulism cases all over the U.S. This data set contains 5 columns and 2280 rows. The variables in this data set include state, year, botulism transmission type (BotType), botulism toxin type (ToxinType), and frequency count (Count). 
+
+*Link to the data set: https://data.cdc.gov/Foodborne-Waterborne-and-Related-Diseases/Botulism/66i6-hisz/about_data*
+
+## Openning the Data
+I will start by openning the libraries of the packages that I will need for data processing/cleaning and exploratory analysis.
+install.packages(readxl)
+```{r}
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(skimr)
+library(naniar)
+library(tidyverse)
+library(ggplot2)
+library(here)
+library(readr)
+library(broom)
+library(readxl)
+```
+Next, I will write code to read the csv file.
+```{r}
+list.files() #confirm that the file is in the working directory
+cdcdata <- read_csv("Botulism.csv") #read the csv file
+```
+
+Next I will look at the data structure and summary.
+```{r}
+summary(cdcdata)
+str(cdcdata)
+```
+Now I will check which unique variables are present in the BotType, ToxinType, and State Categories by using the unique function.
+```{r}
+unique_bottype <- unique(cdcdata$BotType)
+unique_toxintype <- unique(cdcdata$ToxinType)
+unique_state <- unique(cdcdata$State) #Makes a new column of unique values for an existing column
+print(unique_bottype)
+print(unique_toxintype)
+print(unique_state) #Print the unique factors to read them
+```
+It seems that there are multiple values of the factor bottype that have the same meaning. These values that should be grouped together are "AB", "Ba", "A&B", and "Ab"; "B/F" and "Bf"; "A/B/E" and "ABE".
+
+## Cleaning the Data
+First, I will rename the values of ToxinType that can be combined to a single value using mutate(). 
+```{r}
+cdcdata2 <- cdcdata %>%
+  mutate(ToxinType = case_when(
+    ToxinType %in% c("AB", "Ba", "Ab", "A&B") ~ "AB",
+    ToxinType %in% c("B/F", "Bf") ~ "BF",
+    ToxinType %in% c("ABE", "A/B/E") ~ "ABE",
+    TRUE ~ ToxinType
+  )) #I found how to mutate multiple values of one variable by using the base function of mutate and then asking ChatGPT how to combine multiple values using mutate and not just one.
+unique_toxintype2 <- unique(cdcdata2$ToxinType)
+print(unique_toxintype2) #Use unique to check that the unique values have merged into a single value, in this case it was sucessful
+```
+I will now change the character variables: State, BotType, and ToxinType into factor variables so they are simpler to analyze as levels.
+```{r}
+cdcdata2$State <- as.factor(cdcdata2$State)
+cdcdata2$ToxinType <- as.factor(cdcdata2$ToxinType)
+cdcdata2$BotType <- as.factor(cdcdata2$BotType) #Use the as.factor function to convert each of these character variables to factors that will be simpler to work with
+str(cdcdata2) #check the variable types of the data frame
+```
+
+Now I will rename the E,F column to EF for consistency.
+```{r}
+cdcdata3 <- cdcdata2 %>%
+  mutate(ToxinType = as.character(ToxinType), #first you must change the factor toxin type to a character variable
+         ToxinType = ifelse(ToxinType == "E,F", "EF", ToxinType), #Then, you convert the value "E,F" into "EF"
+         ToxinType = as.factor(ToxinType)) #convert toxin type back into a factor
+print(levels(cdcdata3$ToxinType)) #check the levels of the toxintype factor by using the print(levels()) function
+
+```
+Now I will check for missing values in all of the variables. The "Unknown" values for ToxinTupe, BotType, or State are NOT missing values because they can be analyzed as a factor level and correspond to important data of case counts. I will determine which variables have the most missing data using a nanair package function called gg_miss_var.
+```{r}
+gg_miss_var(cdcdata3)
+```
+There are over 30 missing values for state, but this is a relatively small percentage compared to the total of 2850 values, so I will delete these missing values.
+```{r}
+cdcdata4 <- cdcdata3 %>% #Create a new data frame called cdcdata4
+  drop_na(State) #Drop values of state that are NA
+skimr::skim(cdcdata4) #Check the number of rows
+```
+34 values were deleted as the number fo rows changed from 2280 to 2246. Now since all of the missing values are taken care of, we will explore to data to find outliers.
+
+## Exploratory Analysis
+I will use exploratory analysis and create figures to summarize the data distribution and to identify any outliers. 
+
+Because the outcome of interest is botulism case count (Count), I will check the normalcy and distribution of the variable count. I used ChatGPT to ask what kind of plot I can use to show me the distribution of Count. If output a code for a histogram that shows a density distribution. This shows that the data is highly right-skewed.
+```{r}
+ggplot(cdcdata4, aes(x = Count)) +
+  geom_histogram(binwidth = 10, aes(y = ..density..)) +
+  geom_density(alpha = 0.2) +
+  labs(title = "Distribution of Counts", x = "Counts", y = "Density")
+```
+I will now make a simple boxplot using ggplot to confirm the results in the density distribution given above.
+```{r}
+ggplot(cdcdata4, aes(y = Count)) + #Create a boxplot of count 
+  geom_boxplot(fill = "skyblue", color = "black") + #Fill colors are used as box is far too compressed to notice otherwise
+  labs(title = "Box Plot of Counts", y = "Counts")
+```
+Even though the plot is highly skewed, there is a single outlier that stands out, close to a count of 60. I will try and find which year and state values are associated with this maximum count and very that there was an unusual outbreak, using online literature.
+```{r}
+summary(cdcdata4$Count) 
+```
+I found the max count value to be 59, so I will identify the row of this value.
+```{r}
+max_row <- cdcdata4$Count == 59 #create a data frame just including the max value of count
+max_states <- cdcdata4$State[max_row]
+max_years <- cdcdata4$Year[max_row] #Produce data frames with the year and state corresponding to the max count
+print(max_states)
+print(max_years) #print the data frames with the corresponding years and states
+```
+Now seeing that this outlier is from 1977 Michigan, I will search for this outbreak.
+*Reference: https://pubmed.ncbi.nlm.nih.gov/707476/*
+In 1977, there was the largest botulism outbreak in American history due to a foodborne outbreak at a Mexican restaurant, from improperly canned Jalapenos. 
+This data point is important and will therefore be kept.
+
+I will now check the frequency of the factor variables
+### Year
+I will check the frequency of year using a histogram plot, similar to the distribution plot used for count.
+```{r}
+ggplot(cdcdata4, aes(x = Year)) +
+  geom_histogram(binwidth = 10, aes(y = ..density..)) +
+  geom_density(alpha = 0.2) +
+  labs(title = "Distribution of Years", x = "Year", y = "Density")
+```
+Most data has been collected in more recent years, so the data is left-skewed. 
+
+I will not plot count versus year. First I will make a total count variable that takes the sum of all state counts for a year
+```{r}
+totcount_year <- aggregate(Count ~ Year, data = cdcdata4, FUN = sum) #Use aggregate() to find the sum count for each year value
+ggplot(totcount_year, aes(x = Year, y = Count)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  geom_point() + 
+  labs(title = "Botulism Count for each Year in the U.S.", x = "Year", y = "Total Case Count")
+```
+It looks like total botulism cases have greatly increased in recent years, botulism surveillance has greatly improved, or the suspected botulism case had changed around 1970 to become more broad. Whichever is the case, the total botulism case count per state has greatly increased starting around 1970.
+### Count versus State
+First I will see the total cases per state. For this I will first aggregate the count values to get a total for each state. Next, I will make a histogram of the total case count versus state.
+```{r}
+totcount_state <- aggregate(Count ~ State, data = cdcdata4, FUN = sum) #aggregate and sum the count by the state value
+ggplot(totcount_state, aes(x = State, y = Count)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  geom_point() + 
+  labs(title = "Botulism Count for each State in the U.S.", x = "State", y = "Total Case Count")
+```
+One state has an extremely high total case count. I will identify max value by using the same method I used when identifying the max count value.
+```{r}
+summary(totcount_state) #summary stats for the total count by state data frame
+```
+I will fidn the row that this max takes place in
+```{r}
+max_row <- totcount_state$Count == 2598 #create a data frame just including the max value of count
+max_state2 <- totcount_state$State[max_row] #find the row in whcih the state with the max total count occurs
+print(max_state2) #print the data frames with the corresponding state
+```
+This extreme value takes place in California. I will now fact check this with online literature.
+*Reference 2: https://www.cdph.ca.gov/Programs/CID/DCDC/CDPH%20Document%20Library/IDBGuidanceforCALHJs-Botulism.pdf*
+According to the California DPH, CA reports the highest proportion of wound botulism cases in the U.S.(approx. 26/yr from 2016 to 2019) These are likely related to drug injection. They have also have had 24 foodborne illness cases during this time period. However, this only accounts for 180 of the 2598 reported, suspected cases.
+I am unsure about including CA in the final analysis for this reason, as the cases may be due to unequal distribution of botulism outbreaks rather than a reporting bias, but it is unknown which one.
+
+I will now investigate the aggregate values of state and year counts.
+```{r}
+totcount_stateandyear <- aggregate(Count ~ Year + State, data = cdcdata4, FUN = sum) # Use aggregate to calculate the sum of counts for each state and year
+ggplot(totcount_stateandyear, aes(x = State, y = Count, color = Year)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  geom_point() + 
+  labs(title = "Botulism Count for each State in the U.S.", x = "State", y = "Total Case Count")
+```
+Based on the colors of the scatter plot, California has began reporting the largest total case counts of botulism in more recent years, which suggests a change in case definition or reporting bias.
+### BotType
+Next, I will examine the total number of cases for each Botulism Type. I will start by aggregating the total count for each type of outbreak. Then I will make a bar plot showing each category.
+```{r}
+totcount_type <- aggregate(Count ~ BotType, data = cdcdata4, FUN = sum) #Aggregate the count sum by the type of botulism
+ggplot(totcount_type, aes(x = BotType, y = Count)) +
+  geom_bar(stat = "identity") + 
+  labs(title = "Distribution of Botulism Type", x = "Type of Botulism Outbreak", y = "Total Count") #Make a bar plot with each differing identity of bot type listed on the x axis
+```
+Infant botulism seems to be the most common, followed by foodborne and then wound botulism.
+### Count versus ToxinType
+Lastly, I will examine the total number of cases for each Toxin Type. This analysis will be done in a similar way as botulism type. The total count will be aggregated for each toxin type and then  
+```{r}
+totcount_toxin <- aggregate(Count ~ ToxinType, data = cdcdata4, FUN = sum) #Aggregate the count sum by the type of toxin
+ggplot(totcount_toxin, aes(x = ToxinType, y = Count)) +
+  geom_bar(stat = "identity") + #Make a bar plot with each differing identity of bot type listed on the x axis
+  labs(title = "Distribution of Toxin Type", x = "Type of Toxin", y = "Total Count")
+```
+It seems that the toxin type A is responsible for the highest case count, followed by B and E. The toxin type is unknown for a significant chunk of cases.
+The toxin type corresponds to the strain of bacteria that produced the outbreak. This may have some correlation with the type of botulism outbreak. To test BotType and ToxinType correlation, I will use a logistic regression model with these two variables.
+```{r}
+botvtoxin <- glm(BotType ~ ToxinType, data = cdcdata4, family = binomial) #use glm() to produce a logistic regression witht he bottype versus the toxintype variables; regression is binomial
+summary(botvtoxin) #ptint the results table
+```
+It seems that toxin types A, B, E, and unknown are associated with the type of outbreak. Assuming that foodborne illness is the greatest contributor to case counts, this might mean there is an association between toxins A, B, E, and unknown with foodborne botulism outbreaks.
+
+This was not confirmed by myself, but current literature suggests that foodborne botulism illness is associated with botulin toxin types A, B, and E. This aligns with my hypothesis.
+*Refrence 3: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2094941/#:~:text=Botulism%20is%20a%20neuroparalytic%20illness,A%2C%20B%20or%20E).*
+
+### Summary Stats
+The summary statistics of the final data set is shown here.The values for California have not been removed, due to significant they might hold. However, note that California has the highest case counts of any U.S. state.
+```{r}
+summary(cdcdata4)
+skim(cdcdata4)
+```
