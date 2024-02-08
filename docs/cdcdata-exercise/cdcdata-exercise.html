@@ -634,7 +634,10 @@ dbl (2): Year, Count
 </div>
 </div>
 <p>Now seeing that this outlier is from 1977 Michigan, I will search for this outbreak. <em>Reference: https://pubmed.ncbi.nlm.nih.gov/707476/</em> In 1977, there was the largest botulism outbreak in American history due to a foodborne outbreak at a Mexican restaurant, from improperly canned Jalapenos. This data point is important and will therefore be kept.</p>
-<p>I will now check the frequency of the factor variables ### Year I will check the frequency of year using a histogram plot, similar to the distribution plot used for count.</p>
+<p>I will now check the frequency of the factor variables</p>
+<section id="year" class="level3">
+<h3 class="anchored" data-anchor-id="year">Year</h3>
+<p>I will check the frequency of year using a histogram plot, similar to the distribution plot used for count.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cdcdata4, <span class="fu">aes</span>(<span class="at">x =</span> Year)) <span class="sc">+</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">10</span>, <span class="fu">aes</span>(<span class="at">y =</span> ..density..)) <span class="sc">+</span></span>
@@ -663,12 +666,17 @@ dbl (2): Year, Count
 </div>
 </div>
 </div>
-<p>It looks like total botulism cases have greatly increased in recent years, botulism surveillance has greatly improved, or the suspected botulism case had changed around 1970 to become more broad. Whichever is the case, the total botulism case count per state has greatly increased starting around 1970. ### Count versus State First I will see the total cases per state. For this I will first aggregate the count values to get a total for each state. Next, I will make a histogram of the total case count versus state.</p>
+<p>It looks like total botulism cases have greatly increased in recent years, botulism surveillance has greatly improved, or the suspected botulism case had changed around 1970 to become more broad. Whichever is the case, the total botulism case count per state has greatly increased starting around 1970.</p>
+</section>
+<section id="count-versus-state" class="level3">
+<h3 class="anchored" data-anchor-id="count-versus-state">Count versus State</h3>
+<p>First I will see the total cases per state. For this I will first aggregate the count values to get a total for each state. Next, I will make a histogram of the total case count versus state.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>totcount_state <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> State, <span class="at">data =</span> cdcdata4, <span class="at">FUN =</span> sum) <span class="co">#aggregate and sum the count by the state value</span></span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_state, <span class="fu">aes</span>(<span class="at">x =</span> State, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="co">#use geom_point() to create a scatterplot for the total year count data frame that was created</span></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Botulism Count for each State in the U.S."</span>, <span class="at">x =</span> <span class="st">"State"</span>, <span class="at">y =</span> <span class="st">"Total Case Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span> <span class="co">#Rotate x axis labels</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Botulism Count for each State in the U.S."</span>, <span class="at">x =</span> <span class="st">"State"</span>, <span class="at">y =</span> <span class="st">"Total Case Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -691,7 +699,7 @@ dbl (2): Year, Count
  (Other)   :44                    </code></pre>
 </div>
 </div>
-<p>I will fidn the row that this max takes place in</p>
+<p>I will find the row that this max takes place in.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>max_row <span class="ot">&lt;-</span> totcount_state<span class="sc">$</span>Count <span class="sc">==</span> <span class="dv">2598</span> <span class="co">#create a data frame just including the max value of count</span></span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>max_state2 <span class="ot">&lt;-</span> totcount_state<span class="sc">$</span>State[max_row] <span class="co">#find the row in whcih the state with the max total count occurs</span></span>
@@ -701,13 +709,14 @@ dbl (2): Year, Count
 50 Levels: Alabama Alaska Arizona Arkansas California Colorado ... Wyoming</code></pre>
 </div>
 </div>
-<p>This extreme value takes place in California. I will now fact check this with online literature. <em>Reference 2: https://www.cdph.ca.gov/Programs/CID/DCDC/CDPH%20Document%20Library/IDBGuidanceforCALHJs-Botulism.pdf</em> According to the California DPH, CA reports the highest proportion of wound botulism cases in the U.S.(approx. 26/yr from 2016 to 2019) These are likely related to drug injection. They have also have had 24 foodborne illness cases during this time period. However, this only accounts for 180 of the 2598 reported, suspected cases. I am unsure about including CA in the final analysis for this reason, as the cases may be due to unequal distribution of botulism outbreaks rather than a reporting bias, but it is unknown which one.</p>
+<p>This extreme value takes place in California. I will now fact check this with online literature. <em>Reference 2: https://www.cdph.ca.gov/Programs/CID/DCDC/CDPH%20Document%20Library/IDBGuidanceforCALHJs-Botulism.pdf</em> According to the California DPH, CA reports the highest proportion of wound botulism cases in the U.S.(approx. 26/yr from 2016 to 2019) These are likely related to drug injection. They have also have had 24 foodborne illness cases during this time period. However, this only accounts for 180 of the 2598 reported, suspected cases. I am unsure about including CA in the final analysis for this reason, as the cases may be due to unequal distribution of botulism outbreaks rather than a reporting bias, but it is unknown which one. To decide whether to exclude CA I will explore the distribution of count values based on the year and state.</p>
 <p>I will now investigate the aggregate values of state and year counts.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>totcount_stateandyear <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> Year <span class="sc">+</span> State, <span class="at">data =</span> cdcdata4, <span class="at">FUN =</span> sum) <span class="co"># Use aggregate to calculate the sum of counts for each state and year</span></span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_stateandyear, <span class="fu">aes</span>(<span class="at">x =</span> State, <span class="at">y =</span> Count, <span class="at">color =</span> Year)) <span class="sc">+</span> <span class="co">#use geom_point() to create a scatterplot for the total year count data frame that was created</span></span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Botulism Count for each State in the U.S."</span>, <span class="at">x =</span> <span class="st">"State"</span>, <span class="at">y =</span> <span class="st">"Total Case Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span> <span class="co">#Rotate x axis labels</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Botulism Count for each State in the U.S."</span>, <span class="at">x =</span> <span class="st">"State"</span>, <span class="at">y =</span> <span class="st">"Total Case Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -716,107 +725,163 @@ dbl (2): Year, Count
 </div>
 </div>
 </div>
-<p>Based on the colors of the scatter plot, California has began reporting the largest total case counts of botulism in more recent years, which suggests a change in case definition or reporting bias. ### BotType Next, I will examine the total number of cases for each Botulism Type. I will start by aggregating the total count for each type of outbreak. Then I will make a bar plot showing each category.</p>
+<p>Based on the colors of the scatter plot, California has began reporting the largest total case counts of botulism in more recent years, which suggests a change in case definition or reporting bias.</p>
+<p>Because of this, I will go back to processing the data. First I will identify if there are duplicate rows in the data</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>totcount_type <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> BotType, <span class="at">data =</span> cdcdata4, <span class="at">FUN =</span> sum) <span class="co">#Aggregate the count sum by the type of botulism</span></span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_type, <span class="fu">aes</span>(<span class="at">x =</span> BotType, <span class="at">y =</span> Count)) <span class="sc">+</span></span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> </span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Botulism Type"</span>, <span class="at">x =</span> <span class="st">"Type of Botulism Outbreak"</span>, <span class="at">y =</span> <span class="st">"Total Count"</span>) <span class="co">#Make a bar plot with each differing identity of bot type listed on the x axis</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>dupcdcdata4 <span class="ot">&lt;-</span> cdcdata4[<span class="fu">duplicated</span>(cdcdata4),] <span class="co">#Check for duplicated data in the original dataframe and create a new dataframe with duplicates</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(dupcdcdata4) <span class="co">#Print the duplicate rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 5
+# ℹ 5 variables: State &lt;fct&gt;, Year &lt;dbl&gt;, BotType &lt;fct&gt;, ToxinType &lt;fct&gt;,
+#   Count &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Because they are zero duplicate rows, I believe that there is not duplicate data present for the California data. In this case, I will remove all of the rows with the value California.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>cdcdata5 <span class="ot">&lt;-</span> cdcdata4[cdcdata4<span class="sc">$</span>State <span class="sc">!=</span> <span class="st">"California"</span>, ] <span class="co">#remove California values from the state variable</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">levels</span>(cdcdata5<span class="sc">$</span>State)) <span class="co">#Check the remaining values</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Alabama"        "Alaska"         "Arizona"        "Arkansas"      
+ [5] "California"     "Colorado"       "Connecticut"    "Delaware"      
+ [9] "Florida"        "Georgia"        "Hawaii"         "Idaho"         
+[13] "Illinois"       "Indiana"        "Iowa"           "Kansas"        
+[17] "Kentucky"       "Louisiana"      "Maine"          "Maryland"      
+[21] "Massachusetts"  "Michigan"       "Minnesota"      "Mississippi"   
+[25] "Missouri"       "Montana"        "Nebraska"       "Nevada"        
+[29] "New Hampshire"  "New Jersey"     "New Mexico"     "New York"      
+[33] "North Carolina" "North Dakota"   "Ohio"           "Oklahoma"      
+[37] "Oregon"         "Pennsylvania"   "Rhode Island"   "South Carolina"
+[41] "South Dakota"   "Tennessee"      "Texas"          "Utah"          
+[45] "Vermont"        "Virginia"       "Washington"     "West Virginia" 
+[49] "Wisconsin"      "Wyoming"       </code></pre>
+</div>
+</div>
+<p>California is missing from the levels of the State factor, therefore the removal of the state value, “California” was successful.</p>
+<p>I will now remake the graph comparing the total count values for each state, to reassess outlier state values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>totcount_state <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> State, <span class="at">data =</span> cdcdata5, <span class="at">FUN =</span> sum) <span class="co">#aggregate and sum the count by the state value</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_state, <span class="fu">aes</span>(<span class="at">x =</span> State, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="co">#use geom_point() to create a scatterplot for the total year count data frame that was created</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span> <span class="co">#Rotate x axis labels</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Botulism Count for each State (except CA) in the U.S."</span>, <span class="at">x =</span> <span class="st">"State"</span>, <span class="at">y =</span> <span class="st">"Total Case Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="cdcdata-exercise_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="cdcdata-exercise_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Infant botulism seems to be the most common, followed by foodborne and then wound botulism. ### Count versus ToxinType Lastly, I will examine the total number of cases for each Toxin Type. This analysis will be done in a similar way as botulism type. The total count will be aggregated for each toxin type and then</p>
+<p>There are a few higher count values, such as for Oregon, but there seems to be no outstanding outliers. Because of this, we will move on.</p>
+</section>
+<section id="bottype" class="level3">
+<h3 class="anchored" data-anchor-id="bottype">BotType</h3>
+<p>Next, I will examine the total number of cases for each Botulism Type. I will start by aggregating the total count for each type of outbreak. Then I will make a bar plot showing each category.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>totcount_toxin <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> ToxinType, <span class="at">data =</span> cdcdata4, <span class="at">FUN =</span> sum) <span class="co">#Aggregate the count sum by the type of toxin</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_toxin, <span class="fu">aes</span>(<span class="at">x =</span> ToxinType, <span class="at">y =</span> Count)) <span class="sc">+</span></span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> <span class="co">#Make a bar plot with each differing identity of bot type listed on the x axis</span></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Toxin Type"</span>, <span class="at">x =</span> <span class="st">"Type of Toxin"</span>, <span class="at">y =</span> <span class="st">"Total Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>totcount_type <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> BotType, <span class="at">data =</span> cdcdata5, <span class="at">FUN =</span> sum) <span class="co">#Aggregate the count sum by the type of botulism</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_type, <span class="fu">aes</span>(<span class="at">x =</span> BotType, <span class="at">y =</span> Count)) <span class="sc">+</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Botulism Type"</span>, <span class="at">x =</span> <span class="st">"Type of Botulism Outbreak"</span>, <span class="at">y =</span> <span class="st">"Total Count"</span>) <span class="co">#Make a bar plot with each differing identity of bot type listed on the x axis</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="cdcdata-exercise_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="cdcdata-exercise_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>It seems that the toxin type A is responsible for the highest case count, followed by B and E. The toxin type is unknown for a significant chunk of cases. The toxin type corresponds to the strain of bacteria that produced the outbreak. This may have some correlation with the type of botulism outbreak. To test BotType and ToxinType correlation, I will use a logistic regression model with these two variables.</p>
+<p>Infant botulism seems slightly more frequent than foodborne botulism. Wound botulism is much less common, but has a frequency close to “other” types of botulism.</p>
+</section>
+<section id="count-versus-toxintype" class="level3">
+<h3 class="anchored" data-anchor-id="count-versus-toxintype">Count versus ToxinType</h3>
+<p>Lastly, I will examine the total number of cases for each Toxin Type. This analysis will be done in a similar way as botulism type. The total count will be aggregated for each toxin type and then</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>botvtoxin <span class="ot">&lt;-</span> <span class="fu">glm</span>(BotType <span class="sc">~</span> ToxinType, <span class="at">data =</span> cdcdata4, <span class="at">family =</span> binomial) <span class="co">#use glm() to produce a logistic regression witht he bottype versus the toxintype variables; regression is binomial</span></span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(botvtoxin) <span class="co">#ptint the results table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>totcount_toxin <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> ToxinType, <span class="at">data =</span> cdcdata5, <span class="at">FUN =</span> sum) <span class="co">#Aggregate the count sum by the type of toxin</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_toxin, <span class="fu">aes</span>(<span class="at">x =</span> ToxinType, <span class="at">y =</span> Count)) <span class="sc">+</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> <span class="co">#Make a bar plot with each differing identity of bot type listed on the x axis</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Toxin Type"</span>, <span class="at">x =</span> <span class="st">"Type of Toxin"</span>, <span class="at">y =</span> <span class="st">"Total Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It seems that the toxin type B is responsible for the highest case count, followed by A, unknown, and lastly, E. The toxin type is unknown for a significant chunk of cases in comparison to known types. The known types AB, ABE, BF, and F contribute to a very small portion of botulism cases in the U.S. compared to A, B, and E.</p>
+<p>The toxin type corresponds to the strain of bacteria that produced the outbreak. This may mean that toxin type is correlated to the botulism outbreak type. To test BotType and ToxinType correlation, I will use a logistic regression model with these two variables. I use a logistic model with the outcome being botulism outbreak type and the predictor being toxin type.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>botvtoxin <span class="ot">&lt;-</span> <span class="fu">glm</span>(BotType <span class="sc">~</span> ToxinType, <span class="at">data =</span> cdcdata5, <span class="at">family =</span> binomial) <span class="co">#use glm() to produce a logistic regression with the bottype versus the toxintype variables; regression is binomial</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(botvtoxin) <span class="co">#ptint the results table</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-glm(formula = BotType ~ ToxinType, family = binomial, data = cdcdata4)
+glm(formula = BotType ~ ToxinType, family = binomial, data = cdcdata5)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--1.9728  -0.4790   0.6073   0.9708   2.5211  
+-2.0544  -0.4265   0.5987   0.9397   2.5042  
 
 Coefficients:
                   Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)        0.50749    0.06671   7.608 2.79e-14 ***
-ToxinTypeAB        1.28427    0.76667   1.675   0.0939 .  
-ToxinTypeABE      14.05858  441.37169   0.032   0.9746    
-ToxinTypeB         1.08966    0.11674   9.334  &lt; 2e-16 ***
-ToxinTypeBF       14.05858  294.24780   0.048   0.9619    
-ToxinTypeE        -3.64298    0.59353  -6.138 8.37e-10 ***
-ToxinTypeEF       14.05858  882.74338   0.016   0.9873    
-ToxinTypeF         0.90958    0.39969   2.276   0.0229 *  
-ToxinTypeUnknown  -2.61467    0.18025 -14.506  &lt; 2e-16 ***
+(Intercept)        0.58857    0.07426   7.926 2.27e-15 ***
+ToxinTypeAB       13.97749  394.77485   0.035  0.97176    
+ToxinTypeABE      13.97749  882.74338   0.016  0.98737    
+ToxinTypeB         1.03981    0.12616   8.242  &lt; 2e-16 ***
+ToxinTypeBF       13.97749  394.77485   0.035  0.97176    
+ToxinTypeE        -3.67962    0.59498  -6.184 6.23e-10 ***
+ToxinTypeF         1.39243    0.53851   2.586  0.00972 ** 
+ToxinTypeUnknown  -2.93995    0.21826 -13.470  &lt; 2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 3023.7  on 2245  degrees of freedom
-Residual deviance: 2303.8  on 2237  degrees of freedom
-AIC: 2321.8
+    Null deviance: 2543.3  on 1902  degrees of freedom
+Residual deviance: 1881.1  on 1895  degrees of freedom
+AIC: 1897.1
 
 Number of Fisher Scoring iterations: 13</code></pre>
 </div>
 </div>
-<p>It seems that toxin types A, B, E, and unknown are associated with the type of outbreak. Assuming that foodborne illness is the greatest contributor to case counts, this might mean there is an association between toxins A, B, E, and unknown with foodborne botulism outbreaks.</p>
-<p>This was not confirmed by myself, but current literature suggests that foodborne botulism illness is associated with botulin toxin types A, B, and E. This aligns with my hypothesis. <em>Refrence 3: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2094941/#:~:text=Botulism%20is%20a%20neuroparalytic%20illness,A%2C%20B%20or%20E).</em></p>
+<p>It seems that toxin types A, B, E, and unknown are associated with the type of outbreak. Assuming that foodborne is the reference, as it is listed at the first factor level, this might mean there is an association between toxins A, B, E, and unknown with foodborne botulism outbreaks.</p>
+<p>This was not confirmed by myself, but current literature suggests that foodborne botulism illness is associated with botulin toxin types A, B, and E. <em>Refrence 3: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2094941/#:~:text=Botulism%20is%20a%20neuroparalytic%20illness,A%2C%20B%20or%20E).</em></p>
+</section>
 <section id="summary-stats" class="level3">
 <h3 class="anchored" data-anchor-id="summary-stats">Summary Stats</h3>
 <p>The summary statistics of the final data set is shown here.The values for California have not been removed, due to significant they might hold. However, note that California has the highest case counts of any U.S. state.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cdcdata4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cdcdata5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        State           Year           BotType       ToxinType  
- California: 343   Min.   :1899   Foodborne: 899   A      :958  
- Washington: 143   1st Qu.:1976   Infant   :1124   B      :778  
- Texas     : 107   Median :1992   Other    :  72   Unknown:369  
- Colorado  :  98   Mean   :1985   Wound    : 151   E      : 72  
- Oregon    :  95   3rd Qu.:2006                    F      : 41  
- Alaska    :  88   Max.   :2017                    AB     : 14  
- (Other)   :1372                                   (Other): 14  
+ Washington: 143   Min.   :1910   Foodborne: 740   A      :790  
+ Texas     : 107   1st Qu.:1977   Infant   :1028   B      :701  
+ Colorado  :  98   Median :1993   Other    :  55   Unknown:299  
+ Oregon    :  95   Mean   :1987   Wound    :  80   E      : 69  
+ Alaska    :  88   3rd Qu.:2006                    F      : 33  
+ New York  :  81   Max.   :2017                    AB     :  5  
+ (Other)   :1291                                   (Other):  6  
      Count       
  Min.   : 1.000  
  1st Qu.: 1.000  
  Median : 1.000  
- Mean   : 3.223  
+ Mean   : 2.438  
  3rd Qu.: 3.000  
  Max.   :59.000  
                  </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(cdcdata4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(cdcdata5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Name</td>
-<td style="text-align: left;">cdcdata4</td>
+<td style="text-align: left;">cdcdata5</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Number of rows</td>
-<td style="text-align: left;">2246</td>
+<td style="text-align: left;">1903</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Number of columns</td>
@@ -851,12 +916,12 @@ Number of Fisher Scoring iterations: 13</code></pre>
 <p><strong>Variable type: factor</strong></p>
 <table class="table table-sm table-striped small">
 <colgroup>
-<col style="width: 14%">
+<col style="width: 15%">
 <col style="width: 10%">
-<col style="width: 14%">
+<col style="width: 15%">
 <col style="width: 8%">
 <col style="width: 9%">
-<col style="width: 41%">
+<col style="width: 40%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -874,8 +939,8 @@ Number of Fisher Scoring iterations: 13</code></pre>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">50</td>
-<td style="text-align: left;">Cal: 343, Was: 143, Tex: 107, Col: 98</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: left;">Was: 143, Tex: 107, Col: 98, Ore: 95</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">BotType</td>
@@ -883,15 +948,15 @@ Number of Fisher Scoring iterations: 13</code></pre>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: left;">Inf: 1124, Foo: 899, Wou: 151, Oth: 72</td>
+<td style="text-align: left;">Inf: 1028, Foo: 740, Wou: 80, Oth: 55</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ToxinType</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: left;">A: 958, B: 778, Unk: 369, E: 72</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">A: 790, B: 701, Unk: 299, E: 69</td>
 </tr>
 </tbody>
 </table>
@@ -930,21 +995,21 @@ Number of Fisher Scoring iterations: 13</code></pre>
 <td style="text-align: left;">Year</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1985.50</td>
-<td style="text-align: right;">26.60</td>
-<td style="text-align: right;">1899</td>
-<td style="text-align: right;">1976</td>
-<td style="text-align: right;">1992</td>
+<td style="text-align: right;">1986.67</td>
+<td style="text-align: right;">25.54</td>
+<td style="text-align: right;">1910</td>
+<td style="text-align: right;">1977</td>
+<td style="text-align: right;">1993</td>
 <td style="text-align: right;">2006</td>
 <td style="text-align: right;">2017</td>
-<td style="text-align: left;">▁▂▂▅▇</td>
+<td style="text-align: left;">▁▂▂▆▇</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Count</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">3.22</td>
-<td style="text-align: right;">4.66</td>
+<td style="text-align: right;">2.44</td>
+<td style="text-align: right;">3.21</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">1</td>

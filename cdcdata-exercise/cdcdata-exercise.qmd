@@ -124,6 +124,7 @@ In 1977, there was the largest botulism outbreak in American history due to a fo
 This data point is important and will therefore be kept.
 
 I will now check the frequency of the factor variables
+
 ### Year
 I will check the frequency of year using a histogram plot, similar to the distribution plot used for count.
 ```{r}
@@ -142,11 +143,13 @@ ggplot(totcount_year, aes(x = Year, y = Count)) + #use geom_point() to create a 
   labs(title = "Botulism Count for each Year in the U.S.", x = "Year", y = "Total Case Count")
 ```
 It looks like total botulism cases have greatly increased in recent years, botulism surveillance has greatly improved, or the suspected botulism case had changed around 1970 to become more broad. Whichever is the case, the total botulism case count per state has greatly increased starting around 1970.
+
 ### Count versus State
 First I will see the total cases per state. For this I will first aggregate the count values to get a total for each state. Next, I will make a histogram of the total case count versus state.
 ```{r}
 totcount_state <- aggregate(Count ~ State, data = cdcdata4, FUN = sum) #aggregate and sum the count by the state value
 ggplot(totcount_state, aes(x = State, y = Count)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  theme(axis.text.x = element_text(angle = 90)) + #Rotate x axis labels
   geom_point() + 
   labs(title = "Botulism Count for each State in the U.S.", x = "State", y = "Total Case Count")
 ```
@@ -154,7 +157,7 @@ One state has an extremely high total case count. I will identify max value by u
 ```{r}
 summary(totcount_state) #summary stats for the total count by state data frame
 ```
-I will fidn the row that this max takes place in
+I will find the row that this max takes place in.
 ```{r}
 max_row <- totcount_state$Count == 2598 #create a data frame just including the max value of count
 max_state2 <- totcount_state$State[max_row] #find the row in whcih the state with the max total count occurs
@@ -163,47 +166,74 @@ print(max_state2) #print the data frames with the corresponding state
 This extreme value takes place in California. I will now fact check this with online literature.
 *Reference 2: https://www.cdph.ca.gov/Programs/CID/DCDC/CDPH%20Document%20Library/IDBGuidanceforCALHJs-Botulism.pdf*
 According to the California DPH, CA reports the highest proportion of wound botulism cases in the U.S.(approx. 26/yr from 2016 to 2019) These are likely related to drug injection. They have also have had 24 foodborne illness cases during this time period. However, this only accounts for 180 of the 2598 reported, suspected cases.
-I am unsure about including CA in the final analysis for this reason, as the cases may be due to unequal distribution of botulism outbreaks rather than a reporting bias, but it is unknown which one.
+I am unsure about including CA in the final analysis for this reason, as the cases may be due to unequal distribution of botulism outbreaks rather than a reporting bias, but it is unknown which one. To decide whether to exclude CA I will explore the distribution of count values based on the year and state.
 
 I will now investigate the aggregate values of state and year counts.
 ```{r}
 totcount_stateandyear <- aggregate(Count ~ Year + State, data = cdcdata4, FUN = sum) # Use aggregate to calculate the sum of counts for each state and year
 ggplot(totcount_stateandyear, aes(x = State, y = Count, color = Year)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  theme(axis.text.x = element_text(angle = 90)) + #Rotate x axis labels
   geom_point() + 
   labs(title = "Botulism Count for each State in the U.S.", x = "State", y = "Total Case Count")
 ```
 Based on the colors of the scatter plot, California has began reporting the largest total case counts of botulism in more recent years, which suggests a change in case definition or reporting bias.
+
+Because of this, I will go back to processing the data. First I will identify if there are duplicate rows in the data
+```{r}
+dupcdcdata4 <- cdcdata4[duplicated(cdcdata4),] #Check for duplicated data in the original dataframe and create a new dataframe with duplicates
+print(dupcdcdata4) #Print the duplicate rows
+```
+Because they are zero duplicate rows, I believe that there is not duplicate data present for the California data. In this case, I will remove all of the rows with the value California.
+```{r}
+cdcdata5 <- cdcdata4[cdcdata4$State != "California", ] #remove California values from the state variable
+print(levels(cdcdata5$State)) #Check the remaining values
+```
+California is missing from the levels of the State factor, therefore the removal of the state value, "California" was successful.
+
+I will now remake the graph comparing the total count values for each state, to reassess outlier state values.
+```{r}
+totcount_state <- aggregate(Count ~ State, data = cdcdata5, FUN = sum) #aggregate and sum the count by the state value
+ggplot(totcount_state, aes(x = State, y = Count)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  theme(axis.text.x = element_text(angle = 90)) + #Rotate x axis labels
+  geom_point() + 
+  labs(title = "Botulism Count for each State (except CA) in the U.S.", x = "State", y = "Total Case Count")
+```
+There are a few higher count values, such as for Oregon, but there seems to be no outstanding outliers. Because of this, we will move on.
+
 ### BotType
 Next, I will examine the total number of cases for each Botulism Type. I will start by aggregating the total count for each type of outbreak. Then I will make a bar plot showing each category.
 ```{r}
-totcount_type <- aggregate(Count ~ BotType, data = cdcdata4, FUN = sum) #Aggregate the count sum by the type of botulism
+totcount_type <- aggregate(Count ~ BotType, data = cdcdata5, FUN = sum) #Aggregate the count sum by the type of botulism
 ggplot(totcount_type, aes(x = BotType, y = Count)) +
   geom_bar(stat = "identity") + 
   labs(title = "Distribution of Botulism Type", x = "Type of Botulism Outbreak", y = "Total Count") #Make a bar plot with each differing identity of bot type listed on the x axis
 ```
-Infant botulism seems to be the most common, followed by foodborne and then wound botulism.
+Infant botulism seems slightly more frequent than foodborne botulism. Wound botulism is much less common, but has a frequency close to "other" types of botulism.
+
 ### Count versus ToxinType
 Lastly, I will examine the total number of cases for each Toxin Type. This analysis will be done in a similar way as botulism type. The total count will be aggregated for each toxin type and then  
 ```{r}
-totcount_toxin <- aggregate(Count ~ ToxinType, data = cdcdata4, FUN = sum) #Aggregate the count sum by the type of toxin
+totcount_toxin <- aggregate(Count ~ ToxinType, data = cdcdata5, FUN = sum) #Aggregate the count sum by the type of toxin
 ggplot(totcount_toxin, aes(x = ToxinType, y = Count)) +
   geom_bar(stat = "identity") + #Make a bar plot with each differing identity of bot type listed on the x axis
   labs(title = "Distribution of Toxin Type", x = "Type of Toxin", y = "Total Count")
 ```
-It seems that the toxin type A is responsible for the highest case count, followed by B and E. The toxin type is unknown for a significant chunk of cases.
-The toxin type corresponds to the strain of bacteria that produced the outbreak. This may have some correlation with the type of botulism outbreak. To test BotType and ToxinType correlation, I will use a logistic regression model with these two variables.
+It seems that the toxin type B is responsible for the highest case count, followed by A, unknown, and lastly, E. The toxin type is unknown for a significant chunk of cases in comparison to known types. The known types AB, ABE, BF, and F contribute to a very small portion of botulism cases in the U.S. compared to A, B, and E.
+
+The toxin type corresponds to the strain of bacteria that produced the outbreak. This may mean that toxin type is correlated to the botulism outbreak type. To test BotType and ToxinType correlation, I will use a logistic regression model with these two variables.
+I use a logistic model with the outcome being botulism outbreak type and the predictor being toxin type.
 ```{r}
-botvtoxin <- glm(BotType ~ ToxinType, data = cdcdata4, family = binomial) #use glm() to produce a logistic regression witht he bottype versus the toxintype variables; regression is binomial
+botvtoxin <- glm(BotType ~ ToxinType, data = cdcdata5, family = binomial) #use glm() to produce a logistic regression with the bottype versus the toxintype variables; regression is binomial
 summary(botvtoxin) #ptint the results table
 ```
-It seems that toxin types A, B, E, and unknown are associated with the type of outbreak. Assuming that foodborne illness is the greatest contributor to case counts, this might mean there is an association between toxins A, B, E, and unknown with foodborne botulism outbreaks.
+It seems that toxin types A, B, E, and unknown are associated with the type of outbreak. Assuming that foodborne is the reference, as it is listed at the first factor level, this might mean there is an association between toxins A, B, E, and unknown with foodborne botulism outbreaks.
 
-This was not confirmed by myself, but current literature suggests that foodborne botulism illness is associated with botulin toxin types A, B, and E. This aligns with my hypothesis.
+This was not confirmed by myself, but current literature suggests that foodborne botulism illness is associated with botulin toxin types A, B, and E.
 *Refrence 3: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2094941/#:~:text=Botulism%20is%20a%20neuroparalytic%20illness,A%2C%20B%20or%20E).*
 
 ### Summary Stats
 The summary statistics of the final data set is shown here.The values for California have not been removed, due to significant they might hold. However, note that California has the highest case counts of any U.S. state.
 ```{r}
-summary(cdcdata4)
-skim(cdcdata4)
+summary(cdcdata5)
+skim(cdcdata5)
 ```
