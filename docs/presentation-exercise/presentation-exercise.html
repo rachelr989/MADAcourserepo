@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -66,6 +100,8 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -164,9 +200,955 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Placeholder file for the future data/results presentation exercise.</p>
+<section id="recreating-a-professional-figure-and-table" class="level1">
+<h1>Recreating a Professional Figure and Table</h1>
+<section id="figure-from-fivethirtyeights-a-statistical-analysis-of-the-work-of-bob-ross" class="level2">
+<h2 class="anchored" data-anchor-id="figure-from-fivethirtyeights-a-statistical-analysis-of-the-work-of-bob-ross">Figure from FiveThirtyEight’s “A Statistical Analysis of the Work of Bob Ross”</h2>
+<section id="background" class="level3">
+<h3 class="anchored" data-anchor-id="background">Background</h3>
+<p>For this project, I will be reproducing the figure from the article “A Statistical Analysis of the Work of Bob Ross”. This is a bar graph that displays the percentage of paintings Bob Ross created that contain specific elements, such as trees, clouds, grass, mountains, etc. The 381 paintings that he produced during his show “The Joy of Painting” each contain a combination of these elements and themes. The presence of each element was quantified for each episode (or painting) by measuring the presence (1) or absence (0) of that element.</p>
+<p>The link to the source data is included here: <em>https://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/</em></p>
+<p>I began by downloading the csv file from FiveThirtyEight’s GitHub repository entitled “bob ross”. The csv file contains the data for each episode/ painting (rows) and element (columns) featured in that episode.</p>
+</section>
+<section id="setting-up" class="level3">
+<h3 class="anchored" data-anchor-id="setting-up">Setting Up</h3>
+<p>I will begin the reproduction of this figure by opening the libraries that I will need for this project.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at C:/Users/rrsta/OneDrive/Desktop/MADAcourseexercises/MADAcourserepo</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'kableExtra'
+
+The following object is masked from 'package:dplyr':
+
+    group_rows</code></pre>
+</div>
+</div>
+<p>I will now read the csv file and create a new data frame in R. Next, I will examine the structure of this data and</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bobross <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>( <span class="co"># Use readr to extract the csv to a dataframe called bobross</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">here</span>(<span class="st">"presentation-exercise/elements-by-episode.csv"</span>), <span class="co"># Use here to create a relative path in my directory</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">list</span>(<span class="at">.default =</span> <span class="fu">col_double</span>(), <span class="co"># Define all columns unspecified to be a double (1 or 0)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">EPISODE =</span> <span class="fu">col_character</span>(),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">TITLE =</span> <span class="fu">col_character</span>()<span class="co"># Define column 1 to contain a character variable (episode)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(bobross)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>spc_tbl_ [403 × 69] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+ $ EPISODE           : chr [1:403] "S01E01" "S01E02" "S01E03" "S01E04" ...
+ $ TITLE             : chr [1:403] "\"A WALK IN THE WOODS\"" "\"MT. MCKINLEY\"" "\"EBONY SUNSET\"" "\"WINTER MIST\"" ...
+ $ APPLE_FRAME       : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ AURORA_BOREALIS   : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ BARN              : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ BEACH             : num [1:403] 0 0 0 0 0 0 0 0 1 0 ...
+ $ BOAT              : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ BRIDGE            : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ BUILDING          : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ BUSHES            : num [1:403] 1 0 0 1 0 0 0 1 0 1 ...
+ $ CABIN             : num [1:403] 0 1 1 0 0 1 0 0 0 0 ...
+ $ CACTUS            : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ CIRCLE_FRAME      : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ CIRRUS            : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ CLIFF             : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ CLOUDS            : num [1:403] 0 1 0 1 0 0 0 0 1 0 ...
+ $ CONIFER           : num [1:403] 0 1 1 1 0 1 0 1 0 1 ...
+ $ CUMULUS           : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ DECIDUOUS         : num [1:403] 1 0 0 0 1 0 1 0 0 1 ...
+ $ DIANE_ANDRE       : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ DOCK              : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ DOUBLE_OVAL_FRAME : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ FARM              : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ FENCE             : num [1:403] 0 0 1 0 0 0 0 0 1 0 ...
+ $ FIRE              : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ FLORIDA_FRAME     : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ FLOWERS           : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ FOG               : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ FRAMED            : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ GRASS             : num [1:403] 1 0 0 0 0 0 0 0 0 0 ...
+ $ GUEST             : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ HALF_CIRCLE_FRAME : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ HALF_OVAL_FRAME   : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ HILLS             : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ LAKE              : num [1:403] 0 0 0 1 0 1 1 1 0 1 ...
+ $ LAKES             : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ LIGHTHOUSE        : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ MILL              : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ MOON              : num [1:403] 0 0 0 0 0 1 0 0 0 0 ...
+ $ MOUNTAIN          : num [1:403] 0 1 1 1 0 1 1 1 0 1 ...
+ $ MOUNTAINS         : num [1:403] 0 0 1 0 0 1 1 1 0 0 ...
+ $ NIGHT             : num [1:403] 0 0 0 0 0 1 0 0 0 0 ...
+ $ OCEAN             : num [1:403] 0 0 0 0 0 0 0 0 1 0 ...
+ $ OVAL_FRAME        : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ PALM_TREES        : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ PATH              : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ PERSON            : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ PORTRAIT          : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ RECTANGLE_3D_FRAME: num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ RECTANGULAR_FRAME : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ RIVER             : num [1:403] 1 0 0 0 1 0 0 0 0 0 ...
+ $ ROCKS             : num [1:403] 0 0 0 0 1 0 0 0 0 0 ...
+ $ SEASHELL_FRAME    : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ SNOW              : num [1:403] 0 1 0 0 0 1 0 0 0 0 ...
+ $ SNOWY_MOUNTAIN    : num [1:403] 0 1 0 1 0 1 1 0 0 0 ...
+ $ SPLIT_FRAME       : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ STEVE_ROSS        : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ STRUCTURE         : num [1:403] 0 0 1 0 0 1 0 0 0 0 ...
+ $ SUN               : num [1:403] 0 0 1 0 0 0 0 0 0 0 ...
+ $ TOMB_FRAME        : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ TREE              : num [1:403] 1 1 1 1 1 1 1 1 0 1 ...
+ $ TREES             : num [1:403] 1 1 1 1 1 1 1 1 0 1 ...
+ $ TRIPLE_FRAME      : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ WATERFALL         : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ WAVES             : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ WINDMILL          : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ WINDOW_FRAME      : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ $ WINTER            : num [1:403] 0 1 1 0 0 1 0 0 0 0 ...
+ $ WOOD_FRAMED       : num [1:403] 0 0 0 0 0 0 0 0 0 0 ...
+ - attr(*, "spec")=
+  .. cols(
+  ..   .default = col_double(),
+  ..   EPISODE = col_character(),
+  ..   TITLE = col_character(),
+  ..   APPLE_FRAME = col_double(),
+  ..   AURORA_BOREALIS = col_double(),
+  ..   BARN = col_double(),
+  ..   BEACH = col_double(),
+  ..   BOAT = col_double(),
+  ..   BRIDGE = col_double(),
+  ..   BUILDING = col_double(),
+  ..   BUSHES = col_double(),
+  ..   CABIN = col_double(),
+  ..   CACTUS = col_double(),
+  ..   CIRCLE_FRAME = col_double(),
+  ..   CIRRUS = col_double(),
+  ..   CLIFF = col_double(),
+  ..   CLOUDS = col_double(),
+  ..   CONIFER = col_double(),
+  ..   CUMULUS = col_double(),
+  ..   DECIDUOUS = col_double(),
+  ..   DIANE_ANDRE = col_double(),
+  ..   DOCK = col_double(),
+  ..   DOUBLE_OVAL_FRAME = col_double(),
+  ..   FARM = col_double(),
+  ..   FENCE = col_double(),
+  ..   FIRE = col_double(),
+  ..   FLORIDA_FRAME = col_double(),
+  ..   FLOWERS = col_double(),
+  ..   FOG = col_double(),
+  ..   FRAMED = col_double(),
+  ..   GRASS = col_double(),
+  ..   GUEST = col_double(),
+  ..   HALF_CIRCLE_FRAME = col_double(),
+  ..   HALF_OVAL_FRAME = col_double(),
+  ..   HILLS = col_double(),
+  ..   LAKE = col_double(),
+  ..   LAKES = col_double(),
+  ..   LIGHTHOUSE = col_double(),
+  ..   MILL = col_double(),
+  ..   MOON = col_double(),
+  ..   MOUNTAIN = col_double(),
+  ..   MOUNTAINS = col_double(),
+  ..   NIGHT = col_double(),
+  ..   OCEAN = col_double(),
+  ..   OVAL_FRAME = col_double(),
+  ..   PALM_TREES = col_double(),
+  ..   PATH = col_double(),
+  ..   PERSON = col_double(),
+  ..   PORTRAIT = col_double(),
+  ..   RECTANGLE_3D_FRAME = col_double(),
+  ..   RECTANGULAR_FRAME = col_double(),
+  ..   RIVER = col_double(),
+  ..   ROCKS = col_double(),
+  ..   SEASHELL_FRAME = col_double(),
+  ..   SNOW = col_double(),
+  ..   SNOWY_MOUNTAIN = col_double(),
+  ..   SPLIT_FRAME = col_double(),
+  ..   STEVE_ROSS = col_double(),
+  ..   STRUCTURE = col_double(),
+  ..   SUN = col_double(),
+  ..   TOMB_FRAME = col_double(),
+  ..   TREE = col_double(),
+  ..   TREES = col_double(),
+  ..   TRIPLE_FRAME = col_double(),
+  ..   WATERFALL = col_double(),
+  ..   WAVES = col_double(),
+  ..   WINDMILL = col_double(),
+  ..   WINDOW_FRAME = col_double(),
+  ..   WINTER = col_double(),
+  ..   WOOD_FRAMED = col_double()
+  .. )
+ - attr(*, "problems")=&lt;externalptr&gt; </code></pre>
+</div>
+</div>
+<p>I did troubleshooting using ChatGPT to find out how to add a different column type for the first two character columns. Normally, I would use the default option for all columns, but instead, I was told to add a line with the specific column name and type of variable that the column contains. I fixed this by adding col_types for TITLE and EPISODE. The data frame was successfully extracted into R.</p>
+</section>
+<section id="reproducing-a-bar-graph" class="level3">
+<h3 class="anchored" data-anchor-id="reproducing-a-bar-graph">Reproducing a Bar Graph</h3>
+<p>Now, I will attempt to reproduce the graph in the article by using ChatGPT and ggplot functions to make a professional-looking bar chart.</p>
+<p>Looking at the bar graph, it seems that the author renamed many of the columns to better reflect what they represent. I will infer which names correspond to which bar chart subtitles. The author only includes the top 36 of the total possible 67 elements.</p>
+<p>I began with the prompt: &gt;“I want to produce a horizontal bar chart using R ggplot. The columns include a binary value of”0” or “1”. I want to plot the frequency of “1” values for each column. I want to convert this frequency into a percentage out of 381. I want to plot only the 36 greatest percentages.”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the frequency of "1" values for each column and convert it to percentage</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>freq_br <span class="ot">&lt;-</span> bobross <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise_all</span>(<span class="sc">~</span> <span class="fu">sum</span>(. <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">381</span> <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span> <span class="co"># Convert the frequency of 1 to a percentage for eahc column</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(value)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">36</span>) <span class="co"># Choose the highest 36 frequencies</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the horizontal bar chart</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(freq_br, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(key, <span class="sc">-</span>value), <span class="at">y =</span> value)) <span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Column"</span>, <span class="at">y =</span> <span class="st">"Frequency (%)"</span>, <span class="at">title =</span> <span class="st">"Frequency of '1' Values in Each Column"</span>) <span class="sc">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>)) <span class="co"># Adjust font size of y-axis labels if needed</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This is a solid start, however, I will add prompts to reformat the graph in a way that mimics the original. To do this I used the prompt: &gt;“Make the plot descending in value. Label the percentage value at the end of each bar. Delete the axis titles. Remove the grid lines. Change the graph title to”The Paintings of Bob Ross” with the subtitle “Percentage containing each element”.”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the horizontal bar chart</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(freq_br, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(key, <span class="sc">-</span>value), <span class="at">y =</span> value, <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"%.1f%%"</span>, value))) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span>  <span class="co"># Add text labels at the end of bars</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The Paintings of Bob Ross"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Percentage containing each element"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span>  <span class="co"># Remove axis titles</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),  <span class="co"># Adjust font size of y-axis labels</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())  <span class="co"># Remove grid lines</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Because it did not make the plot descending, I will ask ChatGPT to flip the plot along the x-axis. I will also ask it to remove the y-axis labels. &gt;“Flip the plot to make the largest percentage value at the top. Remove the % sign, except for the highest percentage value. Remove the frequency labels on the axis. Change the color to blue.”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the horizontal bar chart</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(freq_br, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(key, value), <span class="at">y =</span> value, <span class="at">label =</span> <span class="fu">ifelse</span>(<span class="fu">rank</span>(<span class="fu">desc</span>(value)) <span class="sc">==</span> <span class="dv">1</span>, <span class="fu">paste0</span>(<span class="fu">round</span>(value), <span class="st">"%"</span>), <span class="fu">round</span>(value)))) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span>  <span class="co"># Add text labels at the end of bars</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The Paintings of Bob Ross"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Percentage containing each element"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span>  <span class="co"># Remove axis titles</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>(),  <span class="co"># Remove y-axis labels</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(),  <span class="co"># Remove y-axis ticks</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())  <span class="co"># Remove grid lines</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>I now want to change the y-axis names to coordinate with the names used in the paper. I also uploaded the original figure into the AI font finder, called WhatTheFont, to identify the font used. It was called “Elastik Regular D”.</p>
+<p>I started with the prompt: &gt;“Change the font to”Elastik Regular D”. How do I change the y-axis subtitles to custom titles?”</p>
+<p>This was not what I wanted, as I wanted to change the name of the column labels on the plot. Instead I used this prompt: &gt;“Remove this y-axis title. I want to change the column names used to label each frequency bar”</p>
+<p>This resulted in the same problem as before, so I asked ChatGPT “How do I rename the values in the ‘Key’ column?” and it suggested to use the mutate() function from the dpylr package. I change the names for each key item below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>freq_br <span class="ot">&lt;-</span> freq_br <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">key =</span> <span class="fu">case_when</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    key <span class="sc">==</span> <span class="st">"TREE"</span> <span class="sc">~</span> <span class="st">"At least one tree"</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"TREES"</span> <span class="sc">~</span> <span class="st">"At least two trees"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"DECIDUOUS"</span> <span class="sc">~</span> <span class="st">"Deciduous tree"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"CONIFER"</span> <span class="sc">~</span> <span class="st">"Coniferous tree"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"CLOUDS"</span> <span class="sc">~</span> <span class="st">"Clouds"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"MOUNTAIN"</span> <span class="sc">~</span> <span class="st">"At least one mountain"</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"LAKE"</span> <span class="sc">~</span> <span class="st">"Lake"</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"GRASS"</span> <span class="sc">~</span> <span class="st">"Grass"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"RIVER"</span> <span class="sc">~</span> <span class="st">"River or stream"</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"BUSHES"</span> <span class="sc">~</span> <span class="st">"Bushes"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"SNOWY_MOUNTAIN"</span> <span class="sc">~</span> <span class="st">"Snow-covered mountain"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"MOUNTAINS"</span> <span class="sc">~</span> <span class="st">"At least two mountains"</span>,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"CUMULUS"</span> <span class="sc">~</span> <span class="st">"Cumulus cloud"</span>,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"STRUCTURE"</span> <span class="sc">~</span> <span class="st">"Man-made structure"</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"ROCKS"</span> <span class="sc">~</span> <span class="st">"Rocks"</span>,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"SNOW"</span> <span class="sc">~</span> <span class="st">"Snow"</span>,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"WINTER"</span> <span class="sc">~</span> <span class="st">"Winter"</span>,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"CABIN"</span> <span class="sc">~</span> <span class="st">"Cabin"</span>,</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"FRAMED"</span> <span class="sc">~</span> <span class="st">"Frame"</span>,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"PATH"</span> <span class="sc">~</span> <span class="st">"Path"</span>,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"SUN"</span> <span class="sc">~</span> <span class="st">"Sun"</span>,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"WATERFALL"</span> <span class="sc">~</span> <span class="st">"Waterfall"</span>,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"OVAL_FRAME"</span> <span class="sc">~</span> <span class="st">"Oval frame"</span>,</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"OCEAN"</span> <span class="sc">~</span> <span class="st">"Ocean"</span>,</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"WAVES"</span> <span class="sc">~</span> <span class="st">"Waves"</span>,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"CIRRUS"</span> <span class="sc">~</span> <span class="st">"Cirrus cloud"</span>,</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"BEACH"</span> <span class="sc">~</span> <span class="st">"Beach"</span>,</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"FENCE"</span> <span class="sc">~</span> <span class="st">"Fence"</span>,</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"FOG"</span> <span class="sc">~</span> <span class="st">"Fog"</span>,</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"GUEST"</span> <span class="sc">~</span> <span class="st">"Guest"</span>,</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"HILLS"</span> <span class="sc">~</span> <span class="st">"Hills"</span>,</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"BARN"</span> <span class="sc">~</span> <span class="st">"Barn"</span>,</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"FLOWERS"</span> <span class="sc">~</span> <span class="st">"Flowers"</span>,</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"STEVE_ROSS"</span> <span class="sc">~</span> <span class="st">"Steve Ross"</span>,</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"NIGHT"</span> <span class="sc">~</span> <span class="st">"Nighttime"</span>,</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>key <span class="sc">==</span> <span class="st">"PALM_TREES"</span> <span class="sc">~</span> <span class="st">"Palm tree"</span>,</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> key  <span class="co"># Keep other values unchanged</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I also noticed that the font called “Elastik Regular D” was not available, so I asked ChatGOT for similar fonts, to which it gave me “Roboto”, amongst others. To use this fotn I had to install the open source font document onto my laptop.</p>
+<p>When I subsituted the font “Roboto Regular”, I continued to recieve an error message. Because of this, I sent ChatGPT the error message. I recieved this output. I will refrain from including this code, as it relies on a local path to find the font, rather than the repository. You may change the code after paths to fit your local device.</p>
+<blockquote class="blockquote">
+<p>#Install and load the extrafont package library(extrafont) #Specify the exact font file path for Roboto Regular font_import(paths = “C:/Windows/Fonts”, prompt = FALSE) #Load the Roboto Regular font family loadfonts(device = “win”)</p>
+</blockquote>
+<p>The installation of Roboto Regular into R was not successful, so I will use a similar font that I found in my font database called “Segoe UI”.</p>
+<p>The final code for producing the plot is shown below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the horizontal bar chart</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(freq_br, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(key, value), <span class="at">y =</span> value, <span class="at">label =</span> <span class="fu">ifelse</span>(<span class="fu">rank</span>(<span class="fu">desc</span>(value)) <span class="sc">==</span> <span class="dv">1</span>, <span class="fu">paste0</span>(<span class="fu">round</span>(value), <span class="st">"%"</span>), <span class="fu">round</span>(value)))) <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>) <span class="sc">+</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span>  <span class="co"># Add text labels at the end of bars</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The Paintings of Bob Ross"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Percentage containing each element"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span>  <span class="co"># Remove axis titles</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>(),  <span class="co"># Remove y-axis labels</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(),  <span class="co"># Remove y-axis ticks</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),  <span class="co"># Remove grid lines</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">"Segoe UI"</span>))  <span class="co"># Change font to Snow</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+not found in Windows font database
+
+Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+not found in Windows font database
+
+Warning in grid.Call(C_stringMetric, as.graphicsAnnot(x$label)): font family
+not found in Windows font database</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database
+
+Warning in grid.Call(C_textBounds, as.graphicsAnnot(x$label), x$x, x$y, : font
+family not found in Windows font database</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In the final product, I changed the color back to “skyblue” as this color is more appealing. The format of the box plot is similar to the original, except, the percent frequency of each element differs. This might be because the formula for finding the frequency of each element and the conversion into percentages might have differed. However, the author did not include their methodology for finding the percentages displayed in the figure. For this reason, the figure will stay how it is.</p>
+</section>
+<section id="producing-a-table" class="level3">
+<h3 class="anchored" data-anchor-id="producing-a-table">Producing a Table</h3>
+<p>I will now produce a professional-looking table from the data previously used to create the bar graph. I start by giving ChatGPT this prompt:</p>
+<blockquote class="blockquote">
+<p>Create a professional-looking from the data frame called freq_df. Let the values in the key column be labels in the left column of the table. Let the values in the column value be the right column of the table. Let the title of the table be “Percentage of Use for Each Element in Bob Ross’ Paintings”. Let the column labels be bold. Use a skyblue and white pattern for the body of the table.</p>
+</blockquote>
+<p>I originally recieved an error saying that R could not find the function row_spec, so I pasted the error message into ChatGPT. Because I was repeatedly recieving errors from R when using knitr, I decided to ask ChatGPT to produce this table using ggplot instead.</p>
+<p>After going back and forth with ChatGPT to correct some of my syntax errors, I came up with this table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create ggplot object</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(freq_br, <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">1</span>, <span class="at">y =</span> <span class="dv">1</span>)) <span class="sc">+</span>  <span class="co"># Create a plot with single point</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_blank</span>() <span class="sc">+</span>  <span class="co"># Add a blank layer to create a canvas</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a> <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> key, <span class="at">y =</span> <span class="fu">seq</span>(<span class="fl">0.9</span>, <span class="fl">0.5</span>, <span class="at">length.out =</span> <span class="fu">nrow</span>(freq_br))), <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">lineheight =</span> <span class="fl">1.5</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span>  <span class="co"># Add text for elements</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(value, <span class="st">"%"</span>), <span class="at">x =</span> <span class="dv">2</span>, <span class="at">y =</span> <span class="fu">seq</span>(<span class="fl">0.9</span>, <span class="fl">0.5</span>, <span class="at">length.out =</span> <span class="fu">nrow</span>(freq_br))), <span class="at">hjust =</span> <span class="dv">3</span>, <span class="at">lineheight =</span> <span class="fl">1.5</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span>  <span class="co"># Add text for percentages</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span>  <span class="co"># Remove axis and background</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Percentage of Use for Each Element in Bob Ross' Paintings"</span>)  <span class="co"># Add title</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Even after a long while of bac and forth, I was unable to space the lines and format the table as I preferred. Instead, I asked ChatGPT to produce the table previously requested, but with using knitr instead of ggplot.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(freq_br, <span class="at">caption =</span> <span class="st">"Percentage of Use for Each Element in Bob Ross' Paintings"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Percentage of Use for Each Element in Bob Ross’ Paintings</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">key</th>
+<th style="text-align: right;">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">At least one tree</td>
+<td style="text-align: right;">94.750656</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">At least two trees</td>
+<td style="text-align: right;">88.451444</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Deciduous tree</td>
+<td style="text-align: right;">59.580053</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Coniferous tree</td>
+<td style="text-align: right;">55.643045</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Clouds</td>
+<td style="text-align: right;">46.981627</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">At least one mountain</td>
+<td style="text-align: right;">41.994751</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Lake</td>
+<td style="text-align: right;">37.532808</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Grass</td>
+<td style="text-align: right;">37.270341</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">River or stream</td>
+<td style="text-align: right;">33.070866</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Bushes</td>
+<td style="text-align: right;">31.496063</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Snow-covered mountain</td>
+<td style="text-align: right;">28.608924</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">At least two mountains</td>
+<td style="text-align: right;">25.984252</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cumulus cloud</td>
+<td style="text-align: right;">22.572178</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Man-made structure</td>
+<td style="text-align: right;">22.309711</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Rocks</td>
+<td style="text-align: right;">20.209974</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Snow</td>
+<td style="text-align: right;">19.685039</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cabin</td>
+<td style="text-align: right;">18.110236</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Winter</td>
+<td style="text-align: right;">18.110236</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Frame</td>
+<td style="text-align: right;">13.910761</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Path</td>
+<td style="text-align: right;">12.860892</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sun</td>
+<td style="text-align: right;">10.498688</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Waterfall</td>
+<td style="text-align: right;">10.236220</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Oval frame</td>
+<td style="text-align: right;">9.973753</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ocean</td>
+<td style="text-align: right;">9.448819</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Waves</td>
+<td style="text-align: right;">8.923884</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cirrus cloud</td>
+<td style="text-align: right;">7.349081</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Beach</td>
+<td style="text-align: right;">7.086614</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Fence</td>
+<td style="text-align: right;">6.299213</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Fog</td>
+<td style="text-align: right;">6.036745</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Guest</td>
+<td style="text-align: right;">5.774278</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hills</td>
+<td style="text-align: right;">4.724409</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Barn</td>
+<td style="text-align: right;">4.461942</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Flowers</td>
+<td style="text-align: right;">3.149606</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Nighttime</td>
+<td style="text-align: right;">2.887139</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Steve Ross</td>
+<td style="text-align: right;">2.887139</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Palm tree</td>
+<td style="text-align: right;">2.362205</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>I added prompts to ChatGPT to change the colors to alternating skyblue and white and to make the table “professional looking”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(freq_br, <span class="at">caption =</span> <span class="st">"Percentage of Use for Each Element in Bob Ross' Paintings"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>),</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">16</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">latex_options =</span> <span class="st">"hold_position"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">repeat_header_text =</span> <span class="st">"Table 1: Percentage of Use for Each Element in Bob Ross' Paintings"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">background =</span> <span class="fu">c</span>(<span class="st">"skyblue"</span>, <span class="st">"white"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in ensure_len_html(background, nrows, "background"): The number of
+provided values in background does not equal to the number of rows.</code></pre>
+</div>
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-sm small" data-quarto-postprocess="true">
+<caption>Percentage of Use for Each Element in Bob Ross' Paintings</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">key</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">At least one tree</td>
+<td style="text-align: right; background-color: skyblue !important;">94.750656</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">At least two trees</td>
+<td style="text-align: right; background-color: white !important;">88.451444</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Deciduous tree</td>
+<td style="text-align: right; background-color: skyblue !important;">59.580053</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Coniferous tree</td>
+<td style="text-align: right; background-color: white !important;">55.643045</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Clouds</td>
+<td style="text-align: right; background-color: skyblue !important;">46.981627</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">At least one mountain</td>
+<td style="text-align: right; background-color: white !important;">41.994751</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Lake</td>
+<td style="text-align: right; background-color: skyblue !important;">37.532808</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Grass</td>
+<td style="text-align: right; background-color: white !important;">37.270341</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">River or stream</td>
+<td style="text-align: right; background-color: skyblue !important;">33.070866</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Bushes</td>
+<td style="text-align: right; background-color: white !important;">31.496063</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Snow-covered mountain</td>
+<td style="text-align: right; background-color: skyblue !important;">28.608924</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">At least two mountains</td>
+<td style="text-align: right; background-color: white !important;">25.984252</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Cumulus cloud</td>
+<td style="text-align: right; background-color: skyblue !important;">22.572178</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Man-made structure</td>
+<td style="text-align: right; background-color: white !important;">22.309711</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Rocks</td>
+<td style="text-align: right; background-color: skyblue !important;">20.209974</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Snow</td>
+<td style="text-align: right; background-color: white !important;">19.685039</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Cabin</td>
+<td style="text-align: right; background-color: skyblue !important;">18.110236</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Winter</td>
+<td style="text-align: right; background-color: white !important;">18.110236</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Frame</td>
+<td style="text-align: right; background-color: skyblue !important;">13.910761</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Path</td>
+<td style="text-align: right; background-color: white !important;">12.860892</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Sun</td>
+<td style="text-align: right; background-color: skyblue !important;">10.498688</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Waterfall</td>
+<td style="text-align: right; background-color: white !important;">10.236220</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Oval frame</td>
+<td style="text-align: right; background-color: skyblue !important;">9.973753</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Ocean</td>
+<td style="text-align: right; background-color: white !important;">9.448819</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Waves</td>
+<td style="text-align: right; background-color: skyblue !important;">8.923884</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Cirrus cloud</td>
+<td style="text-align: right; background-color: white !important;">7.349081</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Beach</td>
+<td style="text-align: right; background-color: skyblue !important;">7.086614</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Fence</td>
+<td style="text-align: right; background-color: white !important;">6.299213</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Fog</td>
+<td style="text-align: right; background-color: skyblue !important;">6.036745</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Guest</td>
+<td style="text-align: right; background-color: white !important;">5.774278</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Hills</td>
+<td style="text-align: right; background-color: skyblue !important;">4.724409</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Barn</td>
+<td style="text-align: right; background-color: white !important;">4.461942</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Flowers</td>
+<td style="text-align: right; background-color: skyblue !important;">3.149606</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Nighttime</td>
+<td style="text-align: right; background-color: white !important;">2.887139</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Steve Ross</td>
+<td style="text-align: right; background-color: skyblue !important;">2.887139</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Palm tree</td>
+<td style="text-align: right; background-color: white !important;">2.362205</td>
+</tr>
+</tbody>
+</table>
 
 
+</div>
+</div>
+<p>After seeing the length of this table, I decided to consolidate it to the top 10 elements. I prompted it to shorten the table by only showing the top 10 elements. This took quite a bit of back and forth, but I finally ended with a smaller table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate total frequency</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>total_frequency <span class="ot">&lt;-</span> <span class="fu">sum</span>(freq_br<span class="sc">$</span>value)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the data frame by frequency in descending order</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>freq_br <span class="ot">&lt;-</span> freq_br[<span class="fu">order</span>(<span class="sc">-</span>freq_br<span class="sc">$</span>value), ]</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the top N elements</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>top_N <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>top_elements <span class="ot">&lt;-</span> freq_br[<span class="dv">1</span><span class="sc">:</span>top_N, <span class="fu">c</span>(<span class="st">"key"</span>, <span class="st">"value"</span>)]</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine less frequent elements into an "Other" category</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>other_elements <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">key =</span> <span class="st">"Other"</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>                             <span class="at">value =</span> <span class="fu">sum</span>(freq_br<span class="sc">$</span>value[<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span>top_N)]))</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure that both data frames have consistent column names</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(other_elements) <span class="ot">&lt;-</span> <span class="fu">names</span>(top_elements)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine top elements and "Other" category</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>combined_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(top_elements, other_elements)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the table</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>combined_data <span class="sc">%&gt;%</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Percentage of Use for Top Elements in Bob Ross' Paintings"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>                <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>),</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">16</span>,</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>                <span class="at">latex_options =</span> <span class="st">"hold_position"</span>,</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>                <span class="at">repeat_header_text =</span> <span class="st">"Table 1: Percentage of Use for Top Elements in Bob Ross' Paintings"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">background =</span> <span class="fu">c</span>(<span class="st">"skyblue"</span>, <span class="st">"white"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in ensure_len_html(background, nrows, "background"): The number of
+provided values in background does not equal to the number of rows.</code></pre>
+</div>
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-sm small" data-quarto-postprocess="true">
+<caption>Percentage of Use for Top Elements in Bob Ross' Paintings</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">key</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">At least one tree</td>
+<td style="text-align: right; background-color: skyblue !important;">94.75066</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">At least two trees</td>
+<td style="text-align: right; background-color: white !important;">88.45144</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Deciduous tree</td>
+<td style="text-align: right; background-color: skyblue !important;">59.58005</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Coniferous tree</td>
+<td style="text-align: right; background-color: white !important;">55.64304</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Clouds</td>
+<td style="text-align: right; background-color: skyblue !important;">46.98163</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">At least one mountain</td>
+<td style="text-align: right; background-color: white !important;">41.99475</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Lake</td>
+<td style="text-align: right; background-color: skyblue !important;">37.53281</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Grass</td>
+<td style="text-align: right; background-color: white !important;">37.27034</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">River or stream</td>
+<td style="text-align: right; background-color: skyblue !important;">33.07087</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Bushes</td>
+<td style="text-align: right; background-color: white !important;">31.49606</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Other</td>
+<td style="text-align: right; background-color: skyblue !important;">304.46194</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>Lastly, I will round the digits in the values column to two decimal places.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate total frequency</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>total_frequency <span class="ot">&lt;-</span> <span class="fu">sum</span>(freq_br<span class="sc">$</span>value)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the data frame by frequency in descending order</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>freq_br <span class="ot">&lt;-</span> freq_br[<span class="fu">order</span>(<span class="sc">-</span>freq_br<span class="sc">$</span>value), ]</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the top N elements</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>top_N <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>top_elements <span class="ot">&lt;-</span> freq_br[<span class="dv">1</span><span class="sc">:</span>top_N, <span class="fu">c</span>(<span class="st">"key"</span>, <span class="st">"value"</span>)]</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Round the "Frequency" values to two decimal places</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>top_elements<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="fu">round</span>(top_elements<span class="sc">$</span>value, <span class="dv">2</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine less frequent elements into an "Other" category</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>other_elements <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">key =</span> <span class="st">"Other"</span>,</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                              <span class="at">value =</span> <span class="fu">sum</span>(freq_br<span class="sc">$</span>value[<span class="sc">-</span>(<span class="dv">1</span><span class="sc">:</span>top_N)]))</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Round the "Frequency" value to two decimal places</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>other_elements<span class="sc">$</span>value <span class="ot">&lt;-</span> <span class="fu">round</span>(other_elements<span class="sc">$</span>value, <span class="dv">2</span>)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure that both data frames have consistent column names</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(other_elements) <span class="ot">&lt;-</span> <span class="fu">names</span>(top_elements)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine top elements and "Other" category</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>combined_data <span class="ot">&lt;-</span> <span class="fu">rbind</span>(top_elements, other_elements)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the table</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>combined_data <span class="sc">%&gt;%</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Percentage of Use for Top Elements in Bob Ross' Paintings"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>                <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>),</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>                <span class="at">font_size =</span> <span class="dv">16</span>,</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>                <span class="at">latex_options =</span> <span class="st">"hold_position"</span>,</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>                <span class="at">repeat_header_text =</span> <span class="st">"Table 1: Percentage of Use for Top Elements in Bob Ross' Paintings"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">background =</span> <span class="fu">c</span>(<span class="st">"skyblue"</span>, <span class="st">"white"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in ensure_len_html(background, nrows, "background"): The number of
+provided values in background does not equal to the number of rows.</code></pre>
+</div>
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-sm small" data-quarto-postprocess="true">
+<caption>Percentage of Use for Top Elements in Bob Ross' Paintings</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">key</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">At least one tree</td>
+<td style="text-align: right; background-color: skyblue !important;">94.75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">At least two trees</td>
+<td style="text-align: right; background-color: white !important;">88.45</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Deciduous tree</td>
+<td style="text-align: right; background-color: skyblue !important;">59.58</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Coniferous tree</td>
+<td style="text-align: right; background-color: white !important;">55.64</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Clouds</td>
+<td style="text-align: right; background-color: skyblue !important;">46.98</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">At least one mountain</td>
+<td style="text-align: right; background-color: white !important;">41.99</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Lake</td>
+<td style="text-align: right; background-color: skyblue !important;">37.53</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Grass</td>
+<td style="text-align: right; background-color: white !important;">37.27</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">River or stream</td>
+<td style="text-align: right; background-color: skyblue !important;">33.07</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: white !important;">Bushes</td>
+<td style="text-align: right; background-color: white !important;">31.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; background-color: skyblue !important;">Other</td>
+<td style="text-align: right; background-color: skyblue !important;">304.46</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
