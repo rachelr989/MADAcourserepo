@@ -1,0 +1,364 @@
+---
+title: "Presentation Exercise"
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# Recreating a Professional Figure and Table
+
+## Figure from FiveThirtyEight's "A Statistical Analysis of the Work of Bob Ross"
+
+### Background
+
+For this project, I will be reproducing the figure from the article "A
+Statistical Analysis of the Work of Bob Ross". This is a bar graph that
+displays the percentage of paintings Bob Ross created that contain
+specific elements, such as trees, clouds, grass, mountains, etc. The 381
+paintings that he produced during his show "The Joy of Painting" each
+contain a combination of these elements and themes. The presence of each
+element was quantified for each episode (or painting) by measuring the
+presence (1) or absence (0) of that element.
+
+The link to the source data is included here:
+*https://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/*
+
+I began by downloading the csv file from FiveThirtyEight's GitHub
+repository entitled "bob ross". The csv file contains the data for each
+episode/ painting (rows) and element (columns) featured in that episode.
+
+### Setting Up
+
+I will begin the reproduction of this figure by opening the libraries
+that I will need for this project.
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(here)
+library(readr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+I will now read the csv file and create a new data frame in R. Next, I
+will examine the structure of this data and
+
+```{r}
+bobross <- readr::read_csv( # Use readr to extract the csv to a dataframe called bobross
+  here("presentation-exercise/elements-by-episode.csv"), # Use here to create a relative path in my directory
+  col_types = list(.default = col_double(), # Define all columns unspecified to be a double (1 or 0)
+                   EPISODE = col_character(),
+                   TITLE = col_character()# Define column 1 to contain a character variable (episode)
+  )
+)
+str(bobross)
+```
+
+I did troubleshooting using ChatGPT to find out how to add a different
+column type for the first two character columns. Normally, I would use
+the default option for all columns, but instead, I was told to add a
+line with the specific column name and type of variable that the column
+contains. I fixed this by adding col_types for TITLE and EPISODE. The
+data frame was successfully extracted into R.
+
+### Reproducing a Bar Graph
+
+Now, I will attempt to reproduce the graph in the article by using
+ChatGPT and ggplot functions to make a professional-looking bar chart.
+
+Looking at the bar graph, it seems that the author renamed many of the
+columns to better reflect what they represent. I will infer which names
+correspond to which bar chart subtitles. The author only includes the
+top 36 of the total possible 67 elements.
+
+I began with the prompt: \>"I want to produce a horizontal bar chart
+using R ggplot. The columns include a binary value of "0" or "1". I want
+to plot the frequency of "1" values for each column. I want to convert
+this frequency into a percentage out of 381. I want to plot only the 36
+greatest percentages."
+
+```{r}
+# Calculate the frequency of "1" values for each column and convert it to percentage
+freq_br <- bobross %>%
+  summarise_all(~ sum(. == 1) / 381 * 100) %>% # Convert the frequency of 1 to a percentage for eahc column
+  gather() %>%
+  arrange(desc(value)) %>%
+  head(36) # Choose the highest 36 frequencies
+
+# Plotting the horizontal bar chart
+ggplot(freq_br, aes(x = reorder(key, -value), y = value)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  coord_flip() +
+  labs(x = "Column", y = "Frequency (%)", title = "Frequency of '1' Values in Each Column") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8)) # Adjust font size of y-axis labels if needed
+
+```
+
+This is a solid start, however, I will add prompts to reformat the graph
+in a way that mimics the original. To do this I used the prompt: \>"Make
+the plot descending in value. Label the percentage value at the end of
+each bar. Delete the axis titles. Remove the grid lines. Change the
+graph title to "The Paintings of Bob Ross" with the subtitle "Percentage
+containing each element"."
+
+```{r}
+# Plotting the horizontal bar chart
+ggplot(freq_br, aes(x = reorder(key, -value), y = value, label = sprintf("%.1f%%", value))) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_text(hjust = -0.2, size = 3) +  # Add text labels at the end of bars
+  coord_flip() +
+  labs(title = "The Paintings of Bob Ross",
+       subtitle = "Percentage containing each element",
+       x = NULL, y = NULL) +  # Remove axis titles
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 8),  # Adjust font size of y-axis labels
+        panel.grid = element_blank())  # Remove grid lines
+```
+
+Because it did not make the plot descending, I will ask ChatGPT to flip
+the plot along the x-axis. I will also ask it to remove the y-axis
+labels. \>"Flip the plot to make the largest percentage value at the
+top. Remove the % sign, except for the highest percentage value. Remove
+the frequency labels on the axis. Change the color to blue."
+
+```{r}
+# Plotting the horizontal bar chart
+ggplot(freq_br, aes(x = reorder(key, value), y = value, label = ifelse(rank(desc(value)) == 1, paste0(round(value), "%"), round(value)))) +
+  geom_bar(stat = "identity", fill = "blue") +
+  geom_text(hjust = -0.2, size = 3) +  # Add text labels at the end of bars
+  coord_flip() +
+  labs(title = "The Paintings of Bob Ross",
+       subtitle = "Percentage containing each element",
+       x = NULL, y = NULL) +  # Remove axis titles
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Remove y-axis labels
+        axis.ticks.y = element_blank(),  # Remove y-axis ticks
+        panel.grid = element_blank())  # Remove grid lines
+```
+
+I now want to change the y-axis names to coordinate with the names used
+in the paper. I also uploaded the original figure into the AI font
+finder, called WhatTheFont, to identify the font used. It was called
+"Elastik Regular D".
+
+I started with the prompt: \>"Change the font to "Elastik Regular D".
+How do I change the y-axis subtitles to custom titles?"
+
+This was not what I wanted, as I wanted to change the name of the column
+labels on the plot. Instead I used this prompt: \>"Remove this y-axis
+title. I want to change the column names used to label each frequency
+bar"
+
+This resulted in the same problem as before, so I asked ChatGPT "How do
+I rename the values in the 'Key' column?" and it suggested to use the
+mutate() function from the dpylr package. I change the names for each
+key item below.
+
+```{r}
+freq_br <- freq_br %>%
+  mutate(key = case_when(
+    key == "TREE" ~ "At least one tree",
+key == "TREES" ~ "At least two trees",
+key == "DECIDUOUS" ~ "Deciduous tree",
+key == "CONIFER" ~ "Coniferous tree",
+key == "CLOUDS" ~ "Clouds",
+key == "MOUNTAIN" ~ "At least one mountain",
+key == "LAKE" ~ "Lake",
+key == "GRASS" ~ "Grass",
+key == "RIVER" ~ "River or stream",
+key == "BUSHES" ~ "Bushes",
+key == "SNOWY_MOUNTAIN" ~ "Snow-covered mountain",
+key == "MOUNTAINS" ~ "At least two mountains",
+key == "CUMULUS" ~ "Cumulus cloud",
+key == "STRUCTURE" ~ "Man-made structure",
+key == "ROCKS" ~ "Rocks",
+key == "SNOW" ~ "Snow",
+key == "WINTER" ~ "Winter",
+key == "CABIN" ~ "Cabin",
+key == "FRAMED" ~ "Frame",
+key == "PATH" ~ "Path",
+key == "SUN" ~ "Sun",
+key == "WATERFALL" ~ "Waterfall",
+key == "OVAL_FRAME" ~ "Oval frame",
+key == "OCEAN" ~ "Ocean",
+key == "WAVES" ~ "Waves",
+key == "CIRRUS" ~ "Cirrus cloud",
+key == "BEACH" ~ "Beach",
+key == "FENCE" ~ "Fence",
+key == "FOG" ~ "Fog",
+key == "GUEST" ~ "Guest",
+key == "HILLS" ~ "Hills",
+key == "BARN" ~ "Barn",
+key == "FLOWERS" ~ "Flowers",
+key == "STEVE_ROSS" ~ "Steve Ross",
+key == "NIGHT" ~ "Nighttime",
+key == "PALM_TREES" ~ "Palm tree",
+    TRUE ~ key  # Keep other values unchanged
+  ))
+```
+
+I also noticed that the font called "Elastik Regular D" was not
+available, so I asked ChatGOT for similar fonts, to which it gave me
+"Roboto", amongst others. To use this fotn I had to install the open
+source font document onto my laptop.
+
+When I subsituted the font "Roboto Regular", I continued to recieve an
+error message. Because of this, I sent ChatGPT the error message. I
+recieved this output. I will refrain from including this code, as it
+relies on a local path to find the font, rather than the repository. You
+may change the code after paths to fit your local device.
+
+> #Install and load the extrafont package library(extrafont) #Specify
+> the exact font file path for Roboto Regular font_import(paths =
+> "C:/Windows/Fonts", prompt = FALSE) #Load the Roboto Regular font
+> family loadfonts(device = "win")
+
+The installation of Roboto Regular into R was not successful, so I will
+use a similar font that I found in my font database called "Segoe UI".
+
+The final code for producing the plot is shown below:
+
+```{r}
+# Plotting the horizontal bar chart
+ggplot(freq_br, aes(x = reorder(key, value), y = value, label = ifelse(rank(desc(value)) == 1, paste0(round(value), "%"), round(value)))) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_text(hjust = -0.2, size = 3) +  # Add text labels at the end of bars
+  coord_flip() +
+  labs(title = "The Paintings of Bob Ross",
+       subtitle = "Percentage containing each element",
+       x = NULL, y = NULL) +  # Remove axis titles
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Remove y-axis labels
+        axis.ticks.y = element_blank(),  # Remove y-axis ticks
+        panel.grid = element_blank(),  # Remove grid lines
+        text = element_text(family = "Segoe UI"))  # Change font to Snow
+```
+
+In the final product, I changed the color back to "skyblue" as this
+color is more appealing. The format of the box plot is similar to the
+original, except, the percent frequency of each element differs. This
+might be because the formula for finding the frequency of each element
+and the conversion into percentages might have differed. However, the
+author did not include their methodology for finding the percentages
+displayed in the figure. For this reason, the figure will stay how it
+is.
+
+### Producing a Table
+
+I will now produce a professional-looking table from the data previously
+used to create the bar graph. I start by giving ChatGPT this prompt:
+
+>Create a professional-looking from the data frame called freq_df. Let
+the values in the key column be labels in the left column of the table.
+Let the values in the column value be the right column of the table. Let
+the title of the table be "Percentage of Use for Each Element in Bob
+Ross' Paintings". Let the column labels be bold. Use a skyblue and white
+pattern for the body of the table.
+
+I originally recieved an error saying that R could not find the function
+row_spec, so I pasted the error message into ChatGPT. Because I was
+repeatedly recieving errors from R when using knitr, I decided to ask
+ChatGPT to produce this table using ggplot instead.
+
+After going back and forth with ChatGPT to correct some of my syntax
+errors, I came up with this table.
+
+```{r}
+# Create ggplot object
+ggplot(freq_br, aes(x = 1, y = 1)) +  # Create a plot with single point
+  geom_blank() +  # Add a blank layer to create a canvas
+ geom_text(aes(label = key, y = seq(0.9, 0.5, length.out = nrow(freq_br))), hjust = 0, lineheight = 1.5, size = 3) +  # Add text for elements
+geom_text(aes(label = paste0(value, "%"), x = 2, y = seq(0.9, 0.5, length.out = nrow(freq_br))), hjust = 3, lineheight = 1.5, size = 3) +  # Add text for percentages
+  theme_void() +  # Remove axis and background
+  labs(title = "Percentage of Use for Each Element in Bob Ross' Paintings")  # Add title
+
+```
+Even after a long while of bac and forth, I was unable to space the lines and format the table as I preferred. Instead, I asked ChatGPT to produce the table previously requested, but with using knitr instead of ggplot.
+```{r}
+knitr::kable(freq_br, caption = "Percentage of Use for Each Element in Bob Ross' Paintings")
+```
+I added prompts to ChatGPT to change the colors to alternating skyblue and white and to make the table "professional looking".
+```{r}
+kable(freq_br, caption = "Percentage of Use for Each Element in Bob Ross' Paintings") %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover"),
+                font_size = 16,
+                latex_options = "hold_position",
+                repeat_header_text = "Table 1: Percentage of Use for Each Element in Bob Ross' Paintings") %>%
+  column_spec(1:2, background = c("skyblue", "white"))
+```
+After seeing the length of this table, I decided to consolidate it to the top 10 elements. I prompted it to shorten the table by only showing the top 10 elements. This took quite a bit of back and forth, but I finally ended with a smaller table.
+```{r}
+# Calculate total frequency
+total_frequency <- sum(freq_br$value)
+
+# Sort the data frame by frequency in descending order
+freq_br <- freq_br[order(-freq_br$value), ]
+
+# Keep only the top N elements
+top_N <- 10
+top_elements <- freq_br[1:top_N, c("key", "value")]
+
+# Combine less frequent elements into an "Other" category
+other_elements <- data.frame(key = "Other",
+                             value = sum(freq_br$value[-(1:top_N)]))
+
+# Ensure that both data frames have consistent column names
+names(other_elements) <- names(top_elements)
+
+# Combine top elements and "Other" category
+combined_data <- rbind(top_elements, other_elements)
+
+# Create the table
+combined_data %>%
+  kable(caption = "Percentage of Use for Top Elements in Bob Ross' Paintings") %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover"),
+                font_size = 16,
+                latex_options = "hold_position",
+                repeat_header_text = "Table 1: Percentage of Use for Top Elements in Bob Ross' Paintings") %>%
+  column_spec(1:2, background = c("skyblue", "white"))
+
+```
+Lastly, I will round the digits in the values column to two decimal places.
+```{r}
+# Calculate total frequency
+total_frequency <- sum(freq_br$value)
+
+# Sort the data frame by frequency in descending order
+freq_br <- freq_br[order(-freq_br$value), ]
+
+# Keep only the top N elements
+top_N <- 10
+top_elements <- freq_br[1:top_N, c("key", "value")]
+
+# Round the "Frequency" values to two decimal places
+top_elements$value <- round(top_elements$value, 2)
+
+# Combine less frequent elements into an "Other" category
+other_elements <- data.frame(key = "Other",
+                              value = sum(freq_br$value[-(1:top_N)]))
+
+# Round the "Frequency" value to two decimal places
+other_elements$value <- round(other_elements$value, 2)
+
+# Ensure that both data frames have consistent column names
+names(other_elements) <- names(top_elements)
+
+# Combine top elements and "Other" category
+combined_data <- rbind(top_elements, other_elements)
+
+# Create the table
+combined_data %>%
+  kable(caption = "Percentage of Use for Top Elements in Bob Ross' Paintings") %>%
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover"),
+                font_size = 16,
+                latex_options = "hold_position",
+                repeat_header_text = "Table 1: Percentage of Use for Top Elements in Bob Ross' Paintings") %>%
+  column_spec(1:2, background = c("skyblue", "white"))
+```
+
