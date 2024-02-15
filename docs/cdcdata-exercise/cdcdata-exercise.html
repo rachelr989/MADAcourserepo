@@ -1021,9 +1021,337 @@ Number of Fisher Scoring iterations: 13</code></pre>
 </table>
 </div>
 </div>
-
-
 </section>
+</section>
+</section>
+<section id="this-section-contributed-by-cora-hirst" class="level1">
+<h1><span style="color: red;"> This section contributed by Cora Hirst </span></h1>
+<p>In this section, I will be generating a dataset that looks similar to the <code>Botulism.csv</code> dataset after Rachel’s processing.</p>
+<section id="synthesis-of-rachels-description-of-the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="synthesis-of-rachels-description-of-the-dataset">Synthesis of Rachel’s description of the dataset</h2>
+<p>1903 cbservations across 5 variables:</p>
+<ul>
+<li><code>State</code> factor with 50 levels (States)</li>
+<li><code>Year</code> number with range 1910 - 2017</li>
+<li><code>BotType</code> factor with 4 levels (“Foodborne”, “Infant”, “Wound”, “Other”)</li>
+<li><code>ToxType</code> factor with 9 levels (“A”, “AB”, “ABE”, “B”, “BF”, “E”, “EF”, F”, “Unknown”) “Because the outcome of interest is botulism case count (Count), I will check the normalcy and distribution of the variable count. I used ChatGPT to ask what kind of plot I can use to show me the distribution of Count. If output a code for a histogram that shows a density distribution. This shows that the data is highly right-skewed.”</li>
+</ul>
+<p>“I found the max count value to be 59, so I will identify the row of this value. Now seeing that this outlier is from 1977 Michigan, I will search for this outbreak. This data point is important and will therefore be kept.”</p>
+<p>“I will check the frequency of year using a histogram plot, similar to the distribution plot used for count. Most data has been collected in more recent years, so the data is left-skewed.”</p>
+<p>“It looks like total botulism cases have greatly increased in recent years, botulism surveillance has greatly improved, or the suspected botulism case had changed around 1970 to become more broad. Whichever is the case, the total botulism case count per state has greatly increased starting around 1970.”</p>
+<p>“First I will see the total cases per state. For this I will first aggregate the count values to get a total for each state. Next, I will make a histogram of the total case count versus state. One state has an extremely high total case count. I will identify max value by using the same method I used when identifying the max count value. This extreme value takes place in California. I will now fact check this with online literature… I will remove all of the rows with the value California.”</p>
+<p>“There are a few higher count values, such as for Oregon, but there seems to be no outstanding outliers. Because of this, we will move</p>
+<p>“Infant botulism seems slightly more frequent than foodborne botulism. Wound botulism is much less common, but has a frequency close to”other” types of botulism.”</p>
+<p>“It seems that the toxin type B is responsible for the highest case count, followed by A, unknown, and lastly, E. The toxin type is unknown for a significant chunk of cases in comparison to known types. The known types AB, ABE, BF, and F contribute to a very small portion of botulism cases in the U.S. compared to A, B, and E.”</p>
+<p>“It seems that toxin types A, B, E, and unknown are associated with the type of outbreak. Assuming that foodborne is the reference, as it is listed at the first factor level, this might mean there is an association between toxins A, B, E, and unknown with foodborne botulism outbreaks.” <span style="color: red;"></span></p>
+</section>
+<section id="generating-synthetic-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="generating-synthetic-dataset">Generating synthetic dataset</h2>
+<p>First, I want to ensure that the distribution of the <code>Counts</code> variable is right-skewed, reflecting that there are many more yearly reports with few cases than reports with many.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="co">#case_counts, right skewed </span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>Count <span class="ot">=</span> <span class="fu">floor</span>(<span class="fu">rbeta</span>(<span class="dv">1900</span>,<span class="dv">1</span>,<span class="dv">160</span>)<span class="sc">*</span><span class="dv">1000</span>) <span class="co">#drawing random samples from a beta distribution rescaling, and using floor to ensure they are integers</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span>Count))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/generate-Count-data-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="co">#Create a boxplot of count </span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> Count), <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co">#Fill colors are used as box is far too compressed to notice otherwise</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Box Plot of Counts"</span>, <span class="at">y =</span> <span class="st">"Counts"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/generate-Count-data-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now, I’d like to ensure that the distribution of the “Year” variable is left-skewed, reflecting that the practice of reporting has increased with time; however, there appear to be two little “humps” - a flatter distribution between 1910 and 1960, and another thinner distribution between 1960 - 2017.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="co">#approximately normal distribution before 1960</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>before_1960 <span class="ot">=</span> cdcdata5 <span class="sc">%&gt;%</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Year <span class="sc">&lt;=</span><span class="dv">1960</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">floor</span>(<span class="fu">mean</span>(Year)), </span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">sd =</span> <span class="fu">sd</span>(Year), </span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">obs =</span> <span class="fu">length</span>(Year))</span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a><span class="co">#approximately normal distribution after 1960 </span></span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a>after_1960 <span class="ot">=</span> cdcdata5 <span class="sc">%&gt;%</span></span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Year <span class="sc">&gt;</span> <span class="dv">1960</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">floor</span>(<span class="fu">mean</span>(Year)), </span>
+<span id="cb68-13"><a href="#cb68-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">sd =</span> <span class="fu">sd</span>(Year), </span>
+<span id="cb68-14"><a href="#cb68-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">obs =</span> <span class="fu">length</span>(Year))</span>
+<span id="cb68-15"><a href="#cb68-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-16"><a href="#cb68-16" aria-hidden="true" tabindex="-1"></a><span class="co">#distribution of years </span></span>
+<span id="cb68-17"><a href="#cb68-17" aria-hidden="true" tabindex="-1"></a>Year <span class="ot">=</span> <span class="fu">ceiling</span>(<span class="fu">c</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> before_1960<span class="sc">$</span>obs, <span class="at">mean =</span> before_1960<span class="sc">$</span>mean, <span class="at">sd =</span> before_1960<span class="sc">$</span>sd), <span class="fu">rnorm</span>(<span class="at">n =</span> after_1960<span class="sc">$</span>obs, <span class="at">mean =</span> after_1960<span class="sc">$</span>mean, <span class="at">sd =</span> after_1960<span class="sc">$</span>sd)))</span>
+<span id="cb68-18"><a href="#cb68-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-19"><a href="#cb68-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-20"><a href="#cb68-20" aria-hidden="true" tabindex="-1"></a><span class="co"># we will need to delete observations outside of the range we are looking for</span></span>
+<span id="cb68-21"><a href="#cb68-21" aria-hidden="true" tabindex="-1"></a>Year <span class="ot">=</span> Year[(Year <span class="sc">&gt;=</span> <span class="dv">1911</span>) <span class="sc">&amp;</span> (Year <span class="sc">&lt;=</span> <span class="dv">2017</span>)]</span>
+<span id="cb68-22"><a href="#cb68-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-23"><a href="#cb68-23" aria-hidden="true" tabindex="-1"></a><span class="co"># but we need to 1) ensure that we have 1900 observations, and 2) add a few more observation to the range between our distributions, say, 1945-1970</span></span>
+<span id="cb68-24"><a href="#cb68-24" aria-hidden="true" tabindex="-1"></a>n_obs <span class="ot">=</span> <span class="fu">length</span>(Year)</span>
+<span id="cb68-25"><a href="#cb68-25" aria-hidden="true" tabindex="-1"></a>Year <span class="ot">=</span> <span class="fu">c</span>(Year, <span class="fu">runif</span>(<span class="at">n =</span> (<span class="dv">1900</span><span class="sc">-</span>n_obs), <span class="at">min =</span> <span class="dv">1945</span>, <span class="at">max =</span> <span class="dv">1965</span>))</span>
+<span id="cb68-26"><a href="#cb68-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-27"><a href="#cb68-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-28"><a href="#cb68-28" aria-hidden="true" tabindex="-1"></a><span class="co"># How's it looking, boys? </span></span>
+<span id="cb68-29"><a href="#cb68-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> ..density..)) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> Year), <span class="at">alpha =</span> <span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/generate-Year-data-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now, we want to try to mimic the correlation between the total “Count” of the number of cases and “Year” of the reported counts - this correlation follows the shape of the distribution of “Year”, which makes sense. However, we may also want to associate lower count numbers with earlier years, as well.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="do">## How close are we by nature of the year distribution alone?</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">Year =</span> Year,</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">Count =</span> Count)</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>totcount_year <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> Year, <span class="at">data =</span> df, <span class="at">FUN =</span> sum) <span class="co">#Use aggregate() to find the sum count for each year value</span></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">data =</span> totcount_year, <span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Year"</span>, <span class="at">y =</span> <span class="st">"total Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/correlation-between-Counts-and-Years-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>There’s a good amount of sums between 1925 and 1950 with low case counts, and a good number of low case counts in more recent years than Rachel observed. How do fix this? Lets take some of the case numbers from the middle (10-20) and randomly replace them with a random number between 0 and 5.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">data =</span> df, <span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"synthetic data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/adjusting-years-counts-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">data =</span> cdcdata5, <span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"processed CDC data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/adjusting-years-counts-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co">#lets take some of the case numbers from the middle (10-20) and randomly replace them with a random number between 0 and 5. </span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>range_toobig <span class="ot">=</span> <span class="fu">range</span>(<span class="fu">which</span>(<span class="fu">sort</span>(df<span class="sc">$</span>Count) <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">&amp;</span>  <span class="fu">sort</span>(df<span class="sc">$</span>Count) <span class="sc">&lt;=</span> <span class="dv">40</span>))</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Count <span class="ot">=</span> <span class="fu">sort</span>(df<span class="sc">$</span>Count)</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Count[<span class="fu">sample</span>(range_toobig[<span class="dv">1</span>]<span class="sc">:</span>range_toobig[<span class="dv">2</span>], <span class="at">size =</span> <span class="fu">diff</span>(range_toobig)<span class="sc">/</span><span class="fl">1.5</span>, <span class="at">replace =</span> F)] <span class="ot">=</span> <span class="fu">runif</span>(<span class="fu">diff</span>(range_toobig)<span class="sc">/</span><span class="fl">1.5</span>, <span class="dv">0</span>,<span class="dv">5</span>)</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>Count <span class="ot">=</span> <span class="fu">sample</span>(df<span class="sc">$</span>Count)</span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">data =</span> df, <span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"synthetic data adjusted"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/adjusting-years-counts-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>totcount_year <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> Year, <span class="at">data =</span> df, <span class="at">FUN =</span> sum) <span class="co">#Use aggregate() to find the sum count for each year value</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">data =</span> totcount_year, <span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"total Count"</span>, <span class="at">x =</span> <span class="st">"year"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/adjusting-years-counts-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now, I’d like to try to add in some state data. Without data from California, it looks like the total counts for states are somewhat uniform between 0 and 200 total counts. However, a few states have higher numbers of total cases - these are Alaska, Oregon, Washington, New Jersey, and Colorado.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="co">#randomly generated a vector of state names whose frequencies are uniformly distributed</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>state_names <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">levels</span>(<span class="fu">factor</span>(cdcdata5<span class="sc">$</span>State)))</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>State <span class="ot">=</span> <span class="fu">sample</span>(state_names, <span class="at">size =</span> <span class="dv">1900</span>, <span class="at">replace =</span> T)</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>State <span class="ot">=</span> State</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a><span class="co">#reproduce plot</span></span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>totcount_state <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> State, <span class="at">data =</span> df, <span class="at">FUN =</span> sum) <span class="co">#aggregate and sum the count by the state value</span></span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_state, <span class="fu">aes</span>(<span class="at">x =</span> State, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="co">#use geom_point() to create a scatterplot for the total year count data frame that was created</span></span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span> <span class="co">#Rotate x axis labels</span></span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Botulism Count for each State (except CA) in the U.S."</span>, <span class="at">x =</span> <span class="st">"State"</span>, <span class="at">y =</span> <span class="st">"Total Case Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/generate-State-data-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co">#so this clearly didn't work too well!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>What i’d like to know is the frequencies of the observations of each state in the dataset, and to utilize these frequencies to determine whether the original observations were an artifact of reporting bias!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="co">#frequencies of each state in a named vector</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>state_counts <span class="ot">=</span> cdcdata5 <span class="sc">%&gt;%</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(State) <span class="sc">%&gt;%</span></span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>()</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>state_freqs <span class="ot">=</span> state_counts<span class="sc">$</span>n<span class="sc">/</span><span class="fu">nrow</span>(cdcdata5)</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(state_freqs) <span class="ot">=</span> state_counts<span class="sc">$</span>State</span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a><span class="co">#use frequencies to generate a vector of states with the same frequencies</span></span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>State <span class="ot">=</span> <span class="fu">sample</span>(<span class="fu">names</span>(state_freqs), <span class="at">size =</span> <span class="fu">nrow</span>(df), <span class="at">prob =</span> state_freqs, <span class="at">replace =</span> T)</span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a><span class="co">#add to df </span></span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>State <span class="ot">=</span> State</span>
+<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-15"><a href="#cb77-15" aria-hidden="true" tabindex="-1"></a><span class="co">#let's plot frequency </span></span>
+<span id="cb77-16"><a href="#cb77-16" aria-hidden="true" tabindex="-1"></a>totcount_state <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> State, <span class="at">data =</span> df, <span class="at">FUN =</span> sum) <span class="co">#aggregate and sum the count by the state value</span></span>
+<span id="cb77-17"><a href="#cb77-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_state, <span class="fu">aes</span>(<span class="at">x =</span> State, <span class="at">y =</span> Count)) <span class="sc">+</span> <span class="co">#use geom_point() to create a scatterplot for the total year count data frame that was created</span></span>
+<span id="cb77-18"><a href="#cb77-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span> <span class="co">#Rotate x axis labels</span></span>
+<span id="cb77-19"><a href="#cb77-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb77-20"><a href="#cb77-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Botulism Count for each State (except CA) in the U.S."</span>, <span class="at">x =</span> <span class="st">"State"</span>, <span class="at">y =</span> <span class="st">"Total Case Count"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We’ve captured that states that report more have a higher OBSERVED total case count, and that doesn’t mean, necessarily, that botulism is more common there! So no further manipulation needed other than sampling states according to frequency of observations.</p>
+<p>Lastly, I would like to add the <code>BotTyp</code> and <code>ToxinType</code> data to our synthetic data.</p>
+<p>First, I will generate a vector of <code>BotType</code> using the frequencies of botulism types from the <code>cdcdata5</code> processed dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="co">#determine counts of BotTypes</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>botType_counts <span class="ot">=</span> cdcdata5 <span class="sc">%&gt;%</span></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(BotType) <span class="sc">%&gt;%</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>()</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a><span class="co">#determine frequencies of BotTypes</span></span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>botType_freqs <span class="ot">=</span> botType_counts<span class="sc">$</span>n<span class="sc">/</span><span class="fu">nrow</span>(cdcdata5)</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(botType_freqs) <span class="ot">=</span> botType_counts<span class="sc">$</span>BotType</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a><span class="co">#use frequencies to generate a vector of states with the same frequencies</span></span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>BotType <span class="ot">=</span> <span class="fu">sample</span>(<span class="fu">names</span>(botType_freqs), <span class="at">size =</span> <span class="fu">nrow</span>(df), <span class="at">prob =</span> botType_freqs, <span class="at">replace =</span> T) <span class="co"># for anyone reading this, notice how each of the arguments is dependent upon some other variable I've named, and I'm not direclty entering its value! It makes is a lot easier in the future to change something somewhere higher up in the pipeline, and be able to keep this code the same :)</span></span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a><span class="co">#add to df </span></span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>BotType <span class="ot">=</span> BotType</span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a><span class="co">#plot to be sure we've captured the nature of the true data!</span></span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>totcount_type <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> BotType, <span class="at">data =</span> df, <span class="at">FUN =</span> sum) <span class="co">#Aggregate the count sum by the type of botulism</span></span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_type, <span class="fu">aes</span>(<span class="at">x =</span> BotType, <span class="at">y =</span> Count)) <span class="sc">+</span></span>
+<span id="cb78-20"><a href="#cb78-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb78-21"><a href="#cb78-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Botulism Type"</span>, <span class="at">x =</span> <span class="st">"Type of Botulism Outbreak"</span>, <span class="at">y =</span> <span class="st">"Total Count"</span>) <span class="co">#Make a bar plot with each differing identity of bot type listed on the x axis</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/gnerating-bottype-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Infant type botulism is slightly greater in number than foodborne, but to a slightly greater degree than in the original dataset. However, our goal is grasp the NATURE of the dataset, not to recreate it in its entirety. Hense, this is a probable distribution of Botulism by type!</p>
+<p>Similar to the frequency approach used to generate the entires for each <code>State</code> and <code>BotType</code> observation, I will use the frequencies of each toxin type in the <code>cdcdata5</code> dataset to generate a synthetic, possible distribution of cases by toxin type.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a><span class="co">#fount the number of each toxintype</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>toxType_counts <span class="ot">=</span> cdcdata5 <span class="sc">%&gt;%</span></span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ToxinType) <span class="sc">%&gt;%</span></span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>()</span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-8"><a href="#cb79-8" aria-hidden="true" tabindex="-1"></a><span class="co">#determine frequencies of BotTypes</span></span>
+<span id="cb79-9"><a href="#cb79-9" aria-hidden="true" tabindex="-1"></a>toxType_freqs <span class="ot">=</span> toxType_counts<span class="sc">$</span>n<span class="sc">/</span><span class="fu">nrow</span>(cdcdata5)</span>
+<span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(toxType_freqs) <span class="ot">=</span> toxType_counts<span class="sc">$</span>ToxinType</span>
+<span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a><span class="co">#use frequencies to generate a vector of toxtypes with the same frequencies</span></span>
+<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a>ToxinType <span class="ot">=</span> <span class="fu">sample</span>(<span class="fu">names</span>(toxType_freqs), <span class="at">size =</span> <span class="fu">nrow</span>(df), <span class="at">prob =</span> toxType_freqs, <span class="at">replace =</span> T)</span>
+<span id="cb79-14"><a href="#cb79-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-15"><a href="#cb79-15" aria-hidden="true" tabindex="-1"></a><span class="co">#add to df </span></span>
+<span id="cb79-16"><a href="#cb79-16" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>ToxinType <span class="ot">=</span> ToxinType</span>
+<span id="cb79-17"><a href="#cb79-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-18"><a href="#cb79-18" aria-hidden="true" tabindex="-1"></a><span class="co">#plot to be sure we've captured the nature of the true data!</span></span>
+<span id="cb79-19"><a href="#cb79-19" aria-hidden="true" tabindex="-1"></a>totcount_type <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> ToxinType, <span class="at">data =</span> df, <span class="at">FUN =</span> sum) <span class="co">#Aggregate the count sum by the type of toxin</span></span>
+<span id="cb79-20"><a href="#cb79-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_type, <span class="fu">aes</span>(<span class="at">x =</span> ToxinType, <span class="at">y =</span> Count)) <span class="sc">+</span></span>
+<span id="cb79-21"><a href="#cb79-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb79-22"><a href="#cb79-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Toxin Type"</span>, <span class="at">x =</span> <span class="st">"Type of Toxin Outbreak"</span>, <span class="at">y =</span> <span class="st">"Total Count"</span>) <span class="co">#Make a bar plot with each differing identity of bot type listed on the x axis</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/generating-toxinType-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Here’s the potentially challenging bit - we’d like to be sure to capture the correlations between Botulism type and Toxin type (<code>ToxinType</code>). Rachel used a logistic regression to capture that toxin types A, B, E, and unknown are associated with the type of outbreak, and discovered in the literature that types A, B, and E are associated with foodborne outbreaks.</p>
+<p>To try to capture this association, I will sort the <code>BotType</code> vector alphabetically. Then, I will randomly sample types “A”, “B”, and “E” according to their frequencies relative to the total number of these types, only, to generate a vector as long as the number of Foodboorne observations there are.</p>
+<p>Then we will want to generate the rest of the Toxin_type data. They can be randomly selected according to their frequencies, but independent of the <code>BotType with which they'll be associated.</code></p>
+<p>However, now we need to adjust the probability of selecting “A”, “B”, or “E” according to however many were just selected, or their frequencies will be even higher!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="co">#arrange BotType alphabetically - starting with Foodborne - in the dataframe, df</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(BotType)</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a><span class="co">#determine the range of observations with bottype "foodborne"</span></span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>botType_range <span class="ot">=</span> <span class="fu">range</span>(<span class="fu">which</span>(df<span class="sc">$</span>BotType <span class="sc">==</span> <span class="st">"Foodborne"</span>))</span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a><span class="co">#now, we want to sample from A, B, and E with their frequencies relative to the total number of A, B, and E</span></span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a>ABE_freqs <span class="ot">=</span> toxType_counts <span class="sc">%&gt;%</span></span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ToxinType <span class="sc">==</span> <span class="st">"A"</span> <span class="sc">|</span> ToxinType <span class="sc">==</span> <span class="st">"B"</span> <span class="sc">|</span> ToxinType <span class="sc">==</span> <span class="st">"E"</span>) <span class="co"># | means "or"</span></span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a>foodborne_ToxTypes <span class="ot">=</span> <span class="fu">sample</span>(ABE_freqs<span class="sc">$</span>ToxinType, <span class="at">size =</span> <span class="fu">diff</span>(botType_range), <span class="at">prob =</span> ABE_freqs<span class="sc">$</span>n<span class="sc">/</span><span class="fu">sum</span>(ABE_freqs<span class="sc">$</span>n), <span class="at">replace =</span> T)</span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-15"><a href="#cb80-15" aria-hidden="true" tabindex="-1"></a><span class="co">#Now, we want to generate the rest of the Toxin_type data. They can be randomly selected according to their frequencies, but independent of the bottype with which they'll be associated.</span></span>
+<span id="cb80-16"><a href="#cb80-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-17"><a href="#cb80-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-18"><a href="#cb80-18" aria-hidden="true" tabindex="-1"></a><span class="co"># first, we will determine their current frequencies with regard to the total number of observations:</span></span>
+<span id="cb80-19"><a href="#cb80-19" aria-hidden="true" tabindex="-1"></a>foodborne_ToxTypes_counts <span class="ot">=</span> <span class="fu">as.data.frame</span>(<span class="fu">table</span>(foodborne_ToxTypes))</span>
+<span id="cb80-20"><a href="#cb80-20" aria-hidden="true" tabindex="-1"></a>foodborne_ToxTypes_counts <span class="ot">=</span> foodborne_ToxTypes_counts <span class="sc">%&gt;%</span></span>
+<span id="cb80-21"><a href="#cb80-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( foodborne_ToxTypes <span class="sc">!=</span> <span class="st">"EF"</span>) <span class="co">#these toxtypes are not present in the processed cdc dataset and are an artifact of factoring </span></span>
+<span id="cb80-22"><a href="#cb80-22" aria-hidden="true" tabindex="-1"></a>foodborne_ToxTypes_counts <span class="ot">=</span> foodborne_ToxTypes_counts<span class="sc">$</span>Freq</span>
+<span id="cb80-23"><a href="#cb80-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-24"><a href="#cb80-24" aria-hidden="true" tabindex="-1"></a><span class="co">#now we will determine how many As, Bs, and Es are included in the df$ToxinType variable </span></span>
+<span id="cb80-25"><a href="#cb80-25" aria-hidden="true" tabindex="-1"></a>ToxType_counts <span class="ot">=</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb80-26"><a href="#cb80-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ToxinType) <span class="sc">%&gt;%</span></span>
+<span id="cb80-27"><a href="#cb80-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>()</span>
+<span id="cb80-28"><a href="#cb80-28" aria-hidden="true" tabindex="-1"></a>ToxinType_counts <span class="ot">=</span> ToxType_counts<span class="sc">$</span>n</span>
+<span id="cb80-29"><a href="#cb80-29" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(ToxinType_counts) <span class="ot">=</span> ToxType_counts<span class="sc">$</span>ToxinType</span>
+<span id="cb80-30"><a href="#cb80-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-31"><a href="#cb80-31" aria-hidden="true" tabindex="-1"></a><span class="co">#now, we will recalutalte the expected frequencies of the toxin types for the remainder of the toxintype variable vector</span></span>
+<span id="cb80-32"><a href="#cb80-32" aria-hidden="true" tabindex="-1"></a>remaining_freqs_to_prob <span class="ot">=</span> (ToxinType_counts <span class="sc">-</span> foodborne_ToxTypes_counts)<span class="sc">/</span>(<span class="fu">nrow</span>(df)<span class="sc">-</span><span class="fu">diff</span>(botType_range)) <span class="co">#we are dividing the remaining number of each toxintype that need to be included in the dataset by the total number of "spaces" (non Foodborne observations) left to fill in the dataset</span></span>
+<span id="cb80-33"><a href="#cb80-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-34"><a href="#cb80-34" aria-hidden="true" tabindex="-1"></a><span class="co"># finally! We get to replace the ToxinType variable with a vector of the foodborne probs (which will be listed first, next to the sorted foodborne recordings) and a sample for the other observations using these probabilities!</span></span>
+<span id="cb80-35"><a href="#cb80-35" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>ToxinType <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">as.character</span>(foodborne_ToxTypes), <span class="fu">sample</span>(<span class="fu">names</span>(ToxinType_counts), <span class="at">size =</span> <span class="fu">nrow</span>(df)<span class="sc">-</span><span class="fu">diff</span>(botType_range), <span class="at">prob =</span> remaining_freqs_to_prob, <span class="at">replace =</span> T))</span>
+<span id="cb80-36"><a href="#cb80-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-37"><a href="#cb80-37" aria-hidden="true" tabindex="-1"></a><span class="co">#lets see if we've maintained the frequency distribution of the data: </span></span>
+<span id="cb80-38"><a href="#cb80-38" aria-hidden="true" tabindex="-1"></a>totcount_type <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(Count <span class="sc">~</span> ToxinType, <span class="at">data =</span> df, <span class="at">FUN =</span> sum) <span class="co">#Aggregate the count sum by the type of toxin</span></span>
+<span id="cb80-39"><a href="#cb80-39" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(totcount_type, <span class="fu">aes</span>(<span class="at">x =</span> ToxinType, <span class="at">y =</span> Count)) <span class="sc">+</span></span>
+<span id="cb80-40"><a href="#cb80-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb80-41"><a href="#cb80-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Toxin Type"</span>, <span class="at">x =</span> <span class="st">"Type of Toxin Outbreak"</span>, <span class="at">y =</span> <span class="st">"Total Count"</span>) <span class="co">#Make a bar plot with each differing identity of bot type listed on the x axis</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="cdcdata-exercise_files/figure-html/capturing-bottype-toxintype-association-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The distribution is nearly unchanged, but now most A, B, and E values occur in the same observations as foodborne <code>BotTypes</code>.</p>
+
+
 </section>
 </section>
 
