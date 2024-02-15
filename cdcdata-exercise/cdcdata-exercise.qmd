@@ -237,3 +237,288 @@ The summary statistics of the final data set is shown here.The values for Califo
 summary(cdcdata5)
 skim(cdcdata5)
 ```
+
+# <span style="color: red;"> This section contributed by Cora Hirst </span>
+
+In this section, I will be generating a dataset that looks similar to the `Botulism.csv` dataset after Rachel's processing. 
+
+## Synthesis of Rachel's description of the dataset 
+
+1903 cbservations across 5 variables: 
+
+- `State` factor with 50 levels (States)
+- `Year` number with range 1910 - 2017
+- `BotType` factor with 4 levels ("Foodborne", "Infant", "Wound", "Other")
+- `ToxType` factor with 9 levels ("A", "AB", "ABE", "B", "BF", "E", "EF", F", "Unknown")
+"Because the outcome of interest is botulism case count (Count), I will check the normalcy and distribution of the variable count. I used ChatGPT to ask what kind of plot I can use to show me the distribution of Count. If output a code for a histogram that shows a density distribution. This shows that the data is highly right-skewed." 
+
+"I found the max count value to be 59, so I will identify the row of this value.
+Now seeing that this outlier is from 1977 Michigan, I will search for this outbreak.
+This data point is important and will therefore be kept."
+
+"I will check the frequency of year using a histogram plot, similar to the distribution plot used for count.
+Most data has been collected in more recent years, so the data is left-skewed."
+
+"It looks like total botulism cases have greatly increased in recent years, botulism surveillance has greatly improved, or the suspected botulism case had changed around 1970 to become more broad. Whichever is the case, the total botulism case count per state has greatly increased starting around 1970."
+
+
+"First I will see the total cases per state. For this I will first aggregate the count values to get a total for each state. Next, I will make a histogram of the total case count versus state.
+One state has an extremely high total case count. I will identify max value by using the same method I used when identifying the max count value. This extreme value takes place in California. I will now fact check this with online literature... I will remove all of the rows with the value California."
+
+"There are a few higher count values, such as for Oregon, but there seems to be no outstanding outliers. Because of this, we will move 
+
+"Infant botulism seems slightly more frequent than foodborne botulism. Wound botulism is much less common, but has a frequency close to "other" types of botulism."
+
+"It seems that the toxin type B is responsible for the highest case count, followed by A, unknown, and lastly, E. The toxin type is unknown for a significant chunk of cases in comparison to known types. The known types AB, ABE, BF, and F contribute to a very small portion of botulism cases in the U.S. compared to A, B, and E."
+
+"It seems that toxin types A, B, E, and unknown are associated with the type of outbreak. Assuming that foodborne is the reference, as it is listed at the first factor level, this might mean there is an association between toxins A, B, E, and unknown with foodborne botulism outbreaks." <span style="color: red;"> 
+
+## Generating synthetic dataset
+
+First, I want to ensure that the distribution of the `Counts` variable is right-skewed, reflecting that there are many more yearly reports with few cases than reports with many.
+
+```{r generate-Count-data}
+set.seed(123)
+#case_counts, right skewed 
+Count = floor(rbeta(1900,1,160)*1000) #drawing random samples from a beta distribution rescaling, and using floor to ensure they are integers
+ggplot() + geom_histogram(aes(x =Count))
+ggplot() + #Create a boxplot of count 
+  geom_boxplot(aes(y = Count), fill = "skyblue", color = "black") + #Fill colors are used as box is far too compressed to notice otherwise
+  labs(title = "Box Plot of Counts", y = "Counts")
+
+```
+
+Now, I'd like to ensure that the distribution of the "Year" variable is left-skewed, reflecting that the practice of reporting has increased with time; however, there appear to be two little "humps" - a flatter distribution between 1910 and 1960, and another thinner distribution between 1960 - 2017. 
+
+```{r generate-Year-data}
+set.seed(123)
+#approximately normal distribution before 1960
+before_1960 = cdcdata5 %>%
+  filter(Year <=1960) %>%
+  summarise(mean = floor(mean(Year)), 
+          sd = sd(Year), 
+          obs = length(Year))
+
+#approximately normal distribution after 1960 
+after_1960 = cdcdata5 %>%
+  filter(Year > 1960) %>%
+  summarise(mean = floor(mean(Year)), 
+          sd = sd(Year), 
+          obs = length(Year))
+
+#distribution of years 
+Year = ceiling(c(rnorm(n = before_1960$obs, mean = before_1960$mean, sd = before_1960$sd), rnorm(n = after_1960$obs, mean = after_1960$mean, sd = after_1960$sd)))
+
+
+# we will need to delete observations outside of the range we are looking for
+Year = Year[(Year >= 1911) & (Year <= 2017)]
+
+# but we need to 1) ensure that we have 1900 observations, and 2) add a few more observation to the range between our distributions, say, 1945-1970
+n_obs = length(Year)
+Year = c(Year, runif(n = (1900-n_obs), min = 1945, max = 1965))
+
+
+# How's it looking, boys? 
+ggplot() + geom_histogram(aes(x = Year, y = ..density..)) + geom_density(aes(x = Year), alpha = 0.2)
+
+
+
+```
+Now, we want to try to mimic the correlation between the total "Count" of the number of cases and "Year" of the reported counts - this correlation follows the shape of the distribution of "Year", which makes sense. However, we may also want to associate lower count numbers with earlier years, as well.  
+
+```{r correlation-between-Counts-and-Years}
+
+## How close are we by nature of the year distribution alone?
+df = data.frame(Year = Year,
+                Count = Count)
+totcount_year <- aggregate(Count ~ Year, data = df, FUN = sum) #Use aggregate() to find the sum count for each year value
+ggplot() + geom_point(data = totcount_year, aes(x = Year, y = Count)) + labs(x = "Year", y = "total Count")
+
+
+```
+
+There's a good amount of sums between 1925 and 1950 with low case counts, and a good number of low case counts in more recent years than Rachel observed. How do fix this? Lets take some of the case numbers from the middle (10-20) and randomly replace them with a random number between 0 and 5. 
+
+```{r adjusting-years-counts}
+ggplot() + geom_point(data = df, aes(x = Year, y = Count)) + labs(title = "synthetic data")
+
+ggplot() + geom_point(data = cdcdata5, aes(x = Year, y = Count)) + labs(title = "processed CDC data")
+
+#lets take some of the case numbers from the middle (10-20) and randomly replace them with a random number between 0 and 5. 
+
+range_toobig = range(which(sort(df$Count) >= 10 &  sort(df$Count) <= 40))
+df$Count = sort(df$Count)
+df$Count[sample(range_toobig[1]:range_toobig[2], size = diff(range_toobig)/1.5, replace = F)] = runif(diff(range_toobig)/1.5, 0,5)
+
+df$Count = sample(df$Count)
+
+ggplot() + geom_point(data = df, aes(x = Year, y = Count)) + labs(title = "synthetic data adjusted")
+
+
+totcount_year <- aggregate(Count ~ Year, data = df, FUN = sum) #Use aggregate() to find the sum count for each year value
+ggplot() + geom_point(data = totcount_year, aes(x = Year, y = Count)) + labs(y = "total Count", x = "year")
+
+
+```
+
+Now, I'd like to try to add in some state data. Without data from California, it looks like the total counts for states are somewhat uniform between 0 and 200 total counts. However, a few states have higher numbers of total cases - these are Alaska, Oregon, Washington, New Jersey, and Colorado. 
+
+
+```{r generate-State-data}
+set.seed(123)
+#randomly generated a vector of state names whose frequencies are uniformly distributed
+state_names = c(levels(factor(cdcdata5$State)))
+State = sample(state_names, size = 1900, replace = T)
+
+df$State = State
+
+#reproduce plot
+totcount_state <- aggregate(Count ~ State, data = df, FUN = sum) #aggregate and sum the count by the state value
+ggplot(totcount_state, aes(x = State, y = Count)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  theme(axis.text.x = element_text(angle = 90)) + #Rotate x axis labels
+  geom_point() + 
+  labs(title = "Botulism Count for each State (except CA) in the U.S.", x = "State", y = "Total Case Count")
+
+#so this clearly didn't work too well!
+
+```
+
+What i'd like to know is the frequencies of the observations of each state in the dataset, and to utilize these frequencies to determine whether the original observations were an artifact of reporting bias!
+
+```{r}
+set.seed(123)
+#frequencies of each state in a named vector
+state_counts = cdcdata5 %>%
+  group_by(State) %>%
+  count()
+state_freqs = state_counts$n/nrow(cdcdata5)
+names(state_freqs) = state_counts$State
+
+#use frequencies to generate a vector of states with the same frequencies
+State = sample(names(state_freqs), size = nrow(df), prob = state_freqs, replace = T)
+
+#add to df 
+df$State = State
+
+#let's plot frequency 
+totcount_state <- aggregate(Count ~ State, data = df, FUN = sum) #aggregate and sum the count by the state value
+ggplot(totcount_state, aes(x = State, y = Count)) + #use geom_point() to create a scatterplot for the total year count data frame that was created
+  theme(axis.text.x = element_text(angle = 90)) + #Rotate x axis labels
+  geom_point() + 
+  labs(title = "Botulism Count for each State (except CA) in the U.S.", x = "State", y = "Total Case Count")
+
+```
+We've captured that states that report more have a higher OBSERVED total case count, and that doesn't mean, necessarily, that botulism is more common there! So no further manipulation needed other than sampling states according to frequency of observations. 
+
+Lastly, I would like to add the `BotTyp` and `ToxinType` data to our synthetic data. 
+
+First, I will generate a vector of `BotType` using the frequencies of botulism types from the `cdcdata5` processed dataset. 
+
+```{r gnerating-bottype}
+set.seed(123)
+#determine counts of BotTypes
+botType_counts = cdcdata5 %>%
+  group_by(BotType) %>%
+  count()
+
+#determine frequencies of BotTypes
+botType_freqs = botType_counts$n/nrow(cdcdata5)
+names(botType_freqs) = botType_counts$BotType
+
+#use frequencies to generate a vector of states with the same frequencies
+BotType = sample(names(botType_freqs), size = nrow(df), prob = botType_freqs, replace = T) # for anyone reading this, notice how each of the arguments is dependent upon some other variable I've named, and I'm not direclty entering its value! It makes is a lot easier in the future to change something somewhere higher up in the pipeline, and be able to keep this code the same :)
+
+#add to df 
+df$BotType = BotType
+
+#plot to be sure we've captured the nature of the true data!
+totcount_type <- aggregate(Count ~ BotType, data = df, FUN = sum) #Aggregate the count sum by the type of botulism
+ggplot(totcount_type, aes(x = BotType, y = Count)) +
+  geom_bar(stat = "identity") + 
+  labs(title = "Distribution of Botulism Type", x = "Type of Botulism Outbreak", y = "Total Count") #Make a bar plot with each differing identity of bot type listed on the x axis
+```
+Infant type botulism is slightly greater in number than foodborne, but to a slightly greater degree than in the original dataset. However, our goal is grasp the NATURE of the dataset, not to recreate it in its entirety. Hense, this is a probable distribution of Botulism by type!
+
+Similar to the frequency approach used to generate the entires for each `State` and `BotType` observation, I will use the frequencies of each toxin type in the `cdcdata5` dataset to generate a synthetic, possible distribution of cases by toxin type. 
+
+```{r generating-toxinType}
+set.seed(123)
+
+#fount the number of each toxintype
+toxType_counts = cdcdata5 %>%
+  group_by(ToxinType) %>%
+  count()
+
+#determine frequencies of BotTypes
+toxType_freqs = toxType_counts$n/nrow(cdcdata5)
+names(toxType_freqs) = toxType_counts$ToxinType
+
+#use frequencies to generate a vector of toxtypes with the same frequencies
+ToxinType = sample(names(toxType_freqs), size = nrow(df), prob = toxType_freqs, replace = T)
+
+#add to df 
+df$ToxinType = ToxinType
+
+#plot to be sure we've captured the nature of the true data!
+totcount_type <- aggregate(Count ~ ToxinType, data = df, FUN = sum) #Aggregate the count sum by the type of toxin
+ggplot(totcount_type, aes(x = ToxinType, y = Count)) +
+  geom_bar(stat = "identity") + 
+  labs(title = "Distribution of Toxin Type", x = "Type of Toxin Outbreak", y = "Total Count") #Make a bar plot with each differing identity of bot type listed on the x axis
+
+```
+
+Here's the potentially challenging bit - we'd like to be sure to capture the correlations between Botulism type and Toxin type (`ToxinType`). Rachel used a logistic regression to capture that toxin types A, B, E, and unknown are associated with the type of outbreak, and discovered in the literature that types A, B, and E are associated with foodborne outbreaks. 
+
+To try to capture this association, I will sort the `BotType` vector alphabetically. Then, I will randomly sample types "A", "B", and "E" according to their frequencies relative to the total number of these types, only, to generate a vector as long as the number of Foodboorne observations there are. 
+
+Then we will want to generate the rest of the Toxin_type data. They can be randomly selected according to their frequencies, but independent of the `BotType with which they'll be associated.`
+
+However, now we need to adjust the probability of selecting "A", "B", or "E" according to however many were just selected, or their frequencies will be even higher! 
+
+
+```{r capturing-bottype-toxintype-association}
+set.seed(123)
+#arrange BotType alphabetically - starting with Foodborne - in the dataframe, df
+df = df %>%
+  arrange(BotType)
+
+#determine the range of observations with bottype "foodborne"
+botType_range = range(which(df$BotType == "Foodborne"))
+
+#now, we want to sample from A, B, and E with their frequencies relative to the total number of A, B, and E
+ABE_freqs = toxType_counts %>%
+  filter(ToxinType == "A" | ToxinType == "B" | ToxinType == "E") # | means "or"
+
+foodborne_ToxTypes = sample(ABE_freqs$ToxinType, size = diff(botType_range), prob = ABE_freqs$n/sum(ABE_freqs$n), replace = T)
+
+#Now, we want to generate the rest of the Toxin_type data. They can be randomly selected according to their frequencies, but independent of the bottype with which they'll be associated.
+
+
+# first, we will determine their current frequencies with regard to the total number of observations:
+foodborne_ToxTypes_counts = as.data.frame(table(foodborne_ToxTypes))
+foodborne_ToxTypes_counts = foodborne_ToxTypes_counts %>%
+  filter( foodborne_ToxTypes != "EF") #these toxtypes are not present in the processed cdc dataset and are an artifact of factoring 
+foodborne_ToxTypes_counts = foodborne_ToxTypes_counts$Freq
+
+#now we will determine how many As, Bs, and Es are included in the df$ToxinType variable 
+ToxType_counts = df %>%
+  group_by(ToxinType) %>%
+  count()
+ToxinType_counts = ToxType_counts$n
+names(ToxinType_counts) = ToxType_counts$ToxinType
+
+#now, we will recalutalte the expected frequencies of the toxin types for the remainder of the toxintype variable vector
+remaining_freqs_to_prob = (ToxinType_counts - foodborne_ToxTypes_counts)/(nrow(df)-diff(botType_range)) #we are dividing the remaining number of each toxintype that need to be included in the dataset by the total number of "spaces" (non Foodborne observations) left to fill in the dataset
+
+# finally! We get to replace the ToxinType variable with a vector of the foodborne probs (which will be listed first, next to the sorted foodborne recordings) and a sample for the other observations using these probabilities!
+df$ToxinType = c(as.character(foodborne_ToxTypes), sample(names(ToxinType_counts), size = nrow(df)-diff(botType_range), prob = remaining_freqs_to_prob, replace = T))
+
+#lets see if we've maintained the frequency distribution of the data: 
+totcount_type <- aggregate(Count ~ ToxinType, data = df, FUN = sum) #Aggregate the count sum by the type of toxin
+ggplot(totcount_type, aes(x = ToxinType, y = Count)) +
+  geom_bar(stat = "identity") + 
+  labs(title = "Distribution of Toxin Type", x = "Type of Toxin Outbreak", y = "Total Count") #Make a bar plot with each differing identity of bot type listed on the x axis
+
+```
+
+The distribution is nearly unchanged, but now most A, B, and E values occur in the same observations as foodborne `BotTypes`. 
