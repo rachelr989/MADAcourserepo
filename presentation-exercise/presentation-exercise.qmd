@@ -18,9 +18,14 @@ specific elements, such as trees, clouds, grass, mountains, etc. The 381
 paintings that he produced during his show "The Joy of Painting" each
 contain a combination of these elements and themes. The presence of each
 element was quantified for each episode (or painting) by measuring the
-presence (1) or absence (0) of that element.
+presence (1) or absence (0) of that element. The original figure
+produced from this data is shown below:
 
-The link to the source data is included here:
+![Figure 1. Percentage of inclusion of elements within the paintings of
+Bob Ross, by Walt
+Hickey](/presentation-exercise/bob-ross-figure.png){width="70%"}
+
+The link to the source article:
 *https://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/*
 
 I began by downloading the csv file from FiveThirtyEight's GitHub
@@ -251,12 +256,12 @@ is.
 I will now produce a professional-looking table from the data previously
 used to create the bar graph. I start by giving ChatGPT this prompt:
 
->Create a professional-looking from the data frame called freq_df. Let
-the values in the key column be labels in the left column of the table.
-Let the values in the column value be the right column of the table. Let
-the title of the table be "Percentage of Use for Each Element in Bob
-Ross' Paintings". Let the column labels be bold. Use a skyblue and white
-pattern for the body of the table.
+> Create a professional-looking from the data frame called freq_df. Let
+> the values in the key column be labels in the left column of the
+> table. Let the values in the column value be the right column of the
+> table. Let the title of the table be "Percentage of Use for Each
+> Element in Bob Ross' Paintings". Let the column labels be bold. Use a
+> skyblue and white pattern for the body of the table.
 
 I originally recieved an error saying that R could not find the function
 row_spec, so I pasted the error message into ChatGPT. Because I was
@@ -276,11 +281,19 @@ geom_text(aes(label = paste0(value, "%"), x = 2, y = seq(0.9, 0.5, length.out = 
   labs(title = "Percentage of Use for Each Element in Bob Ross' Paintings")  # Add title
 
 ```
-Even after a long while of bac and forth, I was unable to space the lines and format the table as I preferred. Instead, I asked ChatGPT to produce the table previously requested, but with using knitr instead of ggplot.
+
+Even after a long while of bac and forth, I was unable to space the
+lines and format the table as I preferred. Instead, I asked ChatGPT to
+produce the table previously requested, but with using knitr instead of
+ggplot.
+
 ```{r}
 knitr::kable(freq_br, caption = "Percentage of Use for Each Element in Bob Ross' Paintings")
 ```
-I added prompts to ChatGPT to change the colors to alternating skyblue and white and to make the table "professional looking".
+
+I added prompts to ChatGPT to change the colors to alternating skyblue
+and white and to make the table "professional looking".
+
 ```{r}
 kable(freq_br, caption = "Percentage of Use for Each Element in Bob Ross' Paintings") %>%
   kable_styling(full_width = FALSE, 
@@ -290,7 +303,12 @@ kable(freq_br, caption = "Percentage of Use for Each Element in Bob Ross' Painti
                 repeat_header_text = "Table 1: Percentage of Use for Each Element in Bob Ross' Paintings") %>%
   column_spec(1:2, background = c("skyblue", "white"))
 ```
-After seeing the length of this table, I decided to consolidate it to the top 10 elements. I prompted it to shorten the table by only showing the top 10 elements. This took quite a bit of back and forth, but I finally ended with a smaller table.
+
+After seeing the length of this table, I decided to consolidate it to
+the top 10 elements. I prompted it to shorten the table by only showing
+the top 10 elements. This took quite a bit of back and forth, but I
+finally ended with a smaller table.
+
 ```{r}
 # Calculate total frequency
 total_frequency <- sum(freq_br$value)
@@ -323,7 +341,10 @@ combined_data %>%
   column_spec(1:2, background = c("skyblue", "white"))
 
 ```
-Lastly, I will round the digits in the values column to two decimal places.
+
+Lastly, I will round the digits in the values column to two decimal
+places.
+
 ```{r}
 # Calculate total frequency
 total_frequency <- sum(freq_br$value)
@@ -361,4 +382,3 @@ combined_data %>%
                 repeat_header_text = "Table 1: Percentage of Use for Top Elements in Bob Ross' Paintings") %>%
   column_spec(1:2, background = c("skyblue", "white"))
 ```
-
