@@ -157,6 +157,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../cdcdata-exercise/cdcdata-exercise.html">
  <span class="dropdown-text">CDC Data Exercise</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../fitting-exercise/fitting-exercise.html">
+ <span class="dropdown-text">Model Fitting Exercise</span></a>
+  </li>  
     </ul>
   </li>
 </ul>
@@ -277,9 +281,8 @@ Attaching package: 'naniar'</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>() <span class="co">#confirm that the file is in the working directory</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Botulism.csv"               "cdcdata-exercise.html"     
-[3] "cdcdata-exercise.qmd"       "cdcdata-exercise.rmarkdown"
-[5] "cdcdata-exercise_files"    </code></pre>
+<pre><code>[1] "Botulism.csv"               "cdcdata-exercise.qmd"      
+[3] "cdcdata-exercise.rmarkdown"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cdcdata <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"Botulism.csv"</span>) <span class="co">#read the csv file</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">

@@ -22,6 +22,8 @@ website:
             file: tidytuesday-exercise/tidytuesday-exercise.qmd
           - text: "CDC Data Exercise"
             file: cdcdata-exercise/cdcdata-exercise.qmd
+          - text: "Model Fitting Exercise"
+            file: fitting-exercise/fitting-exercise.qmd
     right:
       - icon: github 
         href: https://github.com/rachelr989/MADAcourserepo      
