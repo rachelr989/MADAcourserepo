@@ -208,7 +208,7 @@ I will now use this model to predict the trial data. This will allow me to calcu
 ```{r}
 trial_fit1 <- 
   trials_workflow1 %>% 
-  fit(data = train_data) # shows model to fit the data sued from training from the aforementioned workflow
+  fit(data = train_data) # shows model to fit the data used from training from the aforementioned workflow
    predict(trial_fit1, test_data) #predict the outcome Y
 trial_aug <- 
   augment(trial_fit1, test_data)
@@ -352,3 +352,239 @@ ROC2_2 <- lr_trial_aug %>%
 print(ROC2)
 ```
 With a AUC of 0.62 and 0.38, both predictions are equally good, but also both not the greatest. AUC values closer to 0.5 means the model is more near a random model versus an AUC close to 0 or 1, which might show good predictive power.
+
+# Part 2
+## Model Improvement
+For this exercise, we will be using the data previously used to fit our linear and logistic models to create new models and improve those models.
+We will be using tidymodels and the packages previously opened for the first part of this exercise.
+We will start this exercise by eliminating the variable entitled RACE because it has values (7 and 88) with too few observations, and which might be acting as outliers.
+```{r}
+trial_data5 <- subset(trial_data4, select = -RACE) # Use subset to column to drop 
+str(trial_data5) # check structure of new df
+```
+
+Next, we will set a seed for reproducibility. And split the data with 75% in the training set and 25% in the testing set.
+```{r}
+rngseed <- 1234
+set.seed(rngseed) # set seed according to the variable rngseed (which equals 1234)
+# Data Splitting
+trial5_split <- initial_split(trial_data5, prop = 3/4)# create new data frame with the 3/4 split
+train_data2 <- training(trial5_split) # create data frame for training data
+test_data2  <- testing(trial5_split) # create data frame for testing data
+```
+Next, I will produce a linear model with just one predictor, DOSE, the outcome, or the Y variable. I will then produce a full model including all of the predictors: DOSE, AGE, SEX, WT, and HT.
+```{r}
+# Single Predictor Model (Y v. DOSE)
+single_rec <- 
+  recipe(Y ~ DOSE, data = train_data2) # specify the recipe by putting the formula for the null linear model
+
+single_linreg <- linear_reg() %>% # make object called null_linreg for linear_regression function
+  set_engine("lm") %>% # set linear regression engine to lm
+  set_mode("regression") # set to regression mode
+
+workflow_single <- workflow() %>% #create a workflow for the linear model called workflow_null
+    add_model(single_linreg) %>% #apply the linear regression model
+  add_recipe(single_rec) #then, apply the recipe
+
+single_lmfit <- 
+  workflow_single %>% 
+  fit(data = train_data2) # fit Y to dose using ONLY the training data
+tidy(single_lmfit) # produce tibble for linear regression fit
+```
+
+
+```{r}
+# Full model (Y v. all predictors)
+full_rec <- 
+  recipe(Y ~ ., data = train_data2) # specify the recipe by putting the formula for the linear model with all the predictors
+
+full_linreg <- linear_reg() %>% # make object called full_linreg for linear_regression function
+  set_engine("lm") %>% # Use the same linear regression engine as the null model
+  set_mode("regression") # and also, set to regression mode
+
+workflow_full <- workflow() %>% #create a workflow for the full linear model called workflow_full
+    add_model(full_linreg) %>% #apply the new linear regression model
+  add_recipe(full_rec) #then, apply the recipe
+
+full_lmfit <- 
+   workflow_full %>% # add the workflow to the fit
+  fit(data = train_data2) # fit Y to dose using ONLY the training data
+tidy(full_lmfit) # produce tibble to organize the resulting linear regression fit
+```
+### Using RMSE to evaluate linear models
+Now I will compute the predictions that are made by both the singular predictor model and the full model. RMSE will be calculated using the observed versus the predicted values. 
+Lastly, we will compare these RMSE values to the RMSE of the null model as fitted using the null_model() function. 
+```{r}
+# Make predictions with the single predictor linear model
+predict(single_lmfit, test_data2) #predict the outcome Y from the single predictor linear model (Y v. dose)
+single_aug <- 
+  augment(single_lmfit, test_data2) # add columns of interest to new data frame
+single_aug %>%
+  select("Y", "DOSE") # select columns to add to the data frame
+names(single_aug) # check the names
+
+# Calculate the RMSE of the single predictor model
+rmse_sing <- rmse(data = single_aug,
+             truth = Y,
+             estimate = .pred) %>% 
+  print(rmse_sing) # Evaluate RMSE based on the results
+
+# Make predictions with the full predictor linear model
+predict(full_lmfit, test_data2) #predict the outcome Y from the FULL predictor linear model (Y v. all predictors)
+full_aug <- 
+  augment(full_lmfit, test_data2) # add predictions to new data frame
+full_aug %>%
+  select("Y", "DOSE", "AGE", "SEX", "WT", "HT") # select columns to add to the data frame
+names(full_aug) # check the names for the columns
+
+# Calculate the RMSE of the full model
+rmse_full <- rmse(data = full_aug,
+             truth = Y,
+             estimate = .pred) %>% 
+  print(rmse_full) # Evaluate RMSE based on the results
+
+# Make predictions using a null model
+blank_model <- null_model() %>% 
+  set_engine("parsnip") %>% 
+  set_mode("regression") # use the null_model function and the parsnip engine to create a blank model
+
+blank_rec <-
+  recipe(Y ~ 1, data = train_data2) # produce recipe for blank model
+
+workflow_blank <- workflow() %>% #create a workflow for the null model called workflow_blank
+    add_model(blank_model) %>% #apply the new null model
+  add_recipe(blank_rec) #then, apply the recipe
+
+blank_fit <- 
+   workflow_blank %>% # add the workflow to the fit
+  fit(data = train_data2) # fit Y to dose using ONLY the training data
+tidy(blank_fit) # produce tibble to organize the resulting linear regression fit
+
+predict(blank_fit, test_data2) #predict the outcome Y from the BLANK predictor linear model
+blank_aug <- 
+  augment(blank_fit, test_data2) # add predictions to new data frame
+blank_aug %>%
+  select("Y", "DOSE", "AGE", "SEX", "WT", "HT") # select columns to add to the data frame
+names(blank_aug) # check the names for the columns
+
+# Calculate the RMSE of the blank model
+rmse_blank <- rmse(data = blank_aug,
+             truth = Y,
+             estimate = .pred) %>% 
+  print(rmse_blank) # Evaluate RMSE based on the results
+```
+The RMSE for the single predictor model, full model, and null model are 560, 520, and 993 respectively. This is not equal to the values found by Dr. Handel, however I did set the seed in the initial step.
+The RMSE of both the full and single predictor models are similar, with a difference of 60, while the RMSE for the null model is much greater than both models including predictors. The null model has an RMSE that with a difference of 433 and 393 for the single predictor and full models, respectively.
+This reflects that both models that contain predictors are better at predicting values based on the original observations, than the null model is at predicting the observations. This means that both models including predictors are better than random models, and capture some trend using linear regression.
+### Using cross validation to evaluate linear models
+I will now use cross validation to evaluate the linear models and null model that were produced. Cross validation is a re-sampling method to measure model performance while accounting for the variance-bias trade off. Here, we will use a 10-fold cross validation method, which compares the train and test data 10 times (using different subsamples) using RMSE to check for consistancy in model predictions.
+I start by specifying the workflow for the cross validation method. Then I will use the fit_resamples function to perform the CV fit. I will use RMSE to compare each models' CV fit.
+```{r}
+# Single Predictor Linear Model Cross Validation
+folds <- vfold_cv(trial_data5, v = 10)
+single_cv_wf <- 
+  workflow() %>% #define an object for the cv workflow 
+  add_model(single_linreg) %>% # add in the previous linear model
+  add_recipe(single_rec) # specify the formula for the first linear model
+
+single_fit_cv <- 
+  single_cv_wf %>% # apply cv workflow to an object for the cv fit
+  fit_resamples(folds) # specify the number of folds for the cv
+print(single_fit_cv)
+
+# Examine rmse of the cv fit
+rmse_values1 <- single_fit_cv %>%
+  collect_metrics() %>% # get the metrics for all of the re-sampled folds
+  filter(.metric == "rmse") # filter by the rmse values only
+print(rmse_values1)
+
+# Full Linear Model Cross Validation
+full_cv_wf <- 
+  workflow() %>% #define an object for the cv workflow 
+  add_model(full_linreg) %>% # add in the previous linear model
+  add_recipe(full_rec) # specify the formula for the first linear model
+
+full_fit_cv <- 
+  full_cv_wf %>% # apply cv workflow to an object for the cv fit
+  fit_resamples(folds) # specify the number of folds for the cv
+
+# Examine rmse of the cv fit
+rmse_values2 <- full_fit_cv %>%
+  collect_metrics() %>% # get the metrics for all of the re-sampled folds
+  filter(.metric == "rmse") # filter by the rmse values only
+print(rmse_values2)
+
+# Null Model Cross Validation
+null_cv_wf <- 
+  workflow() %>% #define an object for the cv workflow 
+  add_model(blank_model) %>% # add blank model in
+  add_recipe(blank_rec)
+
+null_fit_cv <- 
+  null_cv_wf %>% # apply cv workflow to an object for the cv fit
+  fit_resamples(folds) # specify the number of folds for the cv
+
+# Examine rmse of the cv fit
+rmse_values3 <- null_fit_cv %>%
+  collect_metrics() %>% # get the metrics for all of the re-sampled folds
+  filter(.metric == "rmse") # filter by the rmse values only
+print(rmse_values3)
+```
+The mean RMSE for both models including predictors greatly increased, while the mean RMSE for the null model stayed nearly the same.
+For the model including a single predictor, the RMSE increased by 99 and the full model RMSE increased by 97. Both models had an rmse value increase by approximately the same magnitude.
+The standard error for all three models (including the null) are very similar (58, 53, and 55), which demonstrates consistency between models despite varying numbers of predictors being used.
+
+Lastly, I will run the code again with a different seed to see if the cross validation and rmse values change.
+```{r}
+set.seed(333)
+# Single Predictor Linear Model Cross Validation
+folds <- vfold_cv(trial_data5, v = 10)
+single_cv_wf <- 
+  workflow() %>% #define an object for the cv workflow 
+  add_model(single_linreg) %>% # add in the previous linear model
+  add_recipe(single_rec) # specify the formula for the first linear model
+
+single_fit_cv <- 
+  single_cv_wf %>% # apply cv workflow to an object for the cv fit
+  fit_resamples(folds) # specify the number of folds for the cv
+print(single_fit_cv)
+
+# Examine rmse of the cv fit
+rmse_values1 <- single_fit_cv %>%
+  collect_metrics() %>% # get the metrics for all of the re-sampled folds
+  filter(.metric == "rmse") # filter by the rmse values only
+print(rmse_values1)
+
+# Full Linear Model Cross Validation
+full_cv_wf <- 
+  workflow() %>% #define an object for the cv workflow 
+  add_model(full_linreg) %>% # add in the previous linear model
+  add_recipe(full_rec) # specify the formula for the first linear model
+
+full_fit_cv <- 
+  full_cv_wf %>% # apply cv workflow to an object for the cv fit
+  fit_resamples(folds) # specify the number of folds for the cv
+
+# Examine rmse of the cv fit
+rmse_values2 <- full_fit_cv %>%
+  collect_metrics() %>% # get the metrics for all of the re-sampled folds
+  filter(.metric == "rmse") # filter by the rmse values only
+print(rmse_values2)
+
+# Null Model Cross Validation
+null_cv_wf <- 
+  workflow() %>% #define an object for the cv workflow 
+  add_model(blank_model) %>% # add blank model in
+  add_recipe(blank_rec)
+
+null_fit_cv <- 
+  null_cv_wf %>% # apply cv workflow to an object for the cv fit
+  fit_resamples(folds) # specify the number of folds for the cv
+
+# Examine rmse of the cv fit
+rmse_values3 <- null_fit_cv %>%
+  collect_metrics() %>% # get the metrics for all of the re-sampled folds
+  filter(.metric == "rmse") # filter by the rmse values only
+print(rmse_values3)
+```
+The RMSE values for this cross validation are slightly lower than the previous; 669 for the single predictor model, 606 for the full model and 953 for the null model. The standard errors for all three fits have greatly decreased to 28, 48, and 41 respectively. Those rmse values with lower se values are likely a better reflection of model performance than the rmse values in the previous cv (with higher se).
