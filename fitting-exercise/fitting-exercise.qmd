@@ -362,12 +362,12 @@ We will start this exercise by eliminating the variable entitled RACE because it
 trial_data5 <- subset(trial_data4, select = -RACE) # Use subset to column to drop 
 str(trial_data5) # check structure of new df
 ```
-
 Next, we will set a seed for reproducibility. And split the data with 75% in the training set and 25% in the testing set.
 ```{r}
 rngseed <- 1234
 set.seed(rngseed) # set seed according to the variable rngseed (which equals 1234)
 # Data Splitting
+library(rsample)
 trial5_split <- initial_split(trial_data5, prop = 3/4)# create new data frame with the 3/4 split
 train_data2 <- training(trial5_split) # create data frame for training data
 test_data2  <- testing(trial5_split) # create data frame for testing data
@@ -414,11 +414,14 @@ tidy(full_lmfit) # produce tibble to organize the resulting linear regression fi
 ### Using RMSE to evaluate linear models
 Now I will compute the predictions that are made by both the singular predictor model and the full model. RMSE will be calculated using the observed versus the predicted values. 
 Lastly, we will compare these RMSE values to the RMSE of the null model as fitted using the null_model() function. 
+
+#Edited by Taylor Glass
+I noticed that the reason your RMSE values were not as expected is because you were using the test_data2 instead of the train_data2. This entire process should be using the train_data2 only, so I made those changes. The RMSE values are now 948, 702, and 627 respectively. 
 ```{r}
 # Make predictions with the single predictor linear model
-predict(single_lmfit, test_data2) #predict the outcome Y from the single predictor linear model (Y v. dose)
+predict(single_lmfit, train_data2) #predict the outcome Y from the single predictor linear model (Y v. dose)
 single_aug <- 
-  augment(single_lmfit, test_data2) # add columns of interest to new data frame
+  augment(single_lmfit, train_data2) # add columns of interest to new data frame
 single_aug %>%
   select("Y", "DOSE") # select columns to add to the data frame
 names(single_aug) # check the names
@@ -430,9 +433,9 @@ rmse_sing <- rmse(data = single_aug,
   print(rmse_sing) # Evaluate RMSE based on the results
 
 # Make predictions with the full predictor linear model
-predict(full_lmfit, test_data2) #predict the outcome Y from the FULL predictor linear model (Y v. all predictors)
+predict(full_lmfit, train_data2) #predict the outcome Y from the FULL predictor linear model (Y v. all predictors)
 full_aug <- 
-  augment(full_lmfit, test_data2) # add predictions to new data frame
+  augment(full_lmfit, train_data2) # add predictions to new data frame
 full_aug %>%
   select("Y", "DOSE", "AGE", "SEX", "WT", "HT") # select columns to add to the data frame
 names(full_aug) # check the names for the columns
@@ -460,9 +463,9 @@ blank_fit <-
   fit(data = train_data2) # fit Y to dose using ONLY the training data
 tidy(blank_fit) # produce tibble to organize the resulting linear regression fit
 
-predict(blank_fit, test_data2) #predict the outcome Y from the BLANK predictor linear model
+predict(blank_fit, train_data2) #predict the outcome Y from the BLANK predictor linear model
 blank_aug <- 
-  augment(blank_fit, test_data2) # add predictions to new data frame
+  augment(blank_fit, train_data2) # add predictions to new data frame
 blank_aug %>%
   select("Y", "DOSE", "AGE", "SEX", "WT", "HT") # select columns to add to the data frame
 names(blank_aug) # check the names for the columns
@@ -588,3 +591,124 @@ rmse_values3 <- null_fit_cv %>%
 print(rmse_values3)
 ```
 The RMSE values for this cross validation are slightly lower than the previous; 669 for the single predictor model, 606 for the full model and 953 for the null model. The standard errors for all three fits have greatly decreased to 28, 48, and 41 respectively. Those rmse values with lower se values are likely a better reflection of model performance than the rmse values in the previous cv (with higher se).
+
+# This part added by Taylor Glass. 
+## Model Predictions
+I will plot the observed and predicted values from the first 3 models with all of the training data. I will create a data frame with these values first and add a label to indicate the model. 
+```{r}
+# set seed for reproducibility
+set.seed(rngseed)
+
+# create data frame with the observed values and 3 sets of predicted values 
+plotdata <- data.frame(
+  observed = c(train_data2$Y), 
+  predicted_null = c(blank_aug$.pred), 
+  predicted_model1 = c(single_aug$.pred), 
+  predicted_model2 = c(full_aug$.pred), 
+  model = rep(c("null model", "model 1", "model 2"), each = nrow(train_data))) # add label indicating the model
+plotdata
+```
+
+I will use the new data frame to create a visualization. 
+```{r}
+# create a visual representation
+ggplot(plotdata, aes(x = observed)) +
+  geom_point(aes(y = predicted_null, color = "null model"), shape = 1) +
+  geom_point(aes(y = predicted_model1, color = "model 1"), shape = 2) +
+  geom_point(aes(y = predicted_model2, color = "model 2"), shape = 3) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") + #add the 45 degree line
+  xlim(0, 5000) + #limit the x-axis values
+  ylim(0, 5000) + #limit the y-axis values
+  labs(x = "Observed Values", y = "Predicted Values")
+```
+The predictions from the null model are a horizontal line because each prediction is just the mean observation. The predictions from model 1 with the `DOSE` variable only are shown in three horizontal lines, which makes sense because the `DOSE` variable has 3 discrete values. The predicted values should be the same for each of those 3 dosage values because there are only 3 original values to predict. The predictions for model 2 with all variables is the best and shows a lot of scatter that seems to follow a pattern along the 45 degree line. 
+
+To determine if there is a pattern in the residuals, I will plot the predicted values against the residuals. The formula for finding the residual is just (predicted-observed). I will create a new data frame with the predicted values and residuals first. 
+```{r}
+# create data frame with predictions and residuals for model 2
+plotresiduals <- data.frame(
+  predicted_model2 = c(full_aug$.pred), 
+  residuals = c(full_aug$.pred - full_aug$Y)) #calculate residuals by predicted - observed
+plotresiduals
+```
+
+I will plot the new residual values to look for any patterns. 
+```{r}
+# plot predictions versus residuals for model 2
+ggplot(plotresiduals, aes(x=predicted_model2, y=residuals)) + 
+  geom_point() + 
+  geom_abline(slope = 0, intercept = 0, color = "pink", size = 1.5) + #add straight line at 0
+  ylim(-2000,2000) + #make sure y-axis goes the same amount in positive and negative direction
+  labs(x= "Predicted Values", y= "Residuals")
+```
+As Dr. Handel suggested, I see a pattern in these residuals because there are more and higher negative residuals compared to positive residuals. There are 6 observations less than -1000, but there is only 1 observation more than 1000. The positive residuals are grouped together more, while the negative residuals are more spaced out. This could be because there is important information missing or the model is too simple.
+
+## Model predictions and uncertainty
+To determine uncertainty in the predictions, I will use a bootstrap method to sample the data 100 times and fit the model to each set of predictions.
+```{r}
+# set the seed for reproducibility
+set.seed(rngseed)
+
+# create 100 bootstraps with the training data
+bootstraps <- bootstraps(train_data2, times = 100)
+
+# create empty vector to store predictions list 
+preds_bs <- vector("list", length = length(bootstraps))
+
+# write a loop to fit the model to each bootstrap and make predictions
+for (i in 1:length(bootstraps)) {
+  
+  bootstrap_sample <- analysis(bootstraps$splits[[i]])  # isolate the bootstrap sample
+  
+  model <- lm(Y ~ DOSE + AGE + HT + WT + SEX, data = bootstrap_sample) # fit the model using the bootstrap sample
+  
+  predictions <- predict(model, newdata = train_data) # make predictions with the training data
+  
+  preds_bs[[i]] <- predictions # store predictions in the empty vector
+}
+
+# find an individual bootstrap sample 
+sample <- analysis(bootstraps$splits[[i]])
+sample
+```
+
+Now that I have all of my predictions stored in a vector, I need to convert it to an array, so I can compute the median and 95% confidence intervals for each one. 
+```{r}
+# create an empty array to store the predictions
+num_samples <- length(preds_bs)
+num_datapoints <- length(preds_bs[[1]])  
+preds_array <- array(NA, dim = c(num_samples, num_datapoints))
+
+# fill the array with predictions from bootstrappping
+for (i in 1:num_samples) {
+  preds_array[i,] <- unlist(preds_bs[[i]])
+}
+
+# find the median and 95% confidence intervals of each prediction
+preds <- preds_array %>%
+          apply(2, quantile,  c(0.05, 0.5, 0.95)) %>%
+          t()
+```
+
+Finally, I will graph the observed values on the x-axis and point estimates from the training data on the y-axis. I will add the median and confidence intervals for the predictions from the bootstrap sampling to the y-axis as well.  
+```{r}
+# create a data frame with all the necessary variables
+finaldata <- data.frame(
+  observed = c(train_data2$Y), 
+  point_estimates = c(full_aug$.pred),
+  medians = preds[, 2],
+  lower_bound = preds[, 1],
+  upper_bound = preds[, 3]
+)
+
+# create visualization with all 5 variables 
+ggplot(finaldata, aes(x = observed, y = point_estimates)) +
+  geom_point(color = "black") +  
+  geom_point(aes(y = medians), color = "green") + 
+  geom_errorbar(aes(ymin = lower_bound, ymax = upper_bound), width = 0.1, color = "blue") + 
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +  # add 45 degree line
+  xlim(0, 5000) +
+  ylim(0, 5000) +
+  labs(x = "Observed Values", y = "Predicted Values")
+```
+This plot shows that our model does a good job of predicted the observed values because most of the point estimates lie around the 45 degree line. I think some of the variation shown in the bootstrap estimates is accounted for by the fact that the `DOSE` variable has 3 discrete values, so those predicted values will follow 3 horizontal lines as shown in a previous graph. All of the median values from the bootstrap sampling, shown in green, are father away from the 45 degree line than the actual predicted values, shown in black. There are many instances where the confidence interval from the bootstrapping estimate does not contain the point estimate, but some of the confidence intervals contain the point estimates, especially where the point estimates are clustered. I think this graph is evidence that our model is a decent option for this data because the general pattern of point estimates follows the expected 45 degree line. 
