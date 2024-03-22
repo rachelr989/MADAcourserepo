@@ -242,7 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ✖ dplyr::filter()  masks stats::filter()
 ✖ dplyr::lag()     masks stats::lag()
 ✖ recipes::step()  masks stats::step()
-• Use tidymodels_prefer() to resolve common conflicts.</code></pre>
+• Dig deeper into tidy modeling with R at https://www.tmwr.org</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr) <span class="co"># reading and importing data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -713,7 +713,7 @@ argument.</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>trial_fit1 <span class="ot">&lt;-</span> </span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  trials_workflow1 <span class="sc">%&gt;%</span> </span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> train_data) <span class="co"># shows model to fit the data sued from training from the aforementioned workflow</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> train_data) <span class="co"># shows model to fit the data used from training from the aforementioned workflow</span></span>
 <span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">predict</span>(trial_fit1, test_data) <span class="co">#predict the outcome Y</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 30 × 1
@@ -1060,6 +1060,1166 @@ argument.</code></pre>
 </div>
 </div>
 <p>With a AUC of 0.62 and 0.38, both predictions are equally good, but also both not the greatest. AUC values closer to 0.5 means the model is more near a random model versus an AUC close to 0 or 1, which might show good predictive power.</p>
+</section>
+</section>
+<section id="part-2" class="level1">
+<h1>Part 2</h1>
+<section id="model-improvement" class="level2">
+<h2 class="anchored" data-anchor-id="model-improvement">Model Improvement</h2>
+<p>For this exercise, we will be using the data previously used to fit our linear and logistic models to create new models and improve those models. We will be using tidymodels and the packages previously opened for the first part of this exercise. We will start this exercise by eliminating the variable entitled RACE because it has values (7 and 88) with too few observations, and which might be acting as outliers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>trial_data5 <span class="ot">&lt;-</span> <span class="fu">subset</span>(trial_data4, <span class="at">select =</span> <span class="sc">-</span>RACE) <span class="co"># Use subset to column to drop </span></span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(trial_data5) <span class="co"># check structure of new df</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   120 obs. of  6 variables:
+ $ Y   : num  2691 2639 2150 1789 3126 ...
+ $ DOSE: num  25 25 25 25 25 25 25 25 25 25 ...
+ $ AGE : num  42 24 31 46 41 27 23 20 23 28 ...
+ $ SEX : Factor w/ 2 levels "1","2": 1 1 1 2 2 1 1 1 1 1 ...
+ $ WT  : num  94.3 80.4 71.8 77.4 64.3 ...
+ $ HT  : num  1.77 1.76 1.81 1.65 1.56 ...</code></pre>
+</div>
+</div>
+<p>Next, we will set a seed for reproducibility. And split the data with 75% in the training set and 25% in the testing set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a>rngseed <span class="ot">&lt;-</span> <span class="dv">1234</span></span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed) <span class="co"># set seed according to the variable rngseed (which equals 1234)</span></span>
+<span id="cb105-3"><a href="#cb105-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Data Splitting</span></span>
+<span id="cb105-4"><a href="#cb105-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb105-5"><a href="#cb105-5" aria-hidden="true" tabindex="-1"></a>trial5_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(trial_data5, <span class="at">prop =</span> <span class="dv">3</span><span class="sc">/</span><span class="dv">4</span>)<span class="co"># create new data frame with the 3/4 split</span></span>
+<span id="cb105-6"><a href="#cb105-6" aria-hidden="true" tabindex="-1"></a>train_data2 <span class="ot">&lt;-</span> <span class="fu">training</span>(trial5_split) <span class="co"># create data frame for training data</span></span>
+<span id="cb105-7"><a href="#cb105-7" aria-hidden="true" tabindex="-1"></a>test_data2  <span class="ot">&lt;-</span> <span class="fu">testing</span>(trial5_split) <span class="co"># create data frame for testing data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, I will produce a linear model with just one predictor, DOSE, the outcome, or the Y variable. I will then produce a full model including all of the predictors: DOSE, AGE, SEX, WT, and HT.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Single Predictor Model (Y v. DOSE)</span></span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>single_rec <span class="ot">&lt;-</span> </span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Y <span class="sc">~</span> DOSE, <span class="at">data =</span> train_data2) <span class="co"># specify the recipe by putting the formula for the null linear model</span></span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>single_linreg <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span> <span class="co"># make object called null_linreg for linear_regression function</span></span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>) <span class="sc">%&gt;%</span> <span class="co"># set linear regression engine to lm</span></span>
+<span id="cb106-7"><a href="#cb106-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="co"># set to regression mode</span></span>
+<span id="cb106-8"><a href="#cb106-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-9"><a href="#cb106-9" aria-hidden="true" tabindex="-1"></a>workflow_single <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#create a workflow for the linear model called workflow_null</span></span>
+<span id="cb106-10"><a href="#cb106-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_model</span>(single_linreg) <span class="sc">%&gt;%</span> <span class="co">#apply the linear regression model</span></span>
+<span id="cb106-11"><a href="#cb106-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(single_rec) <span class="co">#then, apply the recipe</span></span>
+<span id="cb106-12"><a href="#cb106-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-13"><a href="#cb106-13" aria-hidden="true" tabindex="-1"></a>single_lmfit <span class="ot">&lt;-</span> </span>
+<span id="cb106-14"><a href="#cb106-14" aria-hidden="true" tabindex="-1"></a>  workflow_single <span class="sc">%&gt;%</span> </span>
+<span id="cb106-15"><a href="#cb106-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> train_data2) <span class="co"># fit Y to dose using ONLY the training data</span></span>
+<span id="cb106-16"><a href="#cb106-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(single_lmfit) <span class="co"># produce tibble for linear regression fit</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 5
+  term        estimate std.error statistic  p.value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)    535.     244.        2.19 3.08e- 2
+2 DOSE            53.4      6.29      8.50 4.41e-13</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Full model (Y v. all predictors)</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>full_rec <span class="ot">&lt;-</span> </span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Y <span class="sc">~</span> ., <span class="at">data =</span> train_data2) <span class="co"># specify the recipe by putting the formula for the linear model with all the predictors</span></span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a>full_linreg <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span> <span class="co"># make object called full_linreg for linear_regression function</span></span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>) <span class="sc">%&gt;%</span> <span class="co"># Use the same linear regression engine as the null model</span></span>
+<span id="cb108-7"><a href="#cb108-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="co"># and also, set to regression mode</span></span>
+<span id="cb108-8"><a href="#cb108-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-9"><a href="#cb108-9" aria-hidden="true" tabindex="-1"></a>workflow_full <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#create a workflow for the full linear model called workflow_full</span></span>
+<span id="cb108-10"><a href="#cb108-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_model</span>(full_linreg) <span class="sc">%&gt;%</span> <span class="co">#apply the new linear regression model</span></span>
+<span id="cb108-11"><a href="#cb108-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(full_rec) <span class="co">#then, apply the recipe</span></span>
+<span id="cb108-12"><a href="#cb108-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-13"><a href="#cb108-13" aria-hidden="true" tabindex="-1"></a>full_lmfit <span class="ot">&lt;-</span> </span>
+<span id="cb108-14"><a href="#cb108-14" aria-hidden="true" tabindex="-1"></a>   workflow_full <span class="sc">%&gt;%</span> <span class="co"># add the workflow to the fit</span></span>
+<span id="cb108-15"><a href="#cb108-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> train_data2) <span class="co"># fit Y to dose using ONLY the training data</span></span>
+<span id="cb108-16"><a href="#cb108-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(full_lmfit) <span class="co"># produce tibble to organize the resulting linear regression fit</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+  term         estimate std.error statistic  p.value
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)  4397.      2170.      2.03   4.59e- 2
+2 DOSE           55.3        5.83    9.49   6.09e-15
+3 AGE            -0.417      9.50   -0.0439 9.65e- 1
+4 SEX2         -569.       285.     -1.99   4.95e- 2
+5 WT            -22.6        7.65   -2.96   4.00e- 3
+6 HT          -1130.      1358.     -0.832  4.08e- 1</code></pre>
+</div>
+</div>
+<section id="using-rmse-to-evaluate-linear-models" class="level3">
+<h3 class="anchored" data-anchor-id="using-rmse-to-evaluate-linear-models">Using RMSE to evaluate linear models</h3>
+<p>Now I will compute the predictions that are made by both the singular predictor model and the full model. RMSE will be calculated using the observed versus the predicted values. Lastly, we will compare these RMSE values to the RMSE of the null model as fitted using the null_model() function.</p>
+<p>#Edited by Taylor Glass I noticed that the reason your RMSE values were not as expected is because you were using the test_data2 instead of the train_data2. This entire process should be using the train_data2 only, so I made those changes. The RMSE values are now 948, 702, and 627 respectively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions with the single predictor linear model</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(single_lmfit, train_data2) <span class="co">#predict the outcome Y from the single predictor linear model (Y v. dose)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 1
+   .pred
+   &lt;dbl&gt;
+ 1 3207.
+ 2 1871.
+ 3 2539.
+ 4 1871.
+ 5 3207.
+ 6 1871.
+ 7 1871.
+ 8 1871.
+ 9 1871.
+10 2539.
+# ℹ 80 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>single_aug <span class="ot">&lt;-</span> </span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(single_lmfit, train_data2) <span class="co"># add columns of interest to new data frame</span></span>
+<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a>single_aug <span class="sc">%&gt;%</span></span>
+<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"Y"</span>, <span class="st">"DOSE"</span>) <span class="co"># select columns to add to the data frame</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 2
+       Y  DOSE
+   &lt;dbl&gt; &lt;dbl&gt;
+ 1 3004.  50  
+ 2 1347.  25  
+ 3 2772.  37.5
+ 4 2028.  25  
+ 5 2353.  50  
+ 6  826.  25  
+ 7 3866.  25  
+ 8 3126.  25  
+ 9 1108.  25  
+10 2815.  37.5
+# ℹ 80 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(single_aug) <span class="co"># check the names</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Y"     "DOSE"  "AGE"   "SEX"   "WT"    "HT"    ".pred"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the RMSE of the single predictor model</span></span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>rmse_sing <span class="ot">&lt;-</span> <span class="fu">rmse</span>(<span class="at">data =</span> single_aug,</span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">truth =</span> Y,</span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">estimate =</span> .pred)</span>
+<span id="cb116-5"><a href="#cb116-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(rmse_sing) <span class="co"># Evaluate RMSE based on the results</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard        703.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions with the full predictor linear model</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(full_lmfit, train_data2) <span class="co">#predict the outcome Y from the FULL predictor linear model (Y v. all predictors)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 1
+   .pred
+   &lt;dbl&gt;
+ 1 3303.
+ 2 1953.
+ 3 2745.
+ 4 2081.
+ 5 2894.
+ 6 1265.
+ 7 2429.
+ 8 1976.
+ 9 1561.
+10 2549.
+# ℹ 80 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>full_aug <span class="ot">&lt;-</span> </span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(full_lmfit, train_data2) <span class="co"># add predictions to new data frame</span></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>full_aug <span class="sc">%&gt;%</span></span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"Y"</span>, <span class="st">"DOSE"</span>, <span class="st">"AGE"</span>, <span class="st">"SEX"</span>, <span class="st">"WT"</span>, <span class="st">"HT"</span>) <span class="co"># select columns to add to the data frame</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 6
+       Y  DOSE   AGE SEX      WT    HT
+   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1 3004.  50      28 1      83.2  1.74
+ 2 1347.  25      41 1      81    1.75
+ 3 2772.  37.5    28 1      78.3  1.72
+ 4 2028.  25      28 2      58.9  1.58
+ 5 2353.  50      37 1      99.1  1.78
+ 6  826.  25      30 1     105.   1.88
+ 7 3866.  25      23 1      65.3  1.65
+ 8 3126.  25      41 2      64.3  1.56
+ 9 1108.  25      48 2      79.5  1.62
+10 2815.  37.5    26 1      84.5  1.77
+# ℹ 80 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(full_aug) <span class="co"># check the names for the columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Y"     "DOSE"  "AGE"   "SEX"   "WT"    "HT"    ".pred"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(full_aug)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [90 × 7] (S3: tbl_df/tbl/data.frame)
+ $ Y    : num [1:90] 3004 1347 2772 2028 2353 ...
+ $ DOSE : num [1:90] 50 25 37.5 25 50 25 25 25 25 37.5 ...
+ $ AGE  : num [1:90] 28 41 28 28 37 30 23 41 48 26 ...
+ $ SEX  : Factor w/ 2 levels "1","2": 1 1 1 2 1 1 1 2 2 1 ...
+ $ WT   : num [1:90] 83.2 81 78.3 58.9 99.1 ...
+ $ HT   : num [1:90] 1.74 1.75 1.72 1.58 1.78 ...
+ $ .pred: num [1:90] 3303 1953 2745 2081 2894 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the RMSE of the full model</span></span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>rmse_full <span class="ot">&lt;-</span> <span class="fu">rmse</span>(<span class="at">data =</span> full_aug,</span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">truth =</span> Y,</span>
+<span id="cb126-4"><a href="#cb126-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">estimate =</span> .pred)</span>
+<span id="cb126-5"><a href="#cb126-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(rmse_full) <span class="co"># Evaluate RMSE based on the results</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard        627.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions using a null model</span></span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>blank_model <span class="ot">&lt;-</span> <span class="fu">null_model</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"parsnip"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="co"># use the null_model function and the parsnip engine to create a blank model</span></span>
+<span id="cb128-5"><a href="#cb128-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-6"><a href="#cb128-6" aria-hidden="true" tabindex="-1"></a>blank_rec <span class="ot">&lt;-</span></span>
+<span id="cb128-7"><a href="#cb128-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Y <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> train_data2) <span class="co"># produce recipe for blank model</span></span>
+<span id="cb128-8"><a href="#cb128-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-9"><a href="#cb128-9" aria-hidden="true" tabindex="-1"></a>workflow_blank <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#create a workflow for the null model called workflow_blank</span></span>
+<span id="cb128-10"><a href="#cb128-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_model</span>(blank_model) <span class="sc">%&gt;%</span> <span class="co">#apply the new null model</span></span>
+<span id="cb128-11"><a href="#cb128-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(blank_rec) <span class="co">#then, apply the recipe</span></span>
+<span id="cb128-12"><a href="#cb128-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb128-13"><a href="#cb128-13" aria-hidden="true" tabindex="-1"></a>blank_fit <span class="ot">&lt;-</span> </span>
+<span id="cb128-14"><a href="#cb128-14" aria-hidden="true" tabindex="-1"></a>   workflow_blank <span class="sc">%&gt;%</span> <span class="co"># add the workflow to the fit</span></span>
+<span id="cb128-15"><a href="#cb128-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> train_data2) <span class="co"># fit Y to dose using ONLY the training data</span></span>
+<span id="cb128-16"><a href="#cb128-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(blank_fit) <span class="co"># produce tibble to organize the resulting linear regression fit</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  value
+  &lt;dbl&gt;
+1 2509.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(blank_fit, train_data2) <span class="co">#predict the outcome Y from the BLANK predictor linear model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 1
+   .pred
+   &lt;dbl&gt;
+ 1 2509.
+ 2 2509.
+ 3 2509.
+ 4 2509.
+ 5 2509.
+ 6 2509.
+ 7 2509.
+ 8 2509.
+ 9 2509.
+10 2509.
+# ℹ 80 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>blank_aug <span class="ot">&lt;-</span> </span>
+<span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(blank_fit, train_data2) <span class="co"># add predictions to new data frame</span></span>
+<span id="cb132-3"><a href="#cb132-3" aria-hidden="true" tabindex="-1"></a>blank_aug <span class="sc">%&gt;%</span></span>
+<span id="cb132-4"><a href="#cb132-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"Y"</span>, <span class="st">"DOSE"</span>, <span class="st">"AGE"</span>, <span class="st">"SEX"</span>, <span class="st">"WT"</span>, <span class="st">"HT"</span>) <span class="co"># select columns to add to the data frame</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 6
+       Y  DOSE   AGE SEX      WT    HT
+   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1 3004.  50      28 1      83.2  1.74
+ 2 1347.  25      41 1      81    1.75
+ 3 2772.  37.5    28 1      78.3  1.72
+ 4 2028.  25      28 2      58.9  1.58
+ 5 2353.  50      37 1      99.1  1.78
+ 6  826.  25      30 1     105.   1.88
+ 7 3866.  25      23 1      65.3  1.65
+ 8 3126.  25      41 2      64.3  1.56
+ 9 1108.  25      48 2      79.5  1.62
+10 2815.  37.5    26 1      84.5  1.77
+# ℹ 80 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(blank_aug) <span class="co"># check the names for the columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Y"     "DOSE"  "AGE"   "SEX"   "WT"    "HT"    ".pred"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the RMSE of the blank model</span></span>
+<span id="cb136-2"><a href="#cb136-2" aria-hidden="true" tabindex="-1"></a>rmse_blank <span class="ot">&lt;-</span> <span class="fu">rmse</span>(<span class="at">data =</span> blank_aug,</span>
+<span id="cb136-3"><a href="#cb136-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">truth =</span> Y,</span>
+<span id="cb136-4"><a href="#cb136-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">estimate =</span> .pred)</span>
+<span id="cb136-5"><a href="#cb136-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(rmse_blank) <span class="co"># Evaluate RMSE based on the results</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard        948.</code></pre>
+</div>
+</div>
+<p>The RMSE for the single predictor model, full model, and null model are 560, 520, and 993 respectively. This is not equal to the values found by Dr.&nbsp;Handel, however I did set the seed in the initial step. The RMSE of both the full and single predictor models are similar, with a difference of 60, while the RMSE for the null model is much greater than both models including predictors. The null model has an RMSE that with a difference of 433 and 393 for the single predictor and full models, respectively. This reflects that both models that contain predictors are better at predicting values based on the original observations, than the null model is at predicting the observations. This means that both models including predictors are better than random models, and capture some trend using linear regression. ### Using cross validation to evaluate linear models I will now use cross validation to evaluate the linear models and null model that were produced. Cross validation is a re-sampling method to measure model performance while accounting for the variance-bias trade off. Here, we will use a 10-fold cross validation method, which compares the train and test data 10 times (using different subsamples) using RMSE to check for consistancy in model predictions. I start by specifying the workflow for the cross validation method. Then I will use the fit_resamples function to perform the CV fit. I will use RMSE to compare each models’ CV fit.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Single Predictor Linear Model Cross Validation</span></span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a>folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(trial_data5, <span class="at">v =</span> <span class="dv">10</span>)</span>
+<span id="cb138-3"><a href="#cb138-3" aria-hidden="true" tabindex="-1"></a>single_cv_wf <span class="ot">&lt;-</span> </span>
+<span id="cb138-4"><a href="#cb138-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#define an object for the cv workflow </span></span>
+<span id="cb138-5"><a href="#cb138-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(single_linreg) <span class="sc">%&gt;%</span> <span class="co"># add in the previous linear model</span></span>
+<span id="cb138-6"><a href="#cb138-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(single_rec) <span class="co"># specify the formula for the first linear model</span></span>
+<span id="cb138-7"><a href="#cb138-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb138-8"><a href="#cb138-8" aria-hidden="true" tabindex="-1"></a>single_fit_cv <span class="ot">&lt;-</span> </span>
+<span id="cb138-9"><a href="#cb138-9" aria-hidden="true" tabindex="-1"></a>  single_cv_wf <span class="sc">%&gt;%</span> <span class="co"># apply cv workflow to an object for the cv fit</span></span>
+<span id="cb138-10"><a href="#cb138-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(folds) <span class="co"># specify the number of folds for the cv</span></span>
+<span id="cb138-11"><a href="#cb138-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(single_fit_cv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Resampling results
+# 10-fold cross-validation 
+# A tibble: 10 × 4
+   splits           id     .metrics         .notes          
+   &lt;list&gt;           &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          
+ 1 &lt;split [108/12]&gt; Fold01 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 2 &lt;split [108/12]&gt; Fold02 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 3 &lt;split [108/12]&gt; Fold03 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 4 &lt;split [108/12]&gt; Fold04 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 5 &lt;split [108/12]&gt; Fold05 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 6 &lt;split [108/12]&gt; Fold06 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 7 &lt;split [108/12]&gt; Fold07 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 8 &lt;split [108/12]&gt; Fold08 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 9 &lt;split [108/12]&gt; Fold09 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+10 &lt;split [108/12]&gt; Fold10 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine rmse of the cv fit</span></span>
+<span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a>rmse_values1 <span class="ot">&lt;-</span> single_fit_cv <span class="sc">%&gt;%</span></span>
+<span id="cb140-3"><a href="#cb140-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span> <span class="co"># get the metrics for all of the re-sampled folds</span></span>
+<span id="cb140-4"><a href="#cb140-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="co"># filter by the rmse values only</span></span>
+<span id="cb140-5"><a href="#cb140-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rmse_values1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  .metric .estimator  mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard    663.    10    52.6 Preprocessor1_Model1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Full Linear Model Cross Validation</span></span>
+<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a>full_cv_wf <span class="ot">&lt;-</span> </span>
+<span id="cb142-3"><a href="#cb142-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#define an object for the cv workflow </span></span>
+<span id="cb142-4"><a href="#cb142-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(full_linreg) <span class="sc">%&gt;%</span> <span class="co"># add in the previous linear model</span></span>
+<span id="cb142-5"><a href="#cb142-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(full_rec) <span class="co"># specify the formula for the first linear model</span></span>
+<span id="cb142-6"><a href="#cb142-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-7"><a href="#cb142-7" aria-hidden="true" tabindex="-1"></a>full_fit_cv <span class="ot">&lt;-</span> </span>
+<span id="cb142-8"><a href="#cb142-8" aria-hidden="true" tabindex="-1"></a>  full_cv_wf <span class="sc">%&gt;%</span> <span class="co"># apply cv workflow to an object for the cv fit</span></span>
+<span id="cb142-9"><a href="#cb142-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(folds) <span class="co"># specify the number of folds for the cv</span></span>
+<span id="cb142-10"><a href="#cb142-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-11"><a href="#cb142-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine rmse of the cv fit</span></span>
+<span id="cb142-12"><a href="#cb142-12" aria-hidden="true" tabindex="-1"></a>rmse_values2 <span class="ot">&lt;-</span> full_fit_cv <span class="sc">%&gt;%</span></span>
+<span id="cb142-13"><a href="#cb142-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span> <span class="co"># get the metrics for all of the re-sampled folds</span></span>
+<span id="cb142-14"><a href="#cb142-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="co"># filter by the rmse values only</span></span>
+<span id="cb142-15"><a href="#cb142-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rmse_values2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  .metric .estimator  mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard    619.    10    46.7 Preprocessor1_Model1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Null Model Cross Validation</span></span>
+<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>null_cv_wf <span class="ot">&lt;-</span> </span>
+<span id="cb144-3"><a href="#cb144-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#define an object for the cv workflow </span></span>
+<span id="cb144-4"><a href="#cb144-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(blank_model) <span class="sc">%&gt;%</span> <span class="co"># add blank model in</span></span>
+<span id="cb144-5"><a href="#cb144-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(blank_rec)</span>
+<span id="cb144-6"><a href="#cb144-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb144-7"><a href="#cb144-7" aria-hidden="true" tabindex="-1"></a>null_fit_cv <span class="ot">&lt;-</span> </span>
+<span id="cb144-8"><a href="#cb144-8" aria-hidden="true" tabindex="-1"></a>  null_cv_wf <span class="sc">%&gt;%</span> <span class="co"># apply cv workflow to an object for the cv fit</span></span>
+<span id="cb144-9"><a href="#cb144-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(folds) <span class="co"># specify the number of folds for the cv</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>→ A | warning: A correlation computation is required, but `estimate` is constant and has 0 standard deviation, resulting in a divide by 0 error. `NA` will be returned.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>There were issues with some computations   A: x1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>There were issues with some computations   A: x10</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine rmse of the cv fit</span></span>
+<span id="cb149-2"><a href="#cb149-2" aria-hidden="true" tabindex="-1"></a>rmse_values3 <span class="ot">&lt;-</span> null_fit_cv <span class="sc">%&gt;%</span></span>
+<span id="cb149-3"><a href="#cb149-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span> <span class="co"># get the metrics for all of the re-sampled folds</span></span>
+<span id="cb149-4"><a href="#cb149-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="co"># filter by the rmse values only</span></span>
+<span id="cb149-5"><a href="#cb149-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rmse_values3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  .metric .estimator  mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard    948.    10    63.7 Preprocessor1_Model1</code></pre>
+</div>
+</div>
+<p>The mean RMSE for both models including predictors greatly increased, while the mean RMSE for the null model stayed nearly the same. For the model including a single predictor, the RMSE increased by 99 and the full model RMSE increased by 97. Both models had an rmse value increase by approximately the same magnitude. The standard error for all three models (including the null) are very similar (58, 53, and 55), which demonstrates consistency between models despite varying numbers of predictors being used.</p>
+<p>Lastly, I will run the code again with a different seed to see if the cross validation and rmse values change.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">333</span>)</span>
+<span id="cb151-2"><a href="#cb151-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Single Predictor Linear Model Cross Validation</span></span>
+<span id="cb151-3"><a href="#cb151-3" aria-hidden="true" tabindex="-1"></a>folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(trial_data5, <span class="at">v =</span> <span class="dv">10</span>)</span>
+<span id="cb151-4"><a href="#cb151-4" aria-hidden="true" tabindex="-1"></a>single_cv_wf <span class="ot">&lt;-</span> </span>
+<span id="cb151-5"><a href="#cb151-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#define an object for the cv workflow </span></span>
+<span id="cb151-6"><a href="#cb151-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(single_linreg) <span class="sc">%&gt;%</span> <span class="co"># add in the previous linear model</span></span>
+<span id="cb151-7"><a href="#cb151-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(single_rec) <span class="co"># specify the formula for the first linear model</span></span>
+<span id="cb151-8"><a href="#cb151-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb151-9"><a href="#cb151-9" aria-hidden="true" tabindex="-1"></a>single_fit_cv <span class="ot">&lt;-</span> </span>
+<span id="cb151-10"><a href="#cb151-10" aria-hidden="true" tabindex="-1"></a>  single_cv_wf <span class="sc">%&gt;%</span> <span class="co"># apply cv workflow to an object for the cv fit</span></span>
+<span id="cb151-11"><a href="#cb151-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(folds) <span class="co"># specify the number of folds for the cv</span></span>
+<span id="cb151-12"><a href="#cb151-12" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(single_fit_cv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Resampling results
+# 10-fold cross-validation 
+# A tibble: 10 × 4
+   splits           id     .metrics         .notes          
+   &lt;list&gt;           &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          
+ 1 &lt;split [108/12]&gt; Fold01 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 2 &lt;split [108/12]&gt; Fold02 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 3 &lt;split [108/12]&gt; Fold03 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 4 &lt;split [108/12]&gt; Fold04 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 5 &lt;split [108/12]&gt; Fold05 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 6 &lt;split [108/12]&gt; Fold06 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 7 &lt;split [108/12]&gt; Fold07 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 8 &lt;split [108/12]&gt; Fold08 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+ 9 &lt;split [108/12]&gt; Fold09 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;
+10 &lt;split [108/12]&gt; Fold10 &lt;tibble [2 × 4]&gt; &lt;tibble [0 × 3]&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine rmse of the cv fit</span></span>
+<span id="cb153-2"><a href="#cb153-2" aria-hidden="true" tabindex="-1"></a>rmse_values1 <span class="ot">&lt;-</span> single_fit_cv <span class="sc">%&gt;%</span></span>
+<span id="cb153-3"><a href="#cb153-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span> <span class="co"># get the metrics for all of the re-sampled folds</span></span>
+<span id="cb153-4"><a href="#cb153-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="co"># filter by the rmse values only</span></span>
+<span id="cb153-5"><a href="#cb153-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rmse_values1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  .metric .estimator  mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard    669.    10    28.3 Preprocessor1_Model1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Full Linear Model Cross Validation</span></span>
+<span id="cb155-2"><a href="#cb155-2" aria-hidden="true" tabindex="-1"></a>full_cv_wf <span class="ot">&lt;-</span> </span>
+<span id="cb155-3"><a href="#cb155-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#define an object for the cv workflow </span></span>
+<span id="cb155-4"><a href="#cb155-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(full_linreg) <span class="sc">%&gt;%</span> <span class="co"># add in the previous linear model</span></span>
+<span id="cb155-5"><a href="#cb155-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(full_rec) <span class="co"># specify the formula for the first linear model</span></span>
+<span id="cb155-6"><a href="#cb155-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb155-7"><a href="#cb155-7" aria-hidden="true" tabindex="-1"></a>full_fit_cv <span class="ot">&lt;-</span> </span>
+<span id="cb155-8"><a href="#cb155-8" aria-hidden="true" tabindex="-1"></a>  full_cv_wf <span class="sc">%&gt;%</span> <span class="co"># apply cv workflow to an object for the cv fit</span></span>
+<span id="cb155-9"><a href="#cb155-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(folds) <span class="co"># specify the number of folds for the cv</span></span>
+<span id="cb155-10"><a href="#cb155-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb155-11"><a href="#cb155-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine rmse of the cv fit</span></span>
+<span id="cb155-12"><a href="#cb155-12" aria-hidden="true" tabindex="-1"></a>rmse_values2 <span class="ot">&lt;-</span> full_fit_cv <span class="sc">%&gt;%</span></span>
+<span id="cb155-13"><a href="#cb155-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span> <span class="co"># get the metrics for all of the re-sampled folds</span></span>
+<span id="cb155-14"><a href="#cb155-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="co"># filter by the rmse values only</span></span>
+<span id="cb155-15"><a href="#cb155-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rmse_values2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  .metric .estimator  mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard    606.    10    47.7 Preprocessor1_Model1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Null Model Cross Validation</span></span>
+<span id="cb157-2"><a href="#cb157-2" aria-hidden="true" tabindex="-1"></a>null_cv_wf <span class="ot">&lt;-</span> </span>
+<span id="cb157-3"><a href="#cb157-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co">#define an object for the cv workflow </span></span>
+<span id="cb157-4"><a href="#cb157-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(blank_model) <span class="sc">%&gt;%</span> <span class="co"># add blank model in</span></span>
+<span id="cb157-5"><a href="#cb157-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(blank_rec)</span>
+<span id="cb157-6"><a href="#cb157-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb157-7"><a href="#cb157-7" aria-hidden="true" tabindex="-1"></a>null_fit_cv <span class="ot">&lt;-</span> </span>
+<span id="cb157-8"><a href="#cb157-8" aria-hidden="true" tabindex="-1"></a>  null_cv_wf <span class="sc">%&gt;%</span> <span class="co"># apply cv workflow to an object for the cv fit</span></span>
+<span id="cb157-9"><a href="#cb157-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(folds) <span class="co"># specify the number of folds for the cv</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>→ A | warning: A correlation computation is required, but `estimate` is constant and has 0 standard deviation, resulting in a divide by 0 error. `NA` will be returned.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>There were issues with some computations   A: x7</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>There were issues with some computations   A: x10</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb162"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href="#cb162-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examine rmse of the cv fit</span></span>
+<span id="cb162-2"><a href="#cb162-2" aria-hidden="true" tabindex="-1"></a>rmse_values3 <span class="ot">&lt;-</span> null_fit_cv <span class="sc">%&gt;%</span></span>
+<span id="cb162-3"><a href="#cb162-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span> <span class="co"># get the metrics for all of the re-sampled folds</span></span>
+<span id="cb162-4"><a href="#cb162-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="co"># filter by the rmse values only</span></span>
+<span id="cb162-5"><a href="#cb162-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rmse_values3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  .metric .estimator  mean     n std_err .config             
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+1 rmse    standard    953.    10    40.7 Preprocessor1_Model1</code></pre>
+</div>
+</div>
+<p>The RMSE values for this cross validation are slightly lower than the previous; 669 for the single predictor model, 606 for the full model and 953 for the null model. The standard errors for all three fits have greatly decreased to 28, 48, and 41 respectively. Those rmse values with lower se values are likely a better reflection of model performance than the rmse values in the previous cv (with higher se).</p>
+</section>
+</section>
+</section>
+<section id="this-part-added-by-taylor-glass." class="level1">
+<h1>This part added by Taylor Glass.</h1>
+<section id="model-predictions" class="level2">
+<h2 class="anchored" data-anchor-id="model-predictions">Model Predictions</h2>
+<p>I will plot the observed and predicted values from the first 3 models with all of the training data. I will create a data frame with these values first and add a label to indicate the model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb164"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href="#cb164-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set seed for reproducibility</span></span>
+<span id="cb164-2"><a href="#cb164-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed)</span>
+<span id="cb164-3"><a href="#cb164-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb164-4"><a href="#cb164-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create data frame with the observed values and 3 sets of predicted values </span></span>
+<span id="cb164-5"><a href="#cb164-5" aria-hidden="true" tabindex="-1"></a>plotdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb164-6"><a href="#cb164-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">observed =</span> <span class="fu">c</span>(train_data2<span class="sc">$</span>Y), </span>
+<span id="cb164-7"><a href="#cb164-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">predicted_null =</span> <span class="fu">c</span>(blank_aug<span class="sc">$</span>.pred), </span>
+<span id="cb164-8"><a href="#cb164-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">predicted_model1 =</span> <span class="fu">c</span>(single_aug<span class="sc">$</span>.pred), </span>
+<span id="cb164-9"><a href="#cb164-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">predicted_model2 =</span> <span class="fu">c</span>(full_aug<span class="sc">$</span>.pred), </span>
+<span id="cb164-10"><a href="#cb164-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"null model"</span>, <span class="st">"model 1"</span>, <span class="st">"model 2"</span>), <span class="at">each =</span> <span class="fu">nrow</span>(train_data2))) <span class="co"># add label indicating the model</span></span>
+<span id="cb164-11"><a href="#cb164-11" aria-hidden="true" tabindex="-1"></a>plotdata</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    observed predicted_null predicted_model1 predicted_model2      model
+1    3004.21       2509.171         3206.650         3303.028 null model
+2    1346.62       2509.171         1871.052         1952.556 null model
+3    2771.69       2509.171         2538.851         2744.878 null model
+4    2027.60       2509.171         1871.052         2081.182 null model
+5    2353.40       2509.171         3206.650         2894.205 null model
+6     826.43       2509.171         1871.052         1264.763 null model
+7    3865.79       2509.171         1871.052         2428.627 null model
+8    3126.37       2509.171         1871.052         1976.185 null model
+9    1108.17       2509.171         1871.052         1561.336 null model
+10   2815.26       2509.171         2538.851         2548.685 null model
+11   1788.89       2509.171         1871.052         1575.912 null model
+12   1374.48       2509.171         1871.052         1922.814 null model
+13   2485.00       2509.171         3206.650         2361.116 null model
+14   3458.43       2509.171         3206.650         3281.325 null model
+15   1439.57       2509.171         1871.052         1978.826 null model
+16   2532.10       2509.171         1871.052         2253.618 null model
+17   1948.80       2509.171         3206.650         3422.975 null model
+18   2978.20       2509.171         3206.650         2907.248 null model
+19   1800.79       2509.171         2538.851         2449.336 null model
+20   2610.00       2509.171         3206.650         3245.884 null model
+21   4451.84       2509.171         3206.650         3956.416 null model
+22   3306.15       2509.171         3206.650         3204.047 null model
+23   1451.50       2509.171         1871.052         1267.688 null model
+24   3462.59       2509.171         2538.851         2808.324 null model
+25   2177.20       2509.171         3206.650         3163.879 null model
+26   3751.90       2509.171         3206.650         3054.970 null model
+27   2278.97       2509.171         3206.650         2431.811 null model
+28   1175.69       2509.171         1871.052         1485.125 null model
+29   1490.93       2509.171         1871.052         1798.728 null model
+30   1886.48       2509.171         1871.052         2022.501 null model
+31   3777.20       2509.171         3206.650         2776.584 null model
+32   3609.33       2509.171         3206.650         3549.538 null model
+33   2654.70       2509.171         1871.052         2019.776 null model
+34   2063.43       2509.171         1871.052         1314.893 null model
+35   2149.61       2509.171         1871.052         2097.371 null model
+36   2193.20       2509.171         1871.052         1728.261 null model
+37   2372.70       2509.171         3206.650         3183.098 null model
+38   4493.01       2509.171         3206.650         3701.456 null model
+39   1810.59       2509.171         1871.052         2157.603 null model
+40   1666.10       2509.171         1871.052         1769.537 null model
+41   2638.81       2509.171         1871.052         1962.071 null model
+42   1731.80       2509.171         1871.052         2214.390 null model
+43   1423.70       2509.171         1871.052         1860.657 null model
+44   4378.37       2509.171         3206.650         3909.195 null model
+45   3243.29       2509.171         3206.650         3301.437 null model
+46   3774.00       2509.171         3206.650         3437.942 null model
+47   2336.89       2509.171         1871.052         2024.359 null model
+48   1712.00       2509.171         1871.052         2194.708 null model
+49   3239.66       2509.171         3206.650         3436.449 null model
+50   3193.98       2509.171         3206.650         3464.606 null model
+51   2795.65       2509.171         1871.052         2416.191 null model
+52   2572.45       2509.171         3206.650         2855.525 null model
+53   2008.52       2509.171         2538.851         2167.618 null model
+54   3507.10       2509.171         3206.650         3527.530 null model
+55   1958.27       2509.171         1871.052         2275.623 null model
+56   1898.00       2509.171         1871.052         1687.029 null model
+57   3644.37       2509.171         3206.650         2814.220 null model
+58   2092.89       2509.171         1871.052         2047.547 null model
+59   2472.90       2509.171         3206.650         3283.833 null model
+60   1288.64       2509.171         1871.052         1958.242 null model
+61   3733.10       2509.171         3206.650         3078.806 null model
+62   1392.78       2509.171         1871.052         1927.145 null model
+63   1761.62       2509.171         1871.052         1346.855 null model
+64   3037.39       2509.171         3206.650         3350.018 null model
+65   1474.60       2509.171         1871.052         1711.456 null model
+66   2345.50       2509.171         3206.650         3263.395 null model
+67   4984.57       2509.171         3206.650         3367.617 null model
+68    997.89       2509.171         1871.052         1469.488 null model
+69   2748.86       2509.171         2538.851         2517.525 null model
+70   1853.91       2509.171         1871.052         2158.730 null model
+71   2036.20       2509.171         3206.650         2786.723 null model
+72   2423.89       2509.171         2538.851         2892.948 null model
+73   1935.24       2509.171         1871.052         2210.778 null model
+74   2154.56       2509.171         2538.851         2424.827 null model
+75   1464.29       2509.171         1871.052         1719.560 null model
+76   3007.20       2509.171         1871.052         1690.728 null model
+77   3622.80       2509.171         3206.650         3029.952 null model
+78   2789.70       2509.171         3206.650         3213.928 null model
+79   1424.00       2509.171         1871.052         1406.861 null model
+80   2667.02       2509.171         3206.650         2874.060 null model
+81   1967.61       2509.171         1871.052         2295.337 null model
+82   2471.60       2509.171         3206.650         3010.616 null model
+83   2690.52       2509.171         1871.052         1628.400 null model
+84   2746.20       2509.171         3206.650         3589.721 null model
+85   3593.55       2509.171         3206.650         2918.086 null model
+86   1625.46       2509.171         1871.052         1694.713 null model
+87   1067.56       2509.171         1871.052         1775.419 null model
+88   5606.58       2509.171         3206.650         3211.962 null model
+89   3408.61       2509.171         3206.650         3490.975 null model
+90   2996.40       2509.171         3206.650         3283.515 null model
+91   3004.21       2509.171         3206.650         3303.028    model 1
+92   1346.62       2509.171         1871.052         1952.556    model 1
+93   2771.69       2509.171         2538.851         2744.878    model 1
+94   2027.60       2509.171         1871.052         2081.182    model 1
+95   2353.40       2509.171         3206.650         2894.205    model 1
+96    826.43       2509.171         1871.052         1264.763    model 1
+97   3865.79       2509.171         1871.052         2428.627    model 1
+98   3126.37       2509.171         1871.052         1976.185    model 1
+99   1108.17       2509.171         1871.052         1561.336    model 1
+100  2815.26       2509.171         2538.851         2548.685    model 1
+101  1788.89       2509.171         1871.052         1575.912    model 1
+102  1374.48       2509.171         1871.052         1922.814    model 1
+103  2485.00       2509.171         3206.650         2361.116    model 1
+104  3458.43       2509.171         3206.650         3281.325    model 1
+105  1439.57       2509.171         1871.052         1978.826    model 1
+106  2532.10       2509.171         1871.052         2253.618    model 1
+107  1948.80       2509.171         3206.650         3422.975    model 1
+108  2978.20       2509.171         3206.650         2907.248    model 1
+109  1800.79       2509.171         2538.851         2449.336    model 1
+110  2610.00       2509.171         3206.650         3245.884    model 1
+111  4451.84       2509.171         3206.650         3956.416    model 1
+112  3306.15       2509.171         3206.650         3204.047    model 1
+113  1451.50       2509.171         1871.052         1267.688    model 1
+114  3462.59       2509.171         2538.851         2808.324    model 1
+115  2177.20       2509.171         3206.650         3163.879    model 1
+116  3751.90       2509.171         3206.650         3054.970    model 1
+117  2278.97       2509.171         3206.650         2431.811    model 1
+118  1175.69       2509.171         1871.052         1485.125    model 1
+119  1490.93       2509.171         1871.052         1798.728    model 1
+120  1886.48       2509.171         1871.052         2022.501    model 1
+121  3777.20       2509.171         3206.650         2776.584    model 1
+122  3609.33       2509.171         3206.650         3549.538    model 1
+123  2654.70       2509.171         1871.052         2019.776    model 1
+124  2063.43       2509.171         1871.052         1314.893    model 1
+125  2149.61       2509.171         1871.052         2097.371    model 1
+126  2193.20       2509.171         1871.052         1728.261    model 1
+127  2372.70       2509.171         3206.650         3183.098    model 1
+128  4493.01       2509.171         3206.650         3701.456    model 1
+129  1810.59       2509.171         1871.052         2157.603    model 1
+130  1666.10       2509.171         1871.052         1769.537    model 1
+131  2638.81       2509.171         1871.052         1962.071    model 1
+132  1731.80       2509.171         1871.052         2214.390    model 1
+133  1423.70       2509.171         1871.052         1860.657    model 1
+134  4378.37       2509.171         3206.650         3909.195    model 1
+135  3243.29       2509.171         3206.650         3301.437    model 1
+136  3774.00       2509.171         3206.650         3437.942    model 1
+137  2336.89       2509.171         1871.052         2024.359    model 1
+138  1712.00       2509.171         1871.052         2194.708    model 1
+139  3239.66       2509.171         3206.650         3436.449    model 1
+140  3193.98       2509.171         3206.650         3464.606    model 1
+141  2795.65       2509.171         1871.052         2416.191    model 1
+142  2572.45       2509.171         3206.650         2855.525    model 1
+143  2008.52       2509.171         2538.851         2167.618    model 1
+144  3507.10       2509.171         3206.650         3527.530    model 1
+145  1958.27       2509.171         1871.052         2275.623    model 1
+146  1898.00       2509.171         1871.052         1687.029    model 1
+147  3644.37       2509.171         3206.650         2814.220    model 1
+148  2092.89       2509.171         1871.052         2047.547    model 1
+149  2472.90       2509.171         3206.650         3283.833    model 1
+150  1288.64       2509.171         1871.052         1958.242    model 1
+151  3733.10       2509.171         3206.650         3078.806    model 1
+152  1392.78       2509.171         1871.052         1927.145    model 1
+153  1761.62       2509.171         1871.052         1346.855    model 1
+154  3037.39       2509.171         3206.650         3350.018    model 1
+155  1474.60       2509.171         1871.052         1711.456    model 1
+156  2345.50       2509.171         3206.650         3263.395    model 1
+157  4984.57       2509.171         3206.650         3367.617    model 1
+158   997.89       2509.171         1871.052         1469.488    model 1
+159  2748.86       2509.171         2538.851         2517.525    model 1
+160  1853.91       2509.171         1871.052         2158.730    model 1
+161  2036.20       2509.171         3206.650         2786.723    model 1
+162  2423.89       2509.171         2538.851         2892.948    model 1
+163  1935.24       2509.171         1871.052         2210.778    model 1
+164  2154.56       2509.171         2538.851         2424.827    model 1
+165  1464.29       2509.171         1871.052         1719.560    model 1
+166  3007.20       2509.171         1871.052         1690.728    model 1
+167  3622.80       2509.171         3206.650         3029.952    model 1
+168  2789.70       2509.171         3206.650         3213.928    model 1
+169  1424.00       2509.171         1871.052         1406.861    model 1
+170  2667.02       2509.171         3206.650         2874.060    model 1
+171  1967.61       2509.171         1871.052         2295.337    model 1
+172  2471.60       2509.171         3206.650         3010.616    model 1
+173  2690.52       2509.171         1871.052         1628.400    model 1
+174  2746.20       2509.171         3206.650         3589.721    model 1
+175  3593.55       2509.171         3206.650         2918.086    model 1
+176  1625.46       2509.171         1871.052         1694.713    model 1
+177  1067.56       2509.171         1871.052         1775.419    model 1
+178  5606.58       2509.171         3206.650         3211.962    model 1
+179  3408.61       2509.171         3206.650         3490.975    model 1
+180  2996.40       2509.171         3206.650         3283.515    model 1
+181  3004.21       2509.171         3206.650         3303.028    model 2
+182  1346.62       2509.171         1871.052         1952.556    model 2
+183  2771.69       2509.171         2538.851         2744.878    model 2
+184  2027.60       2509.171         1871.052         2081.182    model 2
+185  2353.40       2509.171         3206.650         2894.205    model 2
+186   826.43       2509.171         1871.052         1264.763    model 2
+187  3865.79       2509.171         1871.052         2428.627    model 2
+188  3126.37       2509.171         1871.052         1976.185    model 2
+189  1108.17       2509.171         1871.052         1561.336    model 2
+190  2815.26       2509.171         2538.851         2548.685    model 2
+191  1788.89       2509.171         1871.052         1575.912    model 2
+192  1374.48       2509.171         1871.052         1922.814    model 2
+193  2485.00       2509.171         3206.650         2361.116    model 2
+194  3458.43       2509.171         3206.650         3281.325    model 2
+195  1439.57       2509.171         1871.052         1978.826    model 2
+196  2532.10       2509.171         1871.052         2253.618    model 2
+197  1948.80       2509.171         3206.650         3422.975    model 2
+198  2978.20       2509.171         3206.650         2907.248    model 2
+199  1800.79       2509.171         2538.851         2449.336    model 2
+200  2610.00       2509.171         3206.650         3245.884    model 2
+201  4451.84       2509.171         3206.650         3956.416    model 2
+202  3306.15       2509.171         3206.650         3204.047    model 2
+203  1451.50       2509.171         1871.052         1267.688    model 2
+204  3462.59       2509.171         2538.851         2808.324    model 2
+205  2177.20       2509.171         3206.650         3163.879    model 2
+206  3751.90       2509.171         3206.650         3054.970    model 2
+207  2278.97       2509.171         3206.650         2431.811    model 2
+208  1175.69       2509.171         1871.052         1485.125    model 2
+209  1490.93       2509.171         1871.052         1798.728    model 2
+210  1886.48       2509.171         1871.052         2022.501    model 2
+211  3777.20       2509.171         3206.650         2776.584    model 2
+212  3609.33       2509.171         3206.650         3549.538    model 2
+213  2654.70       2509.171         1871.052         2019.776    model 2
+214  2063.43       2509.171         1871.052         1314.893    model 2
+215  2149.61       2509.171         1871.052         2097.371    model 2
+216  2193.20       2509.171         1871.052         1728.261    model 2
+217  2372.70       2509.171         3206.650         3183.098    model 2
+218  4493.01       2509.171         3206.650         3701.456    model 2
+219  1810.59       2509.171         1871.052         2157.603    model 2
+220  1666.10       2509.171         1871.052         1769.537    model 2
+221  2638.81       2509.171         1871.052         1962.071    model 2
+222  1731.80       2509.171         1871.052         2214.390    model 2
+223  1423.70       2509.171         1871.052         1860.657    model 2
+224  4378.37       2509.171         3206.650         3909.195    model 2
+225  3243.29       2509.171         3206.650         3301.437    model 2
+226  3774.00       2509.171         3206.650         3437.942    model 2
+227  2336.89       2509.171         1871.052         2024.359    model 2
+228  1712.00       2509.171         1871.052         2194.708    model 2
+229  3239.66       2509.171         3206.650         3436.449    model 2
+230  3193.98       2509.171         3206.650         3464.606    model 2
+231  2795.65       2509.171         1871.052         2416.191    model 2
+232  2572.45       2509.171         3206.650         2855.525    model 2
+233  2008.52       2509.171         2538.851         2167.618    model 2
+234  3507.10       2509.171         3206.650         3527.530    model 2
+235  1958.27       2509.171         1871.052         2275.623    model 2
+236  1898.00       2509.171         1871.052         1687.029    model 2
+237  3644.37       2509.171         3206.650         2814.220    model 2
+238  2092.89       2509.171         1871.052         2047.547    model 2
+239  2472.90       2509.171         3206.650         3283.833    model 2
+240  1288.64       2509.171         1871.052         1958.242    model 2
+241  3733.10       2509.171         3206.650         3078.806    model 2
+242  1392.78       2509.171         1871.052         1927.145    model 2
+243  1761.62       2509.171         1871.052         1346.855    model 2
+244  3037.39       2509.171         3206.650         3350.018    model 2
+245  1474.60       2509.171         1871.052         1711.456    model 2
+246  2345.50       2509.171         3206.650         3263.395    model 2
+247  4984.57       2509.171         3206.650         3367.617    model 2
+248   997.89       2509.171         1871.052         1469.488    model 2
+249  2748.86       2509.171         2538.851         2517.525    model 2
+250  1853.91       2509.171         1871.052         2158.730    model 2
+251  2036.20       2509.171         3206.650         2786.723    model 2
+252  2423.89       2509.171         2538.851         2892.948    model 2
+253  1935.24       2509.171         1871.052         2210.778    model 2
+254  2154.56       2509.171         2538.851         2424.827    model 2
+255  1464.29       2509.171         1871.052         1719.560    model 2
+256  3007.20       2509.171         1871.052         1690.728    model 2
+257  3622.80       2509.171         3206.650         3029.952    model 2
+258  2789.70       2509.171         3206.650         3213.928    model 2
+259  1424.00       2509.171         1871.052         1406.861    model 2
+260  2667.02       2509.171         3206.650         2874.060    model 2
+261  1967.61       2509.171         1871.052         2295.337    model 2
+262  2471.60       2509.171         3206.650         3010.616    model 2
+263  2690.52       2509.171         1871.052         1628.400    model 2
+264  2746.20       2509.171         3206.650         3589.721    model 2
+265  3593.55       2509.171         3206.650         2918.086    model 2
+266  1625.46       2509.171         1871.052         1694.713    model 2
+267  1067.56       2509.171         1871.052         1775.419    model 2
+268  5606.58       2509.171         3206.650         3211.962    model 2
+269  3408.61       2509.171         3206.650         3490.975    model 2
+270  2996.40       2509.171         3206.650         3283.515    model 2</code></pre>
+</div>
+</div>
+<p>I will use the new data frame to create a visualization.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb166"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href="#cb166-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a visual representation</span></span>
+<span id="cb166-2"><a href="#cb166-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plotdata, <span class="fu">aes</span>(<span class="at">x =</span> observed)) <span class="sc">+</span></span>
+<span id="cb166-3"><a href="#cb166-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> predicted_null, <span class="at">color =</span> <span class="st">"null model"</span>), <span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb166-4"><a href="#cb166-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> predicted_model1, <span class="at">color =</span> <span class="st">"model 1"</span>), <span class="at">shape =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb166-5"><a href="#cb166-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> predicted_model2, <span class="at">color =</span> <span class="st">"model 2"</span>), <span class="at">shape =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb166-6"><a href="#cb166-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co">#add the 45 degree line</span></span>
+<span id="cb166-7"><a href="#cb166-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">5000</span>) <span class="sc">+</span> <span class="co">#limit the x-axis values</span></span>
+<span id="cb166-8"><a href="#cb166-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">5000</span>) <span class="sc">+</span> <span class="co">#limit the y-axis values</span></span>
+<span id="cb166-9"><a href="#cb166-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed Values"</span>, <span class="at">y =</span> <span class="st">"Predicted Values"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3 rows containing missing values (`geom_point()`).
+Removed 3 rows containing missing values (`geom_point()`).
+Removed 3 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The predictions from the null model are a horizontal line because each prediction is just the mean observation. The predictions from model 1 with the <code>DOSE</code> variable only are shown in three horizontal lines, which makes sense because the <code>DOSE</code> variable has 3 discrete values. The predicted values should be the same for each of those 3 dosage values because there are only 3 original values to predict. The predictions for model 2 with all variables is the best and shows a lot of scatter that seems to follow a pattern along the 45 degree line.</p>
+<p>To determine if there is a pattern in the residuals, I will plot the predicted values against the residuals. The formula for finding the residual is just (predicted-observed). I will create a new data frame with the predicted values and residuals first.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb168"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb168-1"><a href="#cb168-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create data frame with predictions and residuals for model 2</span></span>
+<span id="cb168-2"><a href="#cb168-2" aria-hidden="true" tabindex="-1"></a>plotresiduals <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb168-3"><a href="#cb168-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">predicted_model2 =</span> <span class="fu">c</span>(full_aug<span class="sc">$</span>.pred), </span>
+<span id="cb168-4"><a href="#cb168-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">residuals =</span> <span class="fu">c</span>(full_aug<span class="sc">$</span>.pred <span class="sc">-</span> full_aug<span class="sc">$</span>Y)) <span class="co">#calculate residuals by predicted - observed</span></span>
+<span id="cb168-5"><a href="#cb168-5" aria-hidden="true" tabindex="-1"></a>plotresiduals</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   predicted_model2   residuals
+1          3303.028   298.81777
+2          1952.556   605.93586
+3          2744.878   -26.81172
+4          2081.182    53.58237
+5          2894.205   540.80500
+6          1264.763   438.33334
+7          2428.627 -1437.16314
+8          1976.185 -1150.18459
+9          1561.336   453.16614
+10         2548.685  -266.57463
+11         1575.912  -212.97752
+12         1922.814   548.33383
+13         2361.116  -123.88422
+14         3281.325  -177.10537
+15         1978.826   539.25608
+16         2253.618  -278.48151
+17         3422.975  1474.17465
+18         2907.248   -70.95170
+19         2449.336   648.54599
+20         3245.884   635.88439
+21         3956.416  -495.42354
+22         3204.047  -102.10297
+23         1267.688  -183.81229
+24         2808.324  -654.26599
+25         3163.879   986.67861
+26         3054.970  -696.93001
+27         2431.811   152.84116
+28         1485.125   309.43542
+29         1798.728   307.79786
+30         2022.501   136.02115
+31         2776.584 -1000.61616
+32         3549.538   -59.79222
+33         2019.776  -634.92395
+34         1314.893  -748.53729
+35         2097.371   -52.23881
+36         1728.261  -464.93852
+37         3183.098   810.39781
+38         3701.456  -791.55415
+39         2157.603   347.01261
+40         1769.537   103.43746
+41         1962.071  -676.73934
+42         2214.390   482.58989
+43         1860.657   436.95692
+44         3909.195  -469.17471
+45         3301.437    58.14672
+46         3437.942  -336.05811
+47         2024.359  -312.53101
+48         2194.708   482.70770
+49         3436.449   196.78909
+50         3464.606   270.62635
+51         2416.191  -379.45893
+52         2855.525   283.07494
+53         2167.618   159.09793
+54         3527.530    20.43010
+55         2275.623   317.35262
+56         1687.029  -210.97096
+57         2814.220  -830.14965
+58         2047.547   -45.34339
+59         3283.833   810.93293
+60         1958.242   669.60182
+61         3078.806  -654.29438
+62         1927.145   534.36510
+63         1346.855  -414.76528
+64         3350.018   312.62796
+65         1711.456   236.85619
+66         3263.395   917.89451
+67         3367.617 -1616.95322
+68         1469.488   471.59820
+69         2517.525  -231.33509
+70         2158.730   304.81990
+71         2786.723   750.52308
+72         2892.948   469.05781
+73         2210.778   275.53761
+74         2424.827   270.26672
+75         1719.560   255.27023
+76         1690.728 -1316.47183
+77         3029.952  -592.84802
+78         3213.928   424.22801
+79         1406.861   -17.13949
+80         2874.060   207.04015
+81         2295.337   327.72724
+82         3010.616   539.01559
+83         1628.400 -1062.12038
+84         3589.721   843.52106
+85         2918.086  -675.46376
+86         1694.713    69.25323
+87         1775.419   707.85896
+88         3211.962 -2394.61828
+89         3490.975    82.36480
+90         3283.515   287.11531</code></pre>
+</div>
+</div>
+<p>I will plot the new residual values to look for any patterns.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb170"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot predictions versus residuals for model 2</span></span>
+<span id="cb170-2"><a href="#cb170-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plotresiduals, <span class="fu">aes</span>(<span class="at">x=</span>predicted_model2, <span class="at">y=</span>residuals)) <span class="sc">+</span> </span>
+<span id="cb170-3"><a href="#cb170-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb170-4"><a href="#cb170-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">0</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"pink"</span>, <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span> <span class="co">#add straight line at 0</span></span>
+<span id="cb170-5"><a href="#cb170-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">2000</span>,<span class="dv">2000</span>) <span class="sc">+</span> <span class="co">#make sure y-axis goes the same amount in positive and negative direction</span></span>
+<span id="cb170-6"><a href="#cb170-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Predicted Values"</span>, <span class="at">y=</span> <span class="st">"Residuals"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As Dr.&nbsp;Handel suggested, I see a pattern in these residuals because there are more and higher negative residuals compared to positive residuals. There are 6 observations less than -1000, but there is only 1 observation more than 1000. The positive residuals are grouped together more, while the negative residuals are more spaced out. This could be because there is important information missing or the model is too simple.</p>
+</section>
+<section id="model-predictions-and-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="model-predictions-and-uncertainty">Model predictions and uncertainty</h2>
+<p>To determine uncertainty in the predictions, I will use a bootstrap method to sample the data 100 times and fit the model to each set of predictions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb173"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb173-1"><a href="#cb173-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set the seed for reproducibility</span></span>
+<span id="cb173-2"><a href="#cb173-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed)</span>
+<span id="cb173-3"><a href="#cb173-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb173-4"><a href="#cb173-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create 100 bootstraps with the training data</span></span>
+<span id="cb173-5"><a href="#cb173-5" aria-hidden="true" tabindex="-1"></a>bootstraps <span class="ot">&lt;-</span> <span class="fu">bootstraps</span>(train_data2, <span class="at">times =</span> <span class="dv">100</span>)</span>
+<span id="cb173-6"><a href="#cb173-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb173-7"><a href="#cb173-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create empty vector to store predictions list </span></span>
+<span id="cb173-8"><a href="#cb173-8" aria-hidden="true" tabindex="-1"></a>preds_bs <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="at">length =</span> <span class="fu">length</span>(bootstraps))</span>
+<span id="cb173-9"><a href="#cb173-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb173-10"><a href="#cb173-10" aria-hidden="true" tabindex="-1"></a><span class="co"># write a loop to fit the model to each bootstrap and make predictions</span></span>
+<span id="cb173-11"><a href="#cb173-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(bootstraps)) {</span>
+<span id="cb173-12"><a href="#cb173-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb173-13"><a href="#cb173-13" aria-hidden="true" tabindex="-1"></a>  bootstrap_sample <span class="ot">&lt;-</span> <span class="fu">analysis</span>(bootstraps<span class="sc">$</span>splits[[i]])  <span class="co"># isolate the bootstrap sample</span></span>
+<span id="cb173-14"><a href="#cb173-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb173-15"><a href="#cb173-15" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> DOSE <span class="sc">+</span> AGE <span class="sc">+</span> HT <span class="sc">+</span> WT <span class="sc">+</span> SEX, <span class="at">data =</span> bootstrap_sample) <span class="co"># fit the model using the bootstrap sample</span></span>
+<span id="cb173-16"><a href="#cb173-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb173-17"><a href="#cb173-17" aria-hidden="true" tabindex="-1"></a>  predictions <span class="ot">&lt;-</span> <span class="fu">predict</span>(model, <span class="at">newdata =</span> train_data2) <span class="co"># make predictions with the training data</span></span>
+<span id="cb173-18"><a href="#cb173-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb173-19"><a href="#cb173-19" aria-hidden="true" tabindex="-1"></a>  preds_bs[[i]] <span class="ot">&lt;-</span> predictions <span class="co"># store predictions in the empty vector</span></span>
+<span id="cb173-20"><a href="#cb173-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb173-21"><a href="#cb173-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb173-22"><a href="#cb173-22" aria-hidden="true" tabindex="-1"></a><span class="co"># find an individual bootstrap sample </span></span>
+<span id="cb173-23"><a href="#cb173-23" aria-hidden="true" tabindex="-1"></a>sample <span class="ot">&lt;-</span> <span class="fu">analysis</span>(bootstraps<span class="sc">$</span>splits[[i]])</span>
+<span id="cb173-24"><a href="#cb173-24" aria-hidden="true" tabindex="-1"></a>sample</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Y DOSE AGE SEX    WT       HT
+1   826.43 25.0  30   1 105.1 1.879883
+2  3593.55 50.0  23   1  96.3 1.820081
+3  3593.55 50.0  23   1  96.3 1.820081
+4  3609.33 50.0  29   1  68.8 1.810025
+5  3622.80 50.0  32   1  92.2 1.799898
+6  1948.80 50.0  39   1  75.7 1.780081
+7  2345.50 50.0  31   1  85.9 1.719881
+8   826.43 25.0  30   1 105.1 1.879883
+9  2092.89 25.0  39   2  58.2 1.619872
+10 1346.62 25.0  41   1  81.0 1.749966
+11 2008.52 37.5  39   1  99.1 1.809982
+12 2667.02 50.0  45   2  80.7 1.659881
+13 1788.89 25.0  46   2  77.4 1.649993
+14 1288.64 25.0  28   1  77.5 1.819881
+15 2149.61 25.0  31   1  71.8 1.809847
+16 2996.40 50.0  26   1  82.1 1.780073
+17 4451.84 50.0  24   1  58.4 1.660126
+18 1731.80 25.0  26   1  72.2 1.700092
+19  826.43 25.0  30   1 105.1 1.879883
+20 1108.17 25.0  48   2  79.5 1.620071
+21 1423.70 25.0  39   1  82.1 1.810010
+22 1800.79 37.5  50   2  69.8 1.640057
+23 3306.15 50.0  38   1  83.4 1.819932
+24 3774.00 50.0  35   1  81.6 1.650067
+25 1666.10 25.0  45   1  92.0 1.690046
+26 1490.93 25.0  41   1  85.8 1.789940
+27 3644.37 50.0  28   1  96.8 1.900156
+28 2532.10 25.0  30   1  71.4 1.679921
+29 2345.50 50.0  31   1  85.9 1.719881
+30 4493.01 50.0  38   1  70.4 1.640153
+31 5606.58 50.0  29   1  85.7 1.770157
+32 1886.48 25.0  47   1  80.3 1.699861
+33 1853.91 25.0  24   1  70.7 1.780164
+34 1800.79 37.5  50   2  69.8 1.640057
+35 1424.00 25.0  44   2  85.4 1.640050
+36 1625.46 25.0  30   1  90.6 1.789882
+37 3458.43 50.0  39   2  69.8 1.520031
+38 1451.50 25.0  36   2  88.2 1.710089
+39 1288.64 25.0  28   1  77.5 1.819881
+40 1800.79 37.5  50   2  69.8 1.640057
+41 1800.79 37.5  50   2  69.8 1.640057
+42 2036.20 50.0  18   1 102.7 1.809949
+43 1935.24 25.0  24   1  70.4 1.740103
+44 1288.64 25.0  28   1  77.5 1.819881
+45 1712.00 25.0  19   1  72.7 1.710081
+46 3751.90 50.0  42   1  92.9 1.760028
+47 2532.10 25.0  30   1  71.4 1.679921
+48 3306.15 50.0  38   1  83.4 1.819932
+49 1067.56 25.0  37   1  85.4 1.820067
+50 1175.69 25.0  33   1  99.3 1.799946
+51 1712.00 25.0  19   1  72.7 1.710081
+52 4451.84 50.0  24   1  58.4 1.660126
+53 2638.81 25.0  24   1  80.4 1.759850
+54 2149.61 25.0  31   1  71.8 1.809847
+55 1666.10 25.0  45   1  92.0 1.690046
+56 4984.57 50.0  47   1  79.5 1.749972
+57 2423.89 37.5  25   1  73.3 1.690144
+58 1800.79 37.5  50   2  69.8 1.640057
+59 3733.10 50.0  34   1  88.0 1.840086
+60  997.89 25.0  43   1  99.8 1.800072
+61 2746.20 50.0  40   1  74.8 1.650143
+62 2690.52 25.0  42   1  94.3 1.769997
+63 2036.20 50.0  18   1 102.7 1.809949
+64 1948.80 50.0  39   1  75.7 1.780081
+65 2177.20 50.0  31   1  88.3 1.759875
+66 2149.61 25.0  31   1  71.8 1.809847
+67 1346.62 25.0  41   1  81.0 1.749966
+68 2336.89 25.0  27   1  74.1 1.829862
+69 2336.89 25.0  27   1  74.1 1.829862
+70 1886.48 25.0  47   1  80.3 1.699861
+71 2815.26 37.5  26   1  84.5 1.770060
+72 3306.15 50.0  38   1  83.4 1.819932
+73 3644.37 50.0  28   1  96.8 1.900156
+74 3239.66 50.0  23   1  72.4 1.840202
+75 3408.61 50.0  39   1  74.2 1.749948
+76 2667.02 50.0  45   2  80.7 1.659881
+77 1935.24 25.0  24   1  70.4 1.740103
+78 2610.00 50.0  25   1  79.8 1.859849
+79 1374.48 25.0  25   1  84.6 1.710058
+80 2372.70 50.0  39   1  89.3 1.719864
+81 1967.61 25.0  22   1  68.7 1.700058
+82 4984.57 50.0  47   1  79.5 1.749972
+83 2336.89 25.0  27   1  74.1 1.829862
+84 1625.46 25.0  30   1  90.6 1.789882
+85 4493.01 50.0  38   1  70.4 1.640153
+86 2471.60 50.0  45   1  93.8 1.780146
+87 1800.79 37.5  50   2  69.8 1.640057
+88 2978.20 50.0  49   1  97.3 1.800026
+89 1451.50 25.0  36   2  88.2 1.710089
+90 3777.20 50.0  37   1 101.8 1.829941</code></pre>
+</div>
+</div>
+<p>Now that I have all of my predictions stored in a vector, I need to convert it to an array, so I can compute the median and 95% confidence intervals for each one.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb175"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb175-1"><a href="#cb175-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create an empty array to store the predictions</span></span>
+<span id="cb175-2"><a href="#cb175-2" aria-hidden="true" tabindex="-1"></a>num_samples <span class="ot">&lt;-</span> <span class="fu">length</span>(preds_bs)</span>
+<span id="cb175-3"><a href="#cb175-3" aria-hidden="true" tabindex="-1"></a>num_datapoints <span class="ot">&lt;-</span> <span class="fu">length</span>(preds_bs[[<span class="dv">1</span>]])  </span>
+<span id="cb175-4"><a href="#cb175-4" aria-hidden="true" tabindex="-1"></a>preds_array <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="at">dim =</span> <span class="fu">c</span>(num_samples, num_datapoints))</span>
+<span id="cb175-5"><a href="#cb175-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb175-6"><a href="#cb175-6" aria-hidden="true" tabindex="-1"></a><span class="co"># fill the array with predictions from bootstrappping</span></span>
+<span id="cb175-7"><a href="#cb175-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_samples) {</span>
+<span id="cb175-8"><a href="#cb175-8" aria-hidden="true" tabindex="-1"></a>  preds_array[i,] <span class="ot">&lt;-</span> <span class="fu">unlist</span>(preds_bs[[i]])</span>
+<span id="cb175-9"><a href="#cb175-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb175-10"><a href="#cb175-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb175-11"><a href="#cb175-11" aria-hidden="true" tabindex="-1"></a><span class="co"># find the median and 95% confidence intervals of each prediction</span></span>
+<span id="cb175-12"><a href="#cb175-12" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> preds_array <span class="sc">%&gt;%</span></span>
+<span id="cb175-13"><a href="#cb175-13" aria-hidden="true" tabindex="-1"></a>          <span class="fu">apply</span>(<span class="dv">2</span>, quantile,  <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.5</span>, <span class="fl">0.95</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb175-14"><a href="#cb175-14" aria-hidden="true" tabindex="-1"></a>          <span class="fu">t</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, I will graph the observed values on the x-axis and point estimates from the training data on the y-axis. I will add the median and confidence intervals for the predictions from the bootstrap sampling to the y-axis as well.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb176"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb176-1"><a href="#cb176-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a data frame with all the necessary variables</span></span>
+<span id="cb176-2"><a href="#cb176-2" aria-hidden="true" tabindex="-1"></a>finaldata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb176-3"><a href="#cb176-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">observed =</span> <span class="fu">c</span>(train_data2<span class="sc">$</span>Y), </span>
+<span id="cb176-4"><a href="#cb176-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">point_estimates =</span> <span class="fu">c</span>(full_aug<span class="sc">$</span>.pred),</span>
+<span id="cb176-5"><a href="#cb176-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">medians =</span> preds[, <span class="dv">2</span>],</span>
+<span id="cb176-6"><a href="#cb176-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower_bound =</span> preds[, <span class="dv">1</span>],</span>
+<span id="cb176-7"><a href="#cb176-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper_bound =</span> preds[, <span class="dv">3</span>]</span>
+<span id="cb176-8"><a href="#cb176-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb176-9"><a href="#cb176-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb176-10"><a href="#cb176-10" aria-hidden="true" tabindex="-1"></a><span class="co"># create visualization with all 5 variables </span></span>
+<span id="cb176-11"><a href="#cb176-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(finaldata, <span class="fu">aes</span>(<span class="at">x =</span> observed, <span class="at">y =</span> point_estimates)) <span class="sc">+</span></span>
+<span id="cb176-12"><a href="#cb176-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  </span>
+<span id="cb176-13"><a href="#cb176-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> medians), <span class="at">color =</span> <span class="st">"green"</span>) <span class="sc">+</span> </span>
+<span id="cb176-14"><a href="#cb176-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower_bound, <span class="at">ymax =</span> upper_bound), <span class="at">width =</span> <span class="fl">0.1</span>, <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span> </span>
+<span id="cb176-15"><a href="#cb176-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># add 45 degree line</span></span>
+<span id="cb176-16"><a href="#cb176-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">5000</span>) <span class="sc">+</span></span>
+<span id="cb176-17"><a href="#cb176-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">5000</span>) <span class="sc">+</span></span>
+<span id="cb176-18"><a href="#cb176-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed Values"</span>, <span class="at">y =</span> <span class="st">"Predicted Values"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 rows containing missing values (`geom_point()`).
+Removed 1 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot shows that our model does a good job of predicted the observed values because most of the point estimates lie around the 45 degree line. I think some of the variation shown in the bootstrap estimates is accounted for by the fact that the <code>DOSE</code> variable has 3 discrete values, so those predicted values will follow 3 horizontal lines as shown in a previous graph. All of the median values from the bootstrap sampling, shown in green, are father away from the 45 degree line than the actual predicted values, shown in black. There are many instances where the confidence interval from the bootstrapping estimate does not contain the point estimate, but some of the confidence intervals contain the point estimates, especially where the point estimates are clustered. I think this graph is evidence that our model is a decent option for this data because the general pattern of point estimates follows the expected 45 degree line. # Rachel continued this section Now we will use the fitted full model to make predictions for the test data. This will allow us to assess the generalizability of the full model that was fitted. I will start by refitting the full linear regression model to both the training and testing data, using the seed set for the previous analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb178"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href="#cb178-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predictions based on testing data</span></span>
+<span id="cb178-2"><a href="#cb178-2" aria-hidden="true" tabindex="-1"></a>test_pred_aug <span class="ot">&lt;-</span> <span class="fu">augment</span>(full_lmfit, test_data2) <span class="sc">%&gt;%</span> <span class="co"># use augment to make predictions</span></span>
+<span id="cb178-3"><a href="#cb178-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Y, .pred) <span class="sc">%&gt;%</span> <span class="co"># select columns for plotting</span></span>
+<span id="cb178-4"><a href="#cb178-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">test_pred =</span> .pred) <span class="co"># change the name of the predictions column</span></span>
+<span id="cb178-5"><a href="#cb178-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb178-6"><a href="#cb178-6" aria-hidden="true" tabindex="-1"></a><span class="co"># predictions based on training data</span></span>
+<span id="cb178-7"><a href="#cb178-7" aria-hidden="true" tabindex="-1"></a>train_pred_aug <span class="ot">&lt;-</span> <span class="fu">augment</span>(full_lmfit, train_data2) <span class="sc">%&gt;%</span></span>
+<span id="cb178-8"><a href="#cb178-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Y, .pred) <span class="sc">%&gt;%</span></span>
+<span id="cb178-9"><a href="#cb178-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">train_pred =</span> .pred)</span>
+<span id="cb178-10"><a href="#cb178-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb178-11"><a href="#cb178-11" aria-hidden="true" tabindex="-1"></a><span class="co"># combine prediction columns into one data frame</span></span>
+<span id="cb178-12"><a href="#cb178-12" aria-hidden="true" tabindex="-1"></a>combined_df <span class="ot">&lt;-</span> <span class="fu">full_join</span>(trial_data5, test_pred_aug, <span class="at">by =</span> <span class="st">"Y"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb178-13"><a href="#cb178-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(train_pred_aug, <span class="at">by =</span> <span class="st">"Y"</span>) <span class="co"># use full join to retain all values for Y and trial_data 5 for all of the original Y values</span></span>
+<span id="cb178-14"><a href="#cb178-14" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(combined_df) <span class="co"># check the structure</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   120 obs. of  8 variables:
+ $ Y         : num  2691 2639 2150 1789 3126 ...
+ $ DOSE      : num  25 25 25 25 25 25 25 25 25 25 ...
+ $ AGE       : num  42 24 31 46 41 27 23 20 23 28 ...
+ $ SEX       : Factor w/ 2 levels "1","2": 1 1 1 2 2 1 1 1 1 1 ...
+ $ WT        : num  94.3 80.4 71.8 77.4 64.3 ...
+ $ HT        : num  1.77 1.76 1.81 1.65 1.56 ...
+ $ test_pred : num  NA NA NA NA NA NA NA NA NA NA ...
+ $ train_pred: num  1628 1962 2097 1576 1976 ...</code></pre>
+</div>
+</div>
+<p>Now, we will plot these two model predictions against the original Y observations to visualize if the testing data produced predictions similar to the training data (and if the model in generalizable).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb180"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb180-1"><a href="#cb180-1" aria-hidden="true" tabindex="-1"></a><span class="co"># grap both predictions</span></span>
+<span id="cb180-2"><a href="#cb180-2" aria-hidden="true" tabindex="-1"></a>train_test_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(combined_df, <span class="fu">aes</span>(<span class="at">x =</span> Y)) <span class="sc">+</span></span>
+<span id="cb180-3"><a href="#cb180-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> test_pred, <span class="at">color =</span> <span class="st">"testing predictions"</span>), <span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb180-4"><a href="#cb180-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> train_pred, <span class="at">color =</span> <span class="st">"training predicitons"</span>), <span class="at">shape =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb180-5"><a href="#cb180-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co">#add the 45 degree line</span></span>
+<span id="cb180-6"><a href="#cb180-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">5000</span>) <span class="sc">+</span> <span class="co">#limit the x-axis values</span></span>
+<span id="cb180-7"><a href="#cb180-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>, <span class="dv">5000</span>) <span class="sc">+</span> <span class="co">#limit the y-axis values</span></span>
+<span id="cb180-8"><a href="#cb180-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed Y Values"</span>, <span class="at">y =</span> <span class="st">"Predicted Values for Train and Test data"</span>)</span>
+<span id="cb180-9"><a href="#cb180-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(train_test_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 90 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 31 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The chart above displays that the training data predictions and testing data predictions follow the same pattern. This means that the model captures the same trends that it did on the testing data as when it was fitted using the training data. This means that the model is generalizable when presented with “new” data. However, the pattern in both sets of predictions shows that a trend was not captured. Even though the model is generalizable, it is also under-fitted and may be too flexible. This means that more tuning, additional predictors, or a larger sample size, will help the model fit the unrepresented trend.</p>
+</section>
+<section id="conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<blockquote class="blockquote">
+<p>We want to make sure that any model we have performs better than the null model. Is that the case?</p>
+</blockquote>
+<p>According to the RMSE computations for the single predictor model, full model, and null model, which are 560, 520, and 993 respectively, the models including any predictor are both better than the null model. However, we see in the plot of the predicted values of both models versus the null, that the model including the single predictor is not much better than the null model. The null model shows a single horizontal line of predictions, while the single predictor model shows three horizontal lines of predictions. The points in the single predictor model follow the trend (of the 45 degree line) slightly better than the null model, but with only three possible values for the predictor (DOSE), the overall trends of Y are not captured. When you add in all of the predictors, this allows more trends to be captured. This is shown in the graph of the full model predictions, where the points more closely follow the 45 degree trend line.</p>
+<blockquote class="blockquote">
+<p>Does model 1 with only dose in the model improve results over the null model? Do the results make sense? Would you consider this model “usable” for any real purpose?</p>
+</blockquote>
+<p>Model 1 with only DOSE as a predictor slightly improves the results compared to the null model. As discussed before, model 1 has a much lower RMSE value and follows the trend line slightly better than the null model. However, because there are only 3 options for dose, it leaves out many trends contributing the the distribution of Y. This is why the single predictor model would not be usable for any real purpose. Although one could use it to predict the Y given DOSE, we learn that many other predictors impact the trends in Y and DOSE might not be the best predictor.</p>
+<blockquote class="blockquote">
+<p>Does model 2 with all predictors further improve results? Do the results make sense? Would you consider this model “usable” for any real purpose?</p>
+</blockquote>
+<p>Model 2 with all of the predictors does improve the predictions compared to model 1 and the null model. First, the RMSE is lower for the full model than all of the others. Secondly, in the graph, you can see a clear cloud of points following the 45 degree trend line. The full model predictions follow the trend line more closely than all of the other model predictions, showing that the full model fits best. However, there is still a pattern, seen in the residual plot, where higher predicted values are more scattered and contain more outliers. This means that the full model still is not able to capture all of the trends contributing to the observed Y values. This model is still more usable for predicting Y given any of the predictors in the model, because it is more accurate. It must be kept in mind that for larger Y values, the predictive power of the full model likely decreases. This means that it can be used to make predictions for small Y values but not larger ones.</p>
 
 
 </section>

@@ -429,7 +429,7 @@ names(single_aug) # check the names
 # Calculate the RMSE of the single predictor model
 rmse_sing <- rmse(data = single_aug,
              truth = Y,
-             estimate = .pred) %>% 
+             estimate = .pred)
   print(rmse_sing) # Evaluate RMSE based on the results
 
 # Make predictions with the full predictor linear model
@@ -439,11 +439,12 @@ full_aug <-
 full_aug %>%
   select("Y", "DOSE", "AGE", "SEX", "WT", "HT") # select columns to add to the data frame
 names(full_aug) # check the names for the columns
+str(full_aug)
 
 # Calculate the RMSE of the full model
 rmse_full <- rmse(data = full_aug,
              truth = Y,
-             estimate = .pred) %>% 
+             estimate = .pred)
   print(rmse_full) # Evaluate RMSE based on the results
 
 # Make predictions using a null model
@@ -473,7 +474,7 @@ names(blank_aug) # check the names for the columns
 # Calculate the RMSE of the blank model
 rmse_blank <- rmse(data = blank_aug,
              truth = Y,
-             estimate = .pred) %>% 
+             estimate = .pred)
   print(rmse_blank) # Evaluate RMSE based on the results
 ```
 The RMSE for the single predictor model, full model, and null model are 560, 520, and 993 respectively. This is not equal to the values found by Dr. Handel, however I did set the seed in the initial step.
@@ -605,7 +606,7 @@ plotdata <- data.frame(
   predicted_null = c(blank_aug$.pred), 
   predicted_model1 = c(single_aug$.pred), 
   predicted_model2 = c(full_aug$.pred), 
-  model = rep(c("null model", "model 1", "model 2"), each = nrow(train_data))) # add label indicating the model
+  model = rep(c("null model", "model 1", "model 2"), each = nrow(train_data2))) # add label indicating the model
 plotdata
 ```
 
@@ -662,7 +663,7 @@ for (i in 1:length(bootstraps)) {
   
   model <- lm(Y ~ DOSE + AGE + HT + WT + SEX, data = bootstrap_sample) # fit the model using the bootstrap sample
   
-  predictions <- predict(model, newdata = train_data) # make predictions with the training data
+  predictions <- predict(model, newdata = train_data2) # make predictions with the training data
   
   preds_bs[[i]] <- predictions # store predictions in the empty vector
 }
@@ -712,3 +713,48 @@ ggplot(finaldata, aes(x = observed, y = point_estimates)) +
   labs(x = "Observed Values", y = "Predicted Values")
 ```
 This plot shows that our model does a good job of predicted the observed values because most of the point estimates lie around the 45 degree line. I think some of the variation shown in the bootstrap estimates is accounted for by the fact that the `DOSE` variable has 3 discrete values, so those predicted values will follow 3 horizontal lines as shown in a previous graph. All of the median values from the bootstrap sampling, shown in green, are father away from the 45 degree line than the actual predicted values, shown in black. There are many instances where the confidence interval from the bootstrapping estimate does not contain the point estimate, but some of the confidence intervals contain the point estimates, especially where the point estimates are clustered. I think this graph is evidence that our model is a decent option for this data because the general pattern of point estimates follows the expected 45 degree line. 
+# Rachel continued this section
+Now we will use the fitted full model to make predictions for the test data. This will allow us to assess the generalizability of the full model that was fitted.
+I will start by refitting the full linear regression model to both the training and testing data, using the seed set for the previous analysis.
+```{r}
+# predictions based on testing data
+test_pred_aug <- augment(full_lmfit, test_data2) %>% # use augment to make predictions
+  select(Y, .pred) %>% # select columns for plotting
+  rename(test_pred = .pred) # change the name of the predictions column
+
+# predictions based on training data
+train_pred_aug <- augment(full_lmfit, train_data2) %>%
+  select(Y, .pred) %>%
+  rename(train_pred = .pred)
+
+# combine prediction columns into one data frame
+combined_df <- full_join(trial_data5, test_pred_aug, by = "Y") %>%
+  full_join(train_pred_aug, by = "Y") # use full join to retain all values for Y and trial_data 5 for all of the original Y values
+str(combined_df) # check the structure
+```
+Now, we will plot these two model predictions against the original Y observations to visualize if the testing data produced predictions similar to the training data (and if the model in generalizable).
+```{r}
+# grap both predictions
+train_test_plot <- ggplot(combined_df, aes(x = Y)) +
+  geom_point(aes(y = test_pred, color = "testing predictions"), shape = 1) +
+  geom_point(aes(y = train_pred, color = "training predicitons"), shape = 2) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") + #add the 45 degree line
+  xlim(0, 5000) + #limit the x-axis values
+  ylim(0, 5000) + #limit the y-axis values
+  labs(x = "Observed Y Values", y = "Predicted Values for Train and Test data")
+print(train_test_plot)
+```
+The chart above displays that the training data predictions and testing data predictions follow the same pattern. This means that the model captures the same trends that it did on the testing data as when it was fitted using the training data. This means that the model is generalizable when presented with "new" data. However, the pattern in both sets of predictions shows that a trend was not captured. Even though the model is generalizable, it is also under-fitted and may be too flexible. This means that more tuning, additional predictors, or a larger sample size, will help the model fit the unrepresented trend. 
+
+## Conclusions
+>We want to make sure that any model we have performs better than the null model. Is that the case?
+
+According to the RMSE computations for the single predictor model, full model, and null model, which are 560, 520, and 993 respectively, the models including any predictor are both better than the null model. However, we see in the plot of the predicted values of both models versus the null, that the model including the single predictor is not much better than the null model. The null model shows a single horizontal line of predictions, while the single predictor model shows three horizontal lines of predictions. The points in the single predictor model follow the trend (of the 45 degree line) slightly better than the null model, but with only three possible values for the predictor (DOSE), the overall trends of Y are not captured. When you add in all of the predictors, this allows more trends to be captured. This is shown in the graph of the full model predictions, where the points more closely follow the 45 degree trend line.
+
+>Does model 1 with only dose in the model improve results over the null model? Do the results make sense? Would you consider this model “usable” for any real purpose?
+
+Model 1 with only DOSE as a predictor slightly improves the results compared to the null model. As discussed before, model 1 has a much lower RMSE value and follows the trend line slightly better than the null model. However, because there are only 3 options for dose, it leaves out many trends contributing the the distribution of Y. This is why the single predictor model would not be usable for any real purpose. Although one could use it to predict the Y given DOSE, we learn that many other predictors impact the trends in Y and DOSE might not be the best predictor.
+
+>Does model 2 with all predictors further improve results? Do the results make sense? Would you consider this model “usable” for any real purpose?
+
+Model 2 with all of the predictors does improve the predictions compared to model 1 and the null model. First, the RMSE is lower for the full model than all of the others. Secondly, in the graph, you can see a clear cloud of points following the 45 degree trend line. The full model predictions follow the trend line more closely than all of the other model predictions, showing that the full model fits best. However, there is still a pattern, seen in the residual plot, where higher predicted values are more scattered and contain more outliers. This means that the full model still is not able to capture all of the trends contributing to the observed Y values. This model is still more usable for predicting Y given any of the predictors in the model, because it is more accurate. It must be kept in mind that for larger Y values, the predictive power of the full model likely decreases. This means that it can be used to make predictions for small Y values but not larger ones.
