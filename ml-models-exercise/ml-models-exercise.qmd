@@ -1,0 +1,65 @@
+---
+title: "Machine Learning Models Exercise"
+author: "Rachel Robertson"
+date: "3/28/24"
+output: html_document
+---
+# Preparation
+```{r, include=FALSE, cache=FALSE}
+library(here)
+knitr::read_chunk(here("./ml-models-exercise/ml-models-exercise.R"))
+```
+We will start by loading the packages we need, setting the seed to 1234, and loading the cleaned version of the Mavoglurant trial data.
+```{r, packages, message = FALSE, warning = FALSE}
+
+```
+## Data cleaning
+The previous analysis excluded SEX, but we want to include this variable for this portion of analysis. We also have two odd levels in the factor variable, race, which are called 7 and 88. To discover how to handle this variable we must explore to find what these levels stand for. In my previous exploratory analysis, I noticed that the races 7 and 88 were different depending on age (where 7 included those less than 40 years of age and 88 included those older than 40 years of age). For this reason I will stratify race by age. I will then stratify race by sex to determine if there are any further differences that I might be missing. Sex was shown to be associated with height and body weight in the exploratory analysis and I do not know an arbitrary cutoff for this variables, so I will not use them to stratify.
+```{r, stratify, message = FALSE, warning = FALSE}
+
+```
+The summary statistics (counts of RACE for each AGE category and SEX) show that 7 and 88 are in two different age categories. This may indicate that they represent the same race, but divided by those who are <=40 years old and those who are >40 years old. Because of this, we will group the factor levels (7 and 88) or race, together.
+```{r, combine, message = FALSE, warning = FALSE}
+
+```
+
+```{r, correlation, message = FALSE, warning = FALSE}
+
+```
+As shown by the correlation matrix and plot, there is a moderate correlation between weight and height but no other continuous variables show correlation. Because of this, we want to combine these two correlated variables for weight and height into one variable for body mass index (BMI). BMI is calculated by dividing a person's weight in kg by height in meters squared. We do not know the units for height or weight used int eh study so we will look at the data to try and figure this out.
+
+```{r, summary, message = FALSE, warning = FALSE}
+
+```
+# Modeling
+I will produce three machine learning models of this cleaned data. The first will be a linear regression model, similar to the one done for the model fitting exercise. Next, I will do a LASSO regression and finally, a random forest (RF) model. Instead of splitting the data into training and testing groups, we will perform cross validation (CV) at the end to check model performance.
+## First Fit
+```{r, first-fit, message = FALSE, warning = FALSE}
+
+```
+### Predictions
+Now that I have fit a linear regression, LASSO regression, and random forest model, I will use each model to make predictions and find the RMSE for each model.
+```{r, predictions, message = FALSE, warning = FALSE}
+
+```
+We see that the RMSE is very similar for the linear regression and LASSO regression (approx. 572), but the RMSE for the random forest model is much lower (approx. 362). To visualize why this may be, we will produce a plot of the outcome (Y) and predicted values to compare each model.
+```{r, pred-plot, message = FALSE, warning = FALSE}
+
+```
+We see that the linear regression and LASSO models had very similar predictions compared to one another. The random forest model, which had the lowest RMSE, is also the closest to the 45 degree regression line. This indicates that it is the best performing model of the machine learning models tested.
+## Model Tuning
+I will begin by tuning the lasso model and producing a plot for the tuned model using autoplot().
+```{r, tune1, message = FALSE, warning = FALSE}
+
+```
+We see that as the amount of regularization from the penalty term in the LASSO regression increases, the RMSE increases. As the penalty parameter goes up, the regularization of the coefficients go up. This makes the model less flexible, so it might not capture all the trend in the data as well if the penalty increases.The RMSE of the LASSO model never decreases below the linear model RMSE because the more regularized the model becomes, the more constrained it becomes. This means that predictive power will decrease as the penalty term increases, which is reflected by RMSE increasing and not decreasing.
+```{r, tune2, message = FALSE, warning = FALSE}
+
+```
+## Tuning with Cross-validation
+```{r, tune3, message = FALSE, warning = FALSE}
+
+```
+The RMSE from the CV-tuned LASSO model has increased relative to the RMSE from the model tuned without CV. The LASSO model tuned without CV produced very similar RMSE values to the linear model and un-tuned model because it is essentially the same thing as the linear regression model above. At a small penalty value, the RMSE of the LASSO regression is best, for both tuned models.
+The random forest model that was tuned with CV also had an increase in RMSE compared to the one tuned without CV. In the RF tuned with CV, we observe that the trees with different minimum node sizes follow a closer pattern in the RMSE graph than the trees from the RF model tuned without CV. 
+The LASSO model tuned with cross validation has a better RMSE than the RF model tuned with CV, despite this being the opposite case when they were tuned using the data itself. The RMSE of both models increased with cross validation, but to different magnitudes. This is because cross-validation is more representative of a real scenario where trained data would be compared to testing data to see if the predictions are the same as the observations. The random forest model RMSE was more affected by cross validation, perhaps, because it was less suited to real life. The model was fit to its own data when it was tuned the first time, which led to over-fitting. Because the random forest model was likely over-fit, compared to the LASSO model, the random forest model is not as suitable for real life. The best performing model, in my opinion, is the LASSO model, though it is not much different than the linear regression model.

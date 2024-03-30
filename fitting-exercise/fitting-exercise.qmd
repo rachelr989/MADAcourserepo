@@ -82,8 +82,10 @@ I will now check for any missing values.
 ```{r}
 which(is.na(trial_data4)) # find location of missing values
 sum(is.na(trial_data4)) # count total missing values 
+path <- here("./fitting-exercise/cleandata.rds") # create path using here package
+saveRDS(trial_data4, file = path) # save as an rds using specified here path
 ```
-No missing variables will found, so I will not continue to clean the data and move onto exploratory data analysis. 
+No missing variables will found, so I will not continue to clean the data and move onto exploratory data analysis. I save the clean data as an rds called cleandata.rds.
 ## Exploratory Data Analysis 
 ### Summary Table 
 I will create a summary table of the data frame in R by using the describe() function from the "psych" package.

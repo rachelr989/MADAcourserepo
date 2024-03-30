@@ -24,6 +24,8 @@ website:
             file: cdcdata-exercise/cdcdata-exercise.qmd
           - text: "Model Fitting Exercise"
             file: fitting-exercise/fitting-exercise.qmd
+          - text: "Machine Learning Exercise"
+            file: ml-models-exercise/ml-models-exercise.qmd
     right:
       - icon: github 
         href: https://github.com/rachelr989/MADAcourserepo      

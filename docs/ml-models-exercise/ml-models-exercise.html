@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.538">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Rachel Robertson">
+<meta name="dcterms.date" content="2024-03-28">
+
+<title>Rachel Robertson Data Analysis Portfolio - Machine Learning Models Exercise</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Rachel Robertson Data Analysis Portfolio</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../aboutme.html"> 
+<span class="menu-text">About Me</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Projects</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projects">    
+        <li>
+    <a class="dropdown-item" href="../starter-analysis-exercise/products/report/starter-analysis-report.html">
+ <span class="dropdown-text">Starter Analysis Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../coding-exercise/coding-exercise.html">
+ <span class="dropdown-text">R Coding Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../data-exercise/data-exercise.html">
+ <span class="dropdown-text">Data Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../presentation-exercise/presentation-exercise.html">
+ <span class="dropdown-text">Presentation Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tidytuesday-exercise/tidytuesday-exercise.html">
+ <span class="dropdown-text">Tidy Tuesday Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cdcdata-exercise/cdcdata-exercise.html">
+ <span class="dropdown-text">CDC Data Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../fitting-exercise/fitting-exercise.html">
+ <span class="dropdown-text">Model Fitting Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../ml-models-exercise/ml-models-exercise.html">
+ <span class="dropdown-text">Machine Learning Exercise</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/rachelr989/MADAcourserepo"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Machine Learning Models Exercise</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rachel Robertson </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 28, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="preparation" class="level1">
+<h1>Preparation</h1>
+<p>We will start by loading the packages we need, setting the seed to 1234, and loading the cleaned version of the Mavoglurant trial data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels) <span class="co"># use tidymodels framework</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2) <span class="co"># producing visual displays of data</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr) <span class="co"># manipulating and cleaning data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here) <span class="co"># making relative pathways</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmnet) <span class="co"># for LASSO regression engine</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ranger) <span class="co"># making random forest model</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel) <span class="co"># for parallel processing</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample) <span class="co"># for cross validation</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Set seed</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>rngseed <span class="ot">&lt;-</span> <span class="dv">1234</span> <span class="co"># 1234 = rngseed </span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"ml-models-exercise"</span>,<span class="st">"cleandata.rds"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(data_location)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   120 obs. of  7 variables:
+ $ Y   : num  2691 2639 2150 1789 3126 ...
+ $ DOSE: num  25 25 25 25 25 25 25 25 25 25 ...
+ $ AGE : num  42 24 31 46 41 27 23 20 23 28 ...
+ $ SEX : Factor w/ 2 levels "1","2": 1 1 1 2 2 1 1 1 1 1 ...
+ $ RACE: Factor w/ 4 levels "1","2","7","88": 2 2 1 1 2 2 1 4 2 1 ...
+ $ WT  : num  94.3 80.4 71.8 77.4 64.3 ...
+ $ HT  : num  1.77 1.76 1.81 1.65 1.56 ...</code></pre>
+</div>
+</div>
+<section id="data-cleaning" class="level2">
+<h2 class="anchored" data-anchor-id="data-cleaning">Data cleaning</h2>
+<p>The previous analysis excluded SEX, but we want to include this variable for this portion of analysis. We also have two odd levels in the factor variable, race, which are called 7 and 88. To discover how to handle this variable we must explore to find what these levels stand for. In my previous exploratory analysis, I noticed that the races 7 and 88 were different depending on age (where 7 included those less than 40 years of age and 88 included those older than 40 years of age). For this reason I will stratify race by age. I will then stratify race by sex to determine if there are any further differences that I might be missing. Sex was shown to be associated with height and body weight in the exploratory analysis and I do not know an arbitrary cutoff for this variables, so I will not use them to stratify.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stratify RACE by AGE</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Define age groups of under 40 and over 40</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>AGEcat <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(data<span class="sc">$</span>AGE <span class="sc">&lt;=</span> <span class="dv">40</span>, <span class="st">"&lt;=40"</span>, <span class="st">"&gt;40"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Use by() to stratify the race variable by age and find the summary</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>RaceAge_summary <span class="ot">&lt;-</span> <span class="fu">by</span>(data<span class="sc">$</span>RACE, data<span class="sc">$</span>AGEcat, summary)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Printing the summary statistics</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>RaceAge_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>data$AGEcat: &lt;=40
+ 1  2  7 88 
+53 29  0  8 
+------------------------------------------------------------ 
+data$AGEcat: &gt;40
+ 1  2  7 88 
+21  7  2  0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">subset</span>(data, <span class="at">select =</span> <span class="sc">-</span>AGEcat) <span class="co"># remove the AGEcat variable from the original data frame</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Stratify RACE by SEX</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>RaceSex_summary <span class="ot">&lt;-</span> <span class="fu">by</span>(data<span class="sc">$</span>RACE, data<span class="sc">$</span>SEX, summary)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>RaceSex_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>data$SEX: 1
+ 1  2  7 88 
+63 33  1  7 
+------------------------------------------------------------ 
+data$SEX: 2
+ 1  2  7 88 
+11  3  1  1 </code></pre>
+</div>
+</div>
+<p>The summary statistics (counts of RACE for each AGE category and SEX) show that 7 and 88 are in two different age categories. This may indicate that they represent the same race, but divided by those who are &lt;=40 years old and those who are &gt;40 years old. Because of this, we will group the factor levels (7 and 88) or race, together.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combining RACE levels 7 and 88</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>RACE <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">ifelse</span>(data<span class="sc">$</span>RACE <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">88</span>), <span class="dv">3</span>, data<span class="sc">$</span>RACE)) <span class="co"># combine levels 7 and 88 of the factor variable RACE into one level called 3 using the ifelse() function</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data<span class="sc">$</span>RACE) <span class="co"># check the data structure to ensure that they were combined</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Factor w/ 3 levels "1","2","3": 2 2 1 1 2 2 1 3 2 1 ...</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Correlation Plot</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(data[, <span class="fu">c</span>(<span class="st">"WT"</span>, <span class="st">"HT"</span>, <span class="st">"AGE"</span>, <span class="st">"Y"</span>)], <span class="co"># use pairs() to find pairwise correlation for continuous variables</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"WT"</span>, <span class="st">"HT"</span>, <span class="st">"AGE"</span>, <span class="st">"Y"</span>), <span class="co"># specify the labels for each variable</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">main =</span> <span class="st">"Correlation Plot"</span>, <span class="co"># Title of the plot</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">row1attop =</span> <span class="cn">FALSE</span>, <span class="co"># Default behavior for the direction of the diagonal</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">gap =</span> <span class="dv">1</span>, <span class="co"># Distance between subplots</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">cex.labels =</span> <span class="cn">NULL</span>,<span class="co"># Size of the diagonal text (default)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">font.labels =</span> <span class="dv">1</span>) <span class="co"># Font style of the diagonal text</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml-models-exercise_files/figure-html/correlation-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># correlation coefficients</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(data[, <span class="fu">c</span>(<span class="st">"WT"</span>, <span class="st">"HT"</span>, <span class="st">"AGE"</span>, <span class="st">"Y"</span>)]) <span class="co"># use cor() function to make a correlation matrix for the specified continuous</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(matrix) <span class="co"># Print the correlation matrix</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            WT         HT         AGE           Y
+WT   1.0000000  0.5997505  0.11967399 -0.21287194
+HT   0.5997505  1.0000000 -0.35185806 -0.15832972
+AGE  0.1196740 -0.3518581  1.00000000  0.01256372
+Y   -0.2128719 -0.1583297  0.01256372  1.00000000</code></pre>
+</div>
+</div>
+<p>As shown by the correlation matrix and plot, there is a moderate correlation between weight and height but no other continuous variables show correlation. Because of this, we want to combine these two correlated variables for weight and height into one variable for body mass index (BMI). BMI is calculated by dividing a person’s weight in kg by height in meters squared. We do not know the units for height or weight used int eh study so we will look at the data to try and figure this out.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the data</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       Y               DOSE            AGE        SEX     RACE  
+ Min.   : 826.4   Min.   :25.00   Min.   :18.00   1:104   1:74  
+ 1st Qu.:1700.5   1st Qu.:25.00   1st Qu.:26.00   2: 16   2:36  
+ Median :2349.1   Median :37.50   Median :31.00           3:10  
+ Mean   :2445.4   Mean   :36.46   Mean   :33.00                 
+ 3rd Qu.:3050.2   3rd Qu.:50.00   3rd Qu.:40.25                 
+ Max.   :5606.6   Max.   :50.00   Max.   :50.00                 
+       WT               HT       
+ Min.   : 56.60   Min.   :1.520  
+ 1st Qu.: 73.17   1st Qu.:1.700  
+ Median : 82.10   Median :1.770  
+ Mean   : 82.55   Mean   :1.759  
+ 3rd Qu.: 90.10   3rd Qu.:1.813  
+ Max.   :115.30   Max.   :1.930  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># It looks like height is in meters and weight is in kg in this case</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate BMI</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">mutate</span>(data, <span class="at">BMI =</span> WT<span class="sc">/</span>(HT<span class="sc">^</span><span class="dv">2</span>)) <span class="co"># use mutate() from dpylr to add a new variable to the data frame using preexisting columns</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data<span class="sc">$</span>BMI) <span class="co"># check structure of the BMI variable</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> num [1:120] 30.1 26 21.9 28.4 26.4 ...</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="modeling" class="level1">
+<h1>Modeling</h1>
+<p>I will produce three machine learning models of this cleaned data. The first will be a linear regression model, similar to the one done for the model fitting exercise. Next, I will do a LASSO regression and finally, a random forest (RF) model. Instead of splitting the data into training and testing groups, we will perform cross validation (CV) at the end to check model performance. ## First Fit</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed) <span class="co"># set seed for reproducibility</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear Regression</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>glm_recipe <span class="ot">&lt;-</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(Y <span class="sc">~</span> ., <span class="at">data =</span> data) <span class="co"># specify the recipe by putting the formula for the linear model with all the predictors</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>glm_model <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span> <span class="co"># make object for the model function</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>) <span class="sc">%&gt;%</span> <span class="co"># Use linear regression engine lm</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="co"># and also, set to regression mode</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>glm_workflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co"># create a workflow </span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(glm_model) <span class="sc">%&gt;%</span> <span class="co"># apply linear regression model</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(glm_recipe) <span class="co"># then, apply the recipe</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>glm_fit <span class="ot">&lt;-</span> </span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  glm_workflow <span class="sc">%&gt;%</span> <span class="co"># add the workflow to the fit</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> data) <span class="co"># fit to the whole data set</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(glm_fit) <span class="co"># produce tibble to organize the resulting linear regression fit</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 5
+  term         estimate std.error statistic  p.value
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+1 (Intercept)  32051.    10161.       3.15  2.07e- 3
+2 DOSE            59.1       4.73    12.5   6.22e-23
+3 AGE              4.53      7.47     0.607 5.45e- 1
+4 SEX2          -435.      210.      -2.07  4.06e- 2
+5 RACE2          158.      124.       1.27  2.07e- 1
+6 RACE3         -258.      215.      -1.20  2.33e- 1
+7 WT             145.       59.5      2.45  1.60e- 2
+8 HT          -16840.     5728.      -2.94  4.00e- 3
+9 BMI           -536.      188.      -2.85  5.20e- 3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LASSO Regression</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="do">## I used a tidytuesday example and stack overflow to create this LASSO regression</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>lasso_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(Y <span class="sc">~</span> ., <span class="at">data =</span> data) <span class="sc">%&gt;%</span> <span class="co"># create recipe containing all predictors</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_numeric</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span> <span class="co"># removes non-zero variance variables of predictors (not outcomes)</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_scale</span>(<span class="fu">all_numeric</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>(), <span class="sc">-</span><span class="fu">all_nominal</span>()) <span class="sc">%&gt;%</span> <span class="co"># regularizes numerical variables</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal</span>()) <span class="co"># makes factor variables dummy variables</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>lasso_prep <span class="ot">&lt;-</span> lasso_rec <span class="sc">%&gt;%</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>() <span class="co"># ensures that strings are not converted into factors, call prep to prepare the recipe for fitting</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>lasso_spec <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>(<span class="at">penalty =</span> <span class="fl">0.1</span>, <span class="at">mixture =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="co"># gives a L1 penalty to the variables</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>) <span class="co"># set engine for LASSO regression</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>lasso_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(lasso_rec) <span class="co"># apply the recipe to a lasso workflow</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>lasso_fit <span class="ot">&lt;-</span> lasso_wf <span class="sc">%&gt;%</span> <span class="co"># fit the model using the specs that were specified above</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(lasso_spec) <span class="sc">%&gt;%</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> data) <span class="co"># fit to all data</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>lasso_fit <span class="sc">%&gt;%</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit_parsnip</span>() <span class="sc">%&gt;%</span> <span class="co"># extract the fit and use tidy() to produce a tibble</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 3
+  term        estimate penalty
+  &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt;
+1 (Intercept)  30579.      0.1
+2 DOSE           702.      0.1
+3 AGE             39.7     0.1
+4 WT            1713.      0.1
+5 HT           -1369.      0.1
+6 BMI          -1627.      0.1
+7 SEX_X2        -431.      0.1
+8 RACE_X2        158.      0.1
+9 RACE_X3       -251.      0.1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Random Forest (RF) Model</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>rf_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>( Y <span class="sc">~</span> ., <span class="at">data =</span> data) <span class="co"># use full model as recipe for the random forest model</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>rf_model <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>()<span class="sc">%&gt;%</span> <span class="co"># use rand_forest() to make a random forest model</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">seed =</span> rngseed)<span class="sc">%&gt;%</span> <span class="co"># set engine to ranger with the same seed for reproducibility</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)<span class="sc">%&gt;%</span> <span class="co"># set to regression mode</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">translate</span>()</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>rf_workflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co"># create workflow for rf model</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rf_rec)<span class="sc">%&gt;%</span> <span class="co"># apply recipe</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_model) <span class="co"># apply model</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>rf_fit <span class="ot">&lt;-</span> rf_workflow<span class="sc">%&gt;%</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> data) <span class="co"># use the workflow to fit the rf model to the data</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>rf_fit <span class="co"># print fit (there is no tidy method for ranger)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow [trained] ══════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: rand_forest()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+0 Recipe Steps
+
+── Model ───────────────────────────────────────────────────────────────────────
+Ranger result
+
+Call:
+ ranger::ranger(x = maybe_data_frame(x), y = y, seed = ~rngseed,      num.threads = 1, verbose = FALSE) 
+
+Type:                             Regression 
+Number of trees:                  500 
+Sample size:                      120 
+Number of independent variables:  7 
+Mtry:                             2 
+Target node size:                 5 
+Variable importance mode:         none 
+Splitrule:                        variance 
+OOB prediction error (MSE):       497625.2 
+R squared (OOB):                  0.4618768 </code></pre>
+</div>
+</div>
+<section id="predictions" class="level3">
+<h3 class="anchored" data-anchor-id="predictions">Predictions</h3>
+<p>Now that I have fit a linear regression, LASSO regression, and random forest model, I will use each model to make predictions and find the RMSE for each model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Making Predictions and Computing RMSE</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Linear regression</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>glm_aug <span class="ot">&lt;-</span> <span class="fu">augment</span>(glm_fit, data) <span class="co"># add glm predictions to an augmented data frame</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>glm_rmse <span class="ot">&lt;-</span> <span class="fu">rmse</span>(<span class="at">data =</span> glm_aug, <span class="co"># compute rmse based on Y expected values and .pred as the estimate</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">truth =</span> Y,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">estimate =</span> .pred)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(glm_rmse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard        572.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="do">## LASSO regression</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>lasso_aug <span class="ot">&lt;-</span> <span class="fu">augment</span>(lasso_fit, data)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>lasso_rmse <span class="ot">&lt;-</span> <span class="fu">rmse</span>(<span class="at">data =</span> lasso_aug,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">truth =</span> Y,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">estimate =</span> .pred)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lasso_rmse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard        572.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Rf model</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>rf_aug <span class="ot">&lt;-</span> <span class="fu">augment</span>(rf_fit, data)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>rf_rmse <span class="ot">&lt;-</span> <span class="fu">rmse</span>(<span class="at">data =</span> rf_aug,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">truth =</span> Y,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">estimate =</span> .pred)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rf_rmse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard        362.</code></pre>
+</div>
+</div>
+<p>We see that the RMSE is very similar for the linear regression and LASSO regression (approx. 572), but the RMSE for the random forest model is much lower (approx. 362). To visualize why this may be, we will produce a plot of the outcome (Y) and predicted values to compare each model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Predicted versus Observed plot</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Add data to one data frame</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">observed =</span> <span class="fu">c</span>(data<span class="sc">$</span>Y), <span class="co"># Add observed value from original data frame</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">glm_predictions =</span> <span class="fu">c</span>(glm_aug<span class="sc">$</span>.pred), <span class="co"># add predicted values from each model</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">lasso_predictions =</span> <span class="fu">c</span>(lasso_aug<span class="sc">$</span>.pred), </span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">rf_predictions =</span> <span class="fu">c</span>(rf_aug<span class="sc">$</span>.pred), </span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"linear regression"</span>, <span class="st">"LASSO regression"</span>, <span class="st">"random forest model"</span>), <span class="at">each =</span> <span class="fu">nrow</span>(data))) <span class="co"># add labels to indicate the model</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>plot_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    observed glm_predictions lasso_predictions rf_predictions
+1    2690.52        1666.292         1665.4951       2232.979
+2    2638.81        1951.072         1951.1483       2430.801
+3    2149.61        1895.868         1901.2942       1939.346
+4    1788.89        1548.332         1553.1011       1822.306
+5    3126.37        2369.123         2358.0298       2698.249
+6    2336.89        1920.740         1928.6044       1973.672
+7    3007.20        1509.739         1512.5443       2325.846
+8    2795.65        2155.512         2154.3831       2599.931
+9    3865.79        2657.661         2643.6228       2965.019
+10   1761.62        1352.351         1344.5900       1625.177
+11   2548.98        1805.393         1804.1869       2202.179
+12   1967.61        2261.963         2254.6162       2090.828
+13   2352.78        2951.773         2941.5741       2644.115
+14   1800.79        2695.525         2690.2208       2401.978
+15   2009.16        2231.317         2243.1548       2172.702
+16   2815.26        2582.599         2583.4456       2679.755
+17   2008.52        2178.308         2174.3373       2186.277
+18   2933.99        3036.928         3028.9858       2785.677
+19   2748.86        2441.214         2444.1440       2504.647
+20   2154.56        2282.657         2287.9142       2191.959
+21   3462.59        2828.334         2824.4177       2953.546
+22   2771.69        2644.227         2643.7206       2680.456
+23   2423.89        2838.265         2834.5916       2588.795
+24   2084.87        2114.951         2110.2089       2070.711
+25   4984.57        3410.684         3409.2691       4038.573
+26   2572.45        2900.071         2896.7632       2832.323
+27   2667.02        2874.575         2883.4645       2819.265
+28   3004.21        3216.289         3218.0471       3082.765
+29   4834.65        4147.945         4122.1679       4007.517
+30   5606.58        3146.586         3148.0269       4054.842
+31   3408.61        3530.487         3528.5769       3234.727
+32   4493.01        3782.900         3775.9116       3892.084
+33   3513.71        3527.580         3527.0090       3423.537
+34   3905.93        3161.522         3169.9729       3293.157
+35   3644.37        3014.873         3012.9266       3124.347
+36   2746.20        3725.436         3723.5112       3050.665
+37   1424.00        1092.137         1110.2174       1476.492
+38   1108.17        1528.406         1540.3575       1529.187
+39   3104.70        2944.451         2940.3125       2946.628
+40   2177.20        2828.179         2836.5662       2706.864
+41   2193.20        1641.498         1644.6901       2004.379
+42   1810.59        2081.464         2087.8279       1967.067
+43   1666.10        1561.426         1571.5568       1766.751
+44   2027.39        1472.311         1485.0501       1915.456
+45   2345.50        3126.133         3130.0769       2679.027
+46   3310.20        3011.772         3010.9532       3199.220
+47   3777.20        2884.511         2878.4614       3136.643
+48   2063.43        1585.373         1574.7557       1698.501
+49   4378.37        4164.254         4157.3127       4054.339
+50   1853.91        1737.577         1745.8276       1987.378
+51   3774.00        3354.137         3362.0251       3318.810
+52   1625.46        1713.675         1712.9939       1742.316
+53   1044.07        1271.445         1280.7092       1426.413
+54   1423.70        1745.834         1747.0350       1570.035
+55   3037.39        3264.513         3267.4854       3043.601
+56   2610.00        3052.354         3062.8884       2781.194
+57   3193.98        3480.765         3479.9722       3243.305
+58   1602.63        2229.188         2225.4512       1875.574
+59   2457.68        3285.181         3286.8230       2909.370
+60   1474.60        1628.706         1627.3779       1694.544
+61    997.89        1431.588         1427.4710       1333.704
+62   4451.84        4047.461         4033.0282       3949.126
+63   3507.10        3331.287         3341.3703       3386.129
+64   3332.16        3467.620         3467.6341       3246.643
+65   3733.10        3212.679         3214.1497       3301.496
+66   1886.48        1912.787         1911.9204       1990.796
+67   1175.69        1396.002         1393.0632       1358.239
+68   1517.24        1317.045         1317.1867       1844.712
+69   2036.20        2915.041         2912.1504       2377.633
+70   2532.10        2368.507         2361.6117       2310.721
+71   1392.78        1676.221         1685.1243       1702.797
+72   2372.70        3041.284         3046.3185       2774.527
+73   3239.66        3202.876         3215.3041       3214.149
+74   1935.24        2122.539         2119.2763       2058.760
+75   1344.35        1878.455         1881.7958       1634.292
+76   1411.57        1344.244         1335.8715       1567.756
+77   1712.00        2077.625         2074.0122       1901.206
+78   2978.20        2986.220         2982.9972       3139.730
+79   1948.80        3423.391         3424.1980       2655.798
+80   1346.62        2019.387         2017.6645       1885.764
+81   1380.61        1989.205         1995.6376       1909.081
+82   1214.97        1812.490         1813.0534       1622.279
+83   3622.80        3168.300         3167.6889       3141.464
+84   3751.90        3009.375         3010.7492       3320.045
+85   2092.89        2321.030         2303.7623       2559.630
+86   3458.43        3123.946         3137.0371       3232.131
+87   2789.70        3120.812         3127.2381       3047.259
+88   2303.58        1917.330         1916.9827       2275.298
+89   2030.50        2162.061         2159.5244       2229.379
+90   1439.57        1826.728         1837.5538       1717.227
+91   2471.60        3181.973         3180.8807       2877.682
+92   1097.60        1503.438         1509.1215       1486.931
+93   1464.29        1547.889         1550.2984       1758.278
+94   3243.29        2949.707         2958.3391       3196.397
+95   2654.70        2081.760         2079.6383       2346.054
+96   3609.33        3418.077         3425.6590       3391.887
+97   3060.70        3392.820         3394.4500       3017.696
+98   1374.48        1656.248         1660.0135       1621.747
+99   1451.50        1135.461         1144.7828       1530.642
+100  1503.55         973.785          989.8539       1494.118
+101  2027.60        2702.367         2678.7908       2437.125
+102  3046.72        3015.803         3016.9165       3108.418
+103  2485.00        2830.571         2806.4608       2455.151
+104  1731.80        1883.050         1884.5676       1911.827
+105  1958.27        2232.296         2225.3000       2012.805
+106  2996.40        3213.626         3215.4839       3053.526
+107  1288.64        1907.697         1912.3864       1578.546
+108  2353.40        3020.431         3019.9432       2552.630
+109  3016.30        3063.343         3066.8408       3082.212
+110  3306.15        3176.953         3179.4228       3111.106
+111   826.43        1525.419         1513.5919       1348.316
+112  1338.20        1478.099         1472.6168       1513.226
+113  1490.93        1452.322         1458.1048       1654.928
+114  1067.56        1661.808         1662.6232       1460.740
+115  2472.90        3210.084         3211.9609       2781.050
+116  1085.93        1819.709         1830.0230       1511.110
+117  2278.97        2816.581         2796.2701       2414.965
+118  1898.00        1704.732         1704.9722       1863.288
+119  1208.74        1325.510         1309.4964       1337.491
+120  3593.55        2899.403         2897.9885       3200.940
+121  2690.52        1666.292         1665.4951       2232.979
+122  2638.81        1951.072         1951.1483       2430.801
+123  2149.61        1895.868         1901.2942       1939.346
+124  1788.89        1548.332         1553.1011       1822.306
+125  3126.37        2369.123         2358.0298       2698.249
+126  2336.89        1920.740         1928.6044       1973.672
+127  3007.20        1509.739         1512.5443       2325.846
+128  2795.65        2155.512         2154.3831       2599.931
+129  3865.79        2657.661         2643.6228       2965.019
+130  1761.62        1352.351         1344.5900       1625.177
+131  2548.98        1805.393         1804.1869       2202.179
+132  1967.61        2261.963         2254.6162       2090.828
+133  2352.78        2951.773         2941.5741       2644.115
+134  1800.79        2695.525         2690.2208       2401.978
+135  2009.16        2231.317         2243.1548       2172.702
+136  2815.26        2582.599         2583.4456       2679.755
+137  2008.52        2178.308         2174.3373       2186.277
+138  2933.99        3036.928         3028.9858       2785.677
+139  2748.86        2441.214         2444.1440       2504.647
+140  2154.56        2282.657         2287.9142       2191.959
+141  3462.59        2828.334         2824.4177       2953.546
+142  2771.69        2644.227         2643.7206       2680.456
+143  2423.89        2838.265         2834.5916       2588.795
+144  2084.87        2114.951         2110.2089       2070.711
+145  4984.57        3410.684         3409.2691       4038.573
+146  2572.45        2900.071         2896.7632       2832.323
+147  2667.02        2874.575         2883.4645       2819.265
+148  3004.21        3216.289         3218.0471       3082.765
+149  4834.65        4147.945         4122.1679       4007.517
+150  5606.58        3146.586         3148.0269       4054.842
+151  3408.61        3530.487         3528.5769       3234.727
+152  4493.01        3782.900         3775.9116       3892.084
+153  3513.71        3527.580         3527.0090       3423.537
+154  3905.93        3161.522         3169.9729       3293.157
+155  3644.37        3014.873         3012.9266       3124.347
+156  2746.20        3725.436         3723.5112       3050.665
+157  1424.00        1092.137         1110.2174       1476.492
+158  1108.17        1528.406         1540.3575       1529.187
+159  3104.70        2944.451         2940.3125       2946.628
+160  2177.20        2828.179         2836.5662       2706.864
+161  2193.20        1641.498         1644.6901       2004.379
+162  1810.59        2081.464         2087.8279       1967.067
+163  1666.10        1561.426         1571.5568       1766.751
+164  2027.39        1472.311         1485.0501       1915.456
+165  2345.50        3126.133         3130.0769       2679.027
+166  3310.20        3011.772         3010.9532       3199.220
+167  3777.20        2884.511         2878.4614       3136.643
+168  2063.43        1585.373         1574.7557       1698.501
+169  4378.37        4164.254         4157.3127       4054.339
+170  1853.91        1737.577         1745.8276       1987.378
+171  3774.00        3354.137         3362.0251       3318.810
+172  1625.46        1713.675         1712.9939       1742.316
+173  1044.07        1271.445         1280.7092       1426.413
+174  1423.70        1745.834         1747.0350       1570.035
+175  3037.39        3264.513         3267.4854       3043.601
+176  2610.00        3052.354         3062.8884       2781.194
+177  3193.98        3480.765         3479.9722       3243.305
+178  1602.63        2229.188         2225.4512       1875.574
+179  2457.68        3285.181         3286.8230       2909.370
+180  1474.60        1628.706         1627.3779       1694.544
+181   997.89        1431.588         1427.4710       1333.704
+182  4451.84        4047.461         4033.0282       3949.126
+183  3507.10        3331.287         3341.3703       3386.129
+184  3332.16        3467.620         3467.6341       3246.643
+185  3733.10        3212.679         3214.1497       3301.496
+186  1886.48        1912.787         1911.9204       1990.796
+187  1175.69        1396.002         1393.0632       1358.239
+188  1517.24        1317.045         1317.1867       1844.712
+189  2036.20        2915.041         2912.1504       2377.633
+190  2532.10        2368.507         2361.6117       2310.721
+191  1392.78        1676.221         1685.1243       1702.797
+192  2372.70        3041.284         3046.3185       2774.527
+193  3239.66        3202.876         3215.3041       3214.149
+194  1935.24        2122.539         2119.2763       2058.760
+195  1344.35        1878.455         1881.7958       1634.292
+196  1411.57        1344.244         1335.8715       1567.756
+197  1712.00        2077.625         2074.0122       1901.206
+198  2978.20        2986.220         2982.9972       3139.730
+199  1948.80        3423.391         3424.1980       2655.798
+200  1346.62        2019.387         2017.6645       1885.764
+201  1380.61        1989.205         1995.6376       1909.081
+202  1214.97        1812.490         1813.0534       1622.279
+203  3622.80        3168.300         3167.6889       3141.464
+204  3751.90        3009.375         3010.7492       3320.045
+205  2092.89        2321.030         2303.7623       2559.630
+206  3458.43        3123.946         3137.0371       3232.131
+207  2789.70        3120.812         3127.2381       3047.259
+208  2303.58        1917.330         1916.9827       2275.298
+209  2030.50        2162.061         2159.5244       2229.379
+210  1439.57        1826.728         1837.5538       1717.227
+211  2471.60        3181.973         3180.8807       2877.682
+212  1097.60        1503.438         1509.1215       1486.931
+213  1464.29        1547.889         1550.2984       1758.278
+214  3243.29        2949.707         2958.3391       3196.397
+215  2654.70        2081.760         2079.6383       2346.054
+216  3609.33        3418.077         3425.6590       3391.887
+217  3060.70        3392.820         3394.4500       3017.696
+218  1374.48        1656.248         1660.0135       1621.747
+219  1451.50        1135.461         1144.7828       1530.642
+220  1503.55         973.785          989.8539       1494.118
+221  2027.60        2702.367         2678.7908       2437.125
+222  3046.72        3015.803         3016.9165       3108.418
+223  2485.00        2830.571         2806.4608       2455.151
+224  1731.80        1883.050         1884.5676       1911.827
+225  1958.27        2232.296         2225.3000       2012.805
+226  2996.40        3213.626         3215.4839       3053.526
+227  1288.64        1907.697         1912.3864       1578.546
+228  2353.40        3020.431         3019.9432       2552.630
+229  3016.30        3063.343         3066.8408       3082.212
+230  3306.15        3176.953         3179.4228       3111.106
+231   826.43        1525.419         1513.5919       1348.316
+232  1338.20        1478.099         1472.6168       1513.226
+233  1490.93        1452.322         1458.1048       1654.928
+234  1067.56        1661.808         1662.6232       1460.740
+235  2472.90        3210.084         3211.9609       2781.050
+236  1085.93        1819.709         1830.0230       1511.110
+237  2278.97        2816.581         2796.2701       2414.965
+238  1898.00        1704.732         1704.9722       1863.288
+239  1208.74        1325.510         1309.4964       1337.491
+240  3593.55        2899.403         2897.9885       3200.940
+241  2690.52        1666.292         1665.4951       2232.979
+242  2638.81        1951.072         1951.1483       2430.801
+243  2149.61        1895.868         1901.2942       1939.346
+244  1788.89        1548.332         1553.1011       1822.306
+245  3126.37        2369.123         2358.0298       2698.249
+246  2336.89        1920.740         1928.6044       1973.672
+247  3007.20        1509.739         1512.5443       2325.846
+248  2795.65        2155.512         2154.3831       2599.931
+249  3865.79        2657.661         2643.6228       2965.019
+250  1761.62        1352.351         1344.5900       1625.177
+251  2548.98        1805.393         1804.1869       2202.179
+252  1967.61        2261.963         2254.6162       2090.828
+253  2352.78        2951.773         2941.5741       2644.115
+254  1800.79        2695.525         2690.2208       2401.978
+255  2009.16        2231.317         2243.1548       2172.702
+256  2815.26        2582.599         2583.4456       2679.755
+257  2008.52        2178.308         2174.3373       2186.277
+258  2933.99        3036.928         3028.9858       2785.677
+259  2748.86        2441.214         2444.1440       2504.647
+260  2154.56        2282.657         2287.9142       2191.959
+261  3462.59        2828.334         2824.4177       2953.546
+262  2771.69        2644.227         2643.7206       2680.456
+263  2423.89        2838.265         2834.5916       2588.795
+264  2084.87        2114.951         2110.2089       2070.711
+265  4984.57        3410.684         3409.2691       4038.573
+266  2572.45        2900.071         2896.7632       2832.323
+267  2667.02        2874.575         2883.4645       2819.265
+268  3004.21        3216.289         3218.0471       3082.765
+269  4834.65        4147.945         4122.1679       4007.517
+270  5606.58        3146.586         3148.0269       4054.842
+271  3408.61        3530.487         3528.5769       3234.727
+272  4493.01        3782.900         3775.9116       3892.084
+273  3513.71        3527.580         3527.0090       3423.537
+274  3905.93        3161.522         3169.9729       3293.157
+275  3644.37        3014.873         3012.9266       3124.347
+276  2746.20        3725.436         3723.5112       3050.665
+277  1424.00        1092.137         1110.2174       1476.492
+278  1108.17        1528.406         1540.3575       1529.187
+279  3104.70        2944.451         2940.3125       2946.628
+280  2177.20        2828.179         2836.5662       2706.864
+281  2193.20        1641.498         1644.6901       2004.379
+282  1810.59        2081.464         2087.8279       1967.067
+283  1666.10        1561.426         1571.5568       1766.751
+284  2027.39        1472.311         1485.0501       1915.456
+285  2345.50        3126.133         3130.0769       2679.027
+286  3310.20        3011.772         3010.9532       3199.220
+287  3777.20        2884.511         2878.4614       3136.643
+288  2063.43        1585.373         1574.7557       1698.501
+289  4378.37        4164.254         4157.3127       4054.339
+290  1853.91        1737.577         1745.8276       1987.378
+291  3774.00        3354.137         3362.0251       3318.810
+292  1625.46        1713.675         1712.9939       1742.316
+293  1044.07        1271.445         1280.7092       1426.413
+294  1423.70        1745.834         1747.0350       1570.035
+295  3037.39        3264.513         3267.4854       3043.601
+296  2610.00        3052.354         3062.8884       2781.194
+297  3193.98        3480.765         3479.9722       3243.305
+298  1602.63        2229.188         2225.4512       1875.574
+299  2457.68        3285.181         3286.8230       2909.370
+300  1474.60        1628.706         1627.3779       1694.544
+301   997.89        1431.588         1427.4710       1333.704
+302  4451.84        4047.461         4033.0282       3949.126
+303  3507.10        3331.287         3341.3703       3386.129
+304  3332.16        3467.620         3467.6341       3246.643
+305  3733.10        3212.679         3214.1497       3301.496
+306  1886.48        1912.787         1911.9204       1990.796
+307  1175.69        1396.002         1393.0632       1358.239
+308  1517.24        1317.045         1317.1867       1844.712
+309  2036.20        2915.041         2912.1504       2377.633
+310  2532.10        2368.507         2361.6117       2310.721
+311  1392.78        1676.221         1685.1243       1702.797
+312  2372.70        3041.284         3046.3185       2774.527
+313  3239.66        3202.876         3215.3041       3214.149
+314  1935.24        2122.539         2119.2763       2058.760
+315  1344.35        1878.455         1881.7958       1634.292
+316  1411.57        1344.244         1335.8715       1567.756
+317  1712.00        2077.625         2074.0122       1901.206
+318  2978.20        2986.220         2982.9972       3139.730
+319  1948.80        3423.391         3424.1980       2655.798
+320  1346.62        2019.387         2017.6645       1885.764
+321  1380.61        1989.205         1995.6376       1909.081
+322  1214.97        1812.490         1813.0534       1622.279
+323  3622.80        3168.300         3167.6889       3141.464
+324  3751.90        3009.375         3010.7492       3320.045
+325  2092.89        2321.030         2303.7623       2559.630
+326  3458.43        3123.946         3137.0371       3232.131
+327  2789.70        3120.812         3127.2381       3047.259
+328  2303.58        1917.330         1916.9827       2275.298
+329  2030.50        2162.061         2159.5244       2229.379
+330  1439.57        1826.728         1837.5538       1717.227
+331  2471.60        3181.973         3180.8807       2877.682
+332  1097.60        1503.438         1509.1215       1486.931
+333  1464.29        1547.889         1550.2984       1758.278
+334  3243.29        2949.707         2958.3391       3196.397
+335  2654.70        2081.760         2079.6383       2346.054
+336  3609.33        3418.077         3425.6590       3391.887
+337  3060.70        3392.820         3394.4500       3017.696
+338  1374.48        1656.248         1660.0135       1621.747
+339  1451.50        1135.461         1144.7828       1530.642
+340  1503.55         973.785          989.8539       1494.118
+341  2027.60        2702.367         2678.7908       2437.125
+342  3046.72        3015.803         3016.9165       3108.418
+343  2485.00        2830.571         2806.4608       2455.151
+344  1731.80        1883.050         1884.5676       1911.827
+345  1958.27        2232.296         2225.3000       2012.805
+346  2996.40        3213.626         3215.4839       3053.526
+347  1288.64        1907.697         1912.3864       1578.546
+348  2353.40        3020.431         3019.9432       2552.630
+349  3016.30        3063.343         3066.8408       3082.212
+350  3306.15        3176.953         3179.4228       3111.106
+351   826.43        1525.419         1513.5919       1348.316
+352  1338.20        1478.099         1472.6168       1513.226
+353  1490.93        1452.322         1458.1048       1654.928
+354  1067.56        1661.808         1662.6232       1460.740
+355  2472.90        3210.084         3211.9609       2781.050
+356  1085.93        1819.709         1830.0230       1511.110
+357  2278.97        2816.581         2796.2701       2414.965
+358  1898.00        1704.732         1704.9722       1863.288
+359  1208.74        1325.510         1309.4964       1337.491
+360  3593.55        2899.403         2897.9885       3200.940
+                  model
+1     linear regression
+2     linear regression
+3     linear regression
+4     linear regression
+5     linear regression
+6     linear regression
+7     linear regression
+8     linear regression
+9     linear regression
+10    linear regression
+11    linear regression
+12    linear regression
+13    linear regression
+14    linear regression
+15    linear regression
+16    linear regression
+17    linear regression
+18    linear regression
+19    linear regression
+20    linear regression
+21    linear regression
+22    linear regression
+23    linear regression
+24    linear regression
+25    linear regression
+26    linear regression
+27    linear regression
+28    linear regression
+29    linear regression
+30    linear regression
+31    linear regression
+32    linear regression
+33    linear regression
+34    linear regression
+35    linear regression
+36    linear regression
+37    linear regression
+38    linear regression
+39    linear regression
+40    linear regression
+41    linear regression
+42    linear regression
+43    linear regression
+44    linear regression
+45    linear regression
+46    linear regression
+47    linear regression
+48    linear regression
+49    linear regression
+50    linear regression
+51    linear regression
+52    linear regression
+53    linear regression
+54    linear regression
+55    linear regression
+56    linear regression
+57    linear regression
+58    linear regression
+59    linear regression
+60    linear regression
+61    linear regression
+62    linear regression
+63    linear regression
+64    linear regression
+65    linear regression
+66    linear regression
+67    linear regression
+68    linear regression
+69    linear regression
+70    linear regression
+71    linear regression
+72    linear regression
+73    linear regression
+74    linear regression
+75    linear regression
+76    linear regression
+77    linear regression
+78    linear regression
+79    linear regression
+80    linear regression
+81    linear regression
+82    linear regression
+83    linear regression
+84    linear regression
+85    linear regression
+86    linear regression
+87    linear regression
+88    linear regression
+89    linear regression
+90    linear regression
+91    linear regression
+92    linear regression
+93    linear regression
+94    linear regression
+95    linear regression
+96    linear regression
+97    linear regression
+98    linear regression
+99    linear regression
+100   linear regression
+101   linear regression
+102   linear regression
+103   linear regression
+104   linear regression
+105   linear regression
+106   linear regression
+107   linear regression
+108   linear regression
+109   linear regression
+110   linear regression
+111   linear regression
+112   linear regression
+113   linear regression
+114   linear regression
+115   linear regression
+116   linear regression
+117   linear regression
+118   linear regression
+119   linear regression
+120   linear regression
+121    LASSO regression
+122    LASSO regression
+123    LASSO regression
+124    LASSO regression
+125    LASSO regression
+126    LASSO regression
+127    LASSO regression
+128    LASSO regression
+129    LASSO regression
+130    LASSO regression
+131    LASSO regression
+132    LASSO regression
+133    LASSO regression
+134    LASSO regression
+135    LASSO regression
+136    LASSO regression
+137    LASSO regression
+138    LASSO regression
+139    LASSO regression
+140    LASSO regression
+141    LASSO regression
+142    LASSO regression
+143    LASSO regression
+144    LASSO regression
+145    LASSO regression
+146    LASSO regression
+147    LASSO regression
+148    LASSO regression
+149    LASSO regression
+150    LASSO regression
+151    LASSO regression
+152    LASSO regression
+153    LASSO regression
+154    LASSO regression
+155    LASSO regression
+156    LASSO regression
+157    LASSO regression
+158    LASSO regression
+159    LASSO regression
+160    LASSO regression
+161    LASSO regression
+162    LASSO regression
+163    LASSO regression
+164    LASSO regression
+165    LASSO regression
+166    LASSO regression
+167    LASSO regression
+168    LASSO regression
+169    LASSO regression
+170    LASSO regression
+171    LASSO regression
+172    LASSO regression
+173    LASSO regression
+174    LASSO regression
+175    LASSO regression
+176    LASSO regression
+177    LASSO regression
+178    LASSO regression
+179    LASSO regression
+180    LASSO regression
+181    LASSO regression
+182    LASSO regression
+183    LASSO regression
+184    LASSO regression
+185    LASSO regression
+186    LASSO regression
+187    LASSO regression
+188    LASSO regression
+189    LASSO regression
+190    LASSO regression
+191    LASSO regression
+192    LASSO regression
+193    LASSO regression
+194    LASSO regression
+195    LASSO regression
+196    LASSO regression
+197    LASSO regression
+198    LASSO regression
+199    LASSO regression
+200    LASSO regression
+201    LASSO regression
+202    LASSO regression
+203    LASSO regression
+204    LASSO regression
+205    LASSO regression
+206    LASSO regression
+207    LASSO regression
+208    LASSO regression
+209    LASSO regression
+210    LASSO regression
+211    LASSO regression
+212    LASSO regression
+213    LASSO regression
+214    LASSO regression
+215    LASSO regression
+216    LASSO regression
+217    LASSO regression
+218    LASSO regression
+219    LASSO regression
+220    LASSO regression
+221    LASSO regression
+222    LASSO regression
+223    LASSO regression
+224    LASSO regression
+225    LASSO regression
+226    LASSO regression
+227    LASSO regression
+228    LASSO regression
+229    LASSO regression
+230    LASSO regression
+231    LASSO regression
+232    LASSO regression
+233    LASSO regression
+234    LASSO regression
+235    LASSO regression
+236    LASSO regression
+237    LASSO regression
+238    LASSO regression
+239    LASSO regression
+240    LASSO regression
+241 random forest model
+242 random forest model
+243 random forest model
+244 random forest model
+245 random forest model
+246 random forest model
+247 random forest model
+248 random forest model
+249 random forest model
+250 random forest model
+251 random forest model
+252 random forest model
+253 random forest model
+254 random forest model
+255 random forest model
+256 random forest model
+257 random forest model
+258 random forest model
+259 random forest model
+260 random forest model
+261 random forest model
+262 random forest model
+263 random forest model
+264 random forest model
+265 random forest model
+266 random forest model
+267 random forest model
+268 random forest model
+269 random forest model
+270 random forest model
+271 random forest model
+272 random forest model
+273 random forest model
+274 random forest model
+275 random forest model
+276 random forest model
+277 random forest model
+278 random forest model
+279 random forest model
+280 random forest model
+281 random forest model
+282 random forest model
+283 random forest model
+284 random forest model
+285 random forest model
+286 random forest model
+287 random forest model
+288 random forest model
+289 random forest model
+290 random forest model
+291 random forest model
+292 random forest model
+293 random forest model
+294 random forest model
+295 random forest model
+296 random forest model
+297 random forest model
+298 random forest model
+299 random forest model
+300 random forest model
+301 random forest model
+302 random forest model
+303 random forest model
+304 random forest model
+305 random forest model
+306 random forest model
+307 random forest model
+308 random forest model
+309 random forest model
+310 random forest model
+311 random forest model
+312 random forest model
+313 random forest model
+314 random forest model
+315 random forest model
+316 random forest model
+317 random forest model
+318 random forest model
+319 random forest model
+320 random forest model
+321 random forest model
+322 random forest model
+323 random forest model
+324 random forest model
+325 random forest model
+326 random forest model
+327 random forest model
+328 random forest model
+329 random forest model
+330 random forest model
+331 random forest model
+332 random forest model
+333 random forest model
+334 random forest model
+335 random forest model
+336 random forest model
+337 random forest model
+338 random forest model
+339 random forest model
+340 random forest model
+341 random forest model
+342 random forest model
+343 random forest model
+344 random forest model
+345 random forest model
+346 random forest model
+347 random forest model
+348 random forest model
+349 random forest model
+350 random forest model
+351 random forest model
+352 random forest model
+353 random forest model
+354 random forest model
+355 random forest model
+356 random forest model
+357 random forest model
+358 random forest model
+359 random forest model
+360 random forest model</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Create Plot</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> observed)) <span class="sc">+</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> glm_predictions, <span class="at">color =</span> <span class="st">"linear regression"</span>), <span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> lasso_predictions, <span class="at">color =</span> <span class="st">"LASSO regression"</span>), <span class="at">shape =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> rf_predictions, <span class="at">color =</span> <span class="st">"random forest model"</span>), <span class="at">shape =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co">#add the 45 degree line</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed Values"</span>, <span class="at">y =</span> <span class="st">"Predicted Values"</span>, <span class="at">title =</span> <span class="st">"Observed versus Predicted Values for Machine Learning Models"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml-models-exercise_files/figure-html/pred-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that the linear regression and LASSO models had very similar predictions compared to one another. The random forest model, which had the lowest RMSE, is also the closest to the 45 degree regression line. This indicates that it is the best performing model of the machine learning models tested. ## Model Tuning I will begin by tuning the lasso model and producing a plot for the tuned model using autoplot().</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># LASSO tuning</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>lasso_grid <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">seq</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">2</span>, <span class="at">length.out =</span> <span class="dv">50</span>) <span class="co"># create tuning grid</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="do">## I got help from ChatGPT for creating a tuning grid over that range from 1E-5 to 1E2 with 50 values on a log scale.</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>tune_lasso_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(lasso_rec) <span class="sc">%&gt;%</span>  <span class="co"># add the same recipe to the workflow</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">linear_reg</span>(<span class="at">penalty =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span>  <span class="co"># specify tuning penalty for LASSO model</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>))</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>apparent_data <span class="ot">&lt;-</span> <span class="fu">apparent</span>(data) <span class="co"># used to create an object with only tuning data</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>lasso_tune_grid <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> tune_lasso_wf,  <span class="co"># Specify object as the workflow</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> apparent_data, <span class="co"># use data for tuning from the apparent function</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> <span class="fu">expand.grid</span>(<span class="at">penalty =</span> lasso_grid),  <span class="co">#  add tuning penalty grid</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">control_grid</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>)) <span class="co"># save the predictions</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>lasso_tune_grid <span class="sc">%&gt;%</span> </span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml-models-exercise_files/figure-html/tune1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopImplicitCluster</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We see that as the amount of regularization from the penalty term in the LASSO regression increases, the RMSE increases. As the penalty parameter goes up, the regularization of the coefficients go up. This makes the model less flexible, so it might not capture all the trend in the data as well if the penalty increases.The RMSE of the LASSO model never decreases below the linear model RMSE because the more regularized the model becomes, the more constrained it becomes. This means that predictive power will decrease as the penalty term increases, which is reflected by RMSE increasing and not decreasing.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tree tuning</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>tune_spec <span class="ot">&lt;-</span> </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rand_forest</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mtry =</span> <span class="fu">tune</span>(), <span class="co"># parameters of random forest model to tune are the mtry, trees, and min_n</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">trees =</span> <span class="dv">300</span>,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_n =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">seed =</span> <span class="dv">1234</span>) <span class="sc">%&gt;%</span> <span class="co"># make sure to set seed again for the tree</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>apparent_data2 <span class="ot">&lt;-</span> <span class="fu">apparent</span>(data)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="do">## I used ChatGPT to help me define the tree grid for the parameters mtry and min_n</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>tree_grid <span class="ot">&lt;-</span> <span class="fu">grid_regular</span>(<span class="fu">mtry</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">7</span>)), </span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">min_n</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">21</span>)),</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>                          <span class="at">levels =</span> <span class="dv">7</span>) <span class="co"># make a grid with 7 levels with the specified                                          parameters from above</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>rf_tune_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> <span class="co"># create workflow</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rf_rec) <span class="sc">%&gt;%</span> <span class="co"># add recipe from earlier</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(tune_spec) <span class="co"># add spec that is defined above</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>rf_res <span class="ot">&lt;-</span> rf_tune_wf <span class="sc">%&gt;%</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> apparent_data2, <span class="co"># use data from the apparent function</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">grid =</span> tree_grid) <span class="co"># use the specified grid above</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>rf_res <span class="sc">%&gt;%</span></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml-models-exercise_files/figure-html/tune2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="tuning-with-cross-validation" class="level2">
+<h2 class="anchored" data-anchor-id="tuning-with-cross-validation">Tuning with Cross-validation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cross validation folds</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>folds_data <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(data, <span class="at">v =</span> <span class="dv">5</span>, <span class="at">repeats =</span> <span class="dv">5</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the number of cores to use</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>num_cores <span class="ot">&lt;-</span> <span class="fu">detectCores</span>() <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize parallel backend</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>doParallel<span class="sc">::</span><span class="fu">registerDoParallel</span>(<span class="at">cores =</span> num_cores) <span class="co"># add parallel processing to speed up the computations</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed) <span class="co"># set seed for reproducibility</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>lasso_cv_grid <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> tune_lasso_wf,  <span class="co"># Specify object as the workflow</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> folds_data, <span class="co"># use data for tuning from the CV folds</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> <span class="fu">expand.grid</span>(<span class="at">penalty =</span> lasso_grid),  <span class="co">#  add lasso tuning penalty grid</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">control_grid</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>)) <span class="co"># save the predictions</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>lasso_cv_grid <span class="sc">%&gt;%</span> </span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml-models-exercise_files/figure-html/tune3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopImplicitCluster</span>()</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># RF Tree Model</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="do">##I looked for how to do parallel processing with ChatGPT</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the number of cores to use</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>num_cores <span class="ot">&lt;-</span> <span class="fu">detectCores</span>() <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize parallel backend</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>doParallel<span class="sc">::</span><span class="fu">registerDoParallel</span>(<span class="at">cores =</span> num_cores)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed) <span class="co"># set seed for reproducibility</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>rf_res <span class="ot">&lt;-</span> rf_tune_wf <span class="sc">%&gt;%</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> folds_data, <span class="co"># use data from the CV folds</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">grid =</span> tree_grid)</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>rf_res <span class="sc">%&gt;%</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml-models-exercise_files/figure-html/tune3-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopImplicitCluster</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The RMSE from the CV-tuned LASSO model has increased relative to the RMSE from the model tuned without CV. The LASSO model tuned without CV produced very similar RMSE values to the linear model and un-tuned model because it is essentially the same thing as the linear regression model above. At a small penalty value, the RMSE of the LASSO regression is best, for both tuned models. The random forest model that was tuned with CV also had an increase in RMSE compared to the one tuned without CV. In the RF tuned with CV, we observe that the trees with different minimum node sizes follow a closer pattern in the RMSE graph than the trees from the RF model tuned without CV. The LASSO model tuned with cross validation has a better RMSE than the RF model tuned with CV, despite this being the opposite case when they were tuned using the data itself. The RMSE of both models increased with cross validation, but to different magnitudes. This is because cross-validation is more representative of a real scenario where trained data would be compared to testing data to see if the predictions are the same as the observations. The random forest model RMSE was more affected by cross validation, perhaps, because it was less suited to real life. The model was fit to its own data when it was tuned the first time, which led to over-fitting. Because the random forest model was likely over-fit, compared to the LASSO model, the random forest model is not as suitable for real life. The best performing model, in my opinion, is the LASSO model, though it is not much different than the linear regression model.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      return note.innerHTML;
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
