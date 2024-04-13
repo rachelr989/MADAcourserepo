@@ -1,5 +1,630 @@
 ---
 title: "Tidy Tuesday Exercise"
+author: "Rachel Robertson"
+date: "4/11/24"
+output: html_document
 ---
+# Tidy Tuesday Exercise with Data from Solar Eclipses
+I will begin by loading the packages I need for analysis.
+```{r}
+# Load packages for data cleaning, processing, visualization, and analysis
+library(tidytuesdayR) ## tidy Tuesday package to access data
+library(tidyverse)
+library(tidymodels)
+library(here)
+library(dplyr)
+library(ggplot2)
+library(rsample)
+library(yardstick)
+library(doParallel)
+library(mgcv) # engine for GAM model
+```
+Now, I will load the data set from NASA including the timing and location of solar eclipses in 2023 and 2024.
+```{r}
+# Load data using the tidy Tuesday package
+tuesdata <- tidytuesdayR::tt_load('2024-04-09') ## select the data from this week
+# Create a data frame for each object in this week's data
+eclipse_annular_2023 <- tuesdata$eclipse_annular_2023
+eclipse_total_2024 <- tuesdata$eclipse_total_2024
+eclipse_partial_2023 <- tuesdata$eclipse_partial_2023
+eclipse_partial_2024 <- tuesdata$eclipse_partial_2024
+```
+Now, I will begin looking at the structure and summary of the data and cleaning the data.
+```{r}
+# Annular Eclipse 2023
+str(eclipse_annular_2023)
+summary(eclipse_annular_2023)
+# Total Eclipse 2024
+str(eclipse_total_2024)
+summary(eclipse_total_2024)
+# Partial Eclipse 2023
+str(eclipse_partial_2023)
+summary(eclipse_partial_2023)
+# Partial Eclipse 2024
+str(eclipse_partial_2024)
+summary(eclipse_partial_2024)
+```
+The data frames all include the variables: state (chr), name(chr), lat(num), lon(num), and several eclipse time variables. It looks like some of the data frames include overlapping latitude and longitude ranges. They also have some of the same state and name (or city) values. The eclipse variables include a series of different points in the eclipse capturing the time that they that place. These have a wide range and depend on the location and eclipse range for each data frame.
+## Data Cleaning
+I will start cleaning the data by looking for missing variables and removing them.
+```{r}
+# Look for missing data in all data frames
+colSums(is.na(eclipse_total_2024))
+colSums(is.na(eclipse_annular_2023))
+colSums(is.na(eclipse_partial_2023))
+colSums(is.na(eclipse_partial_2024))
+```
+There seems to be no missing values in any of the data sets so this does not need to be cleaned. We will move on to exploring the name variable.
+The name value, which is the city name, has some cities with spaces between their names. We will fix this by replacing the spaces in the city name with an underscore.
+```{r}
+# Replace space in city names with an underscore
+eclipse_total_2024$name<-gsub(" ", "_", eclipse_total_2024$name)
+eclipse_annular_2023$name<-gsub(" ", "_", eclipse_annular_2023$name)
+eclipse_partial_2023$name<-gsub(" ", "_", eclipse_partial_2023$name)
+eclipse_partial_2024$name<-gsub(" ", "_", eclipse_partial_2024$name)
+str(eclipse_total_2024$name) # check structure of one object as an example
+```
+Now that all of the spaces in the city names have an underscore rather than a space, we can convert this character variable into a factor for the ease of working with it. We will also change the state character variable to a factor for the same reason
+```{r}
+# Change the character variables to factors
+names <- c('state', 'name')
+eclipse_total_2024 <- eclipse_total_2024 %>%
+  mutate(across(names, as.factor))
+eclipse_annular_2023 <- eclipse_annular_2023 %>%
+  mutate(across(names, as.factor))
+eclipse_partial_2023 <- eclipse_partial_2023 %>%
+  mutate(across(names, as.factor))
+eclipse_partial_2024 <- eclipse_partial_2024 %>%
+  mutate(across(names, as.factor))
+str(eclipse_total_2024) # check structure of one as an example
+```
+Now that there is a limited number of state and name variables, as factors, we can see how many times each of them occur in each data frame. I am interested in seeing which cities and states occur more than once
+```{r}
+# Total eclipse 2024
+n1 <- eclipse_total_2024 %>% 
+      group_by(name) %>% 
+      tally() %>%
+  filter(n > 1)
 
-Placeholder file for the future Tidy Tuesday exercise.
+s1 <- eclipse_total_2024 %>% 
+      group_by(state) %>% 
+      tally() %>%
+  filter(n > 1)
+
+# partial eclipse 2024
+n2 <- eclipse_partial_2024 %>% 
+      group_by(name) %>% 
+      tally() %>%
+  filter(n > 1)
+
+s2 <- eclipse_partial_2024 %>% 
+      group_by(state) %>% 
+      tally() %>%
+  filter(n > 1)
+
+# partial eclipse 2023
+n3 <- eclipse_partial_2023 %>% 
+      group_by(name) %>% 
+      tally() %>%
+  filter(n > 1)
+
+s3 <- eclipse_partial_2023 %>% 
+      group_by(state) %>% 
+      tally() %>%
+  filter(n > 1)
+
+# annular eclipse 2023
+n4 <- eclipse_annular_2023 %>% 
+      group_by(name) %>% 
+      tally() %>%
+  filter(n > 1)
+
+s4 <- eclipse_annular_2023 %>% 
+      group_by(state) %>% 
+      tally() %>%
+  filter(n > 1)
+
+# to find the state and city most repeated among all 4 eclipses, I will have to get the sum of n for nx and sx for each name or state respectively
+
+# Combine tallies for each variable (either name or state)
+combined_n <- bind_rows(n1, n2, n3, n4)
+combined_s <- bind_rows(s1, s2, s3, s4)
+
+# Summarize combined tallies by name
+total_n <- combined_n %>%
+  group_by(name) %>%
+  summarize(total_n = sum(n))
+
+# Summarize combined tallies by state
+total_s <- combined_s %>%
+  group_by(state) %>%
+  summarize(total_s = sum(n))
+
+# Now I will make a histogram to look at the total_n and total_s for each city and state 
+## it is difficult to see the city names so I will filter to exclude some of the cities with a smaller n sum
+total_n_filtered <- total_n %>%
+  filter(total_n >= 25)
+# Plot of cities that frequently undergo eclipse
+total_city <- ggplot(total_n_filtered, aes(x = reorder(name, -total_n), y = total_n)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Most Frequent City for any Eclipse 2023-2024",
+       x = "City name",
+       y = "Sum of eclipse")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+
+total_city
+# Plot of states with frequent eclipses
+total_state <- ggplot(total_s, aes(x = reorder(state, -total_s), y = total_s)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Most Frequent State for any Eclipse 2023-2024",
+       x = "State",
+       y = "Sum of eclipse")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+total_state
+```
+It looks like the top three most frequent states for eclipses are PA, TX, and CA while the top three cities are Fairview, Fraklin, and Clinton.
+
+I now want to look at the differences in longitude and latitude of all of the eclipses. To do this I will create a scatter plot of these values with colors to distinguish each of the eclipse types
+```{r}
+# Compare the longitude and latitude across all eclipses)
+## Note; I went to chat gpt to ask how to group data frames by color when they are plotted in a scatter plot
+# Add a grouping variable to each data frame
+eclipse_partial_2023$group <- "a"
+eclipse_partial_2024$group <- "b"
+eclipse_total_2024$group <- "c"
+eclipse_annular_2023$group <- "d"
+
+# Combine data frames into one
+combined <- bind_rows(eclipse_partial_2023, eclipse_partial_2024, eclipse_total_2024, eclipse_annular_2023)
+
+# Plot longitude and latitude for all data frames
+eclipse_location <- ggplot(combined, aes(x = lon, y = lat, color = group)) +
+  geom_point() +
+  labs(title = "Longitude and Latitude for All Eclipses",
+       x = "Longitude",
+       y = "Latitude")
+eclipse_location
+```
+You can see the shape of the eastern half of the U.S. in this scatter plot with the partial eclipse dots (b). You can also see the paths of the total and annular eclipses. I am guessing that the other partial eclipse, red, is in the same locations as the partial eclipse, b, and cannot be seen because the dots overlap. 
+
+I will reproduce the graph with just the total and annular eclipses to examine their point of crossover.
+```{r}
+# Total and annular eclipse combined into a scatter plot of longitude and latitude
+totcombined <- bind_rows(eclipse_total_2024, eclipse_annular_2023)
+
+# Plot longitude and latitude for all data frames
+eclipse_tot_an <- ggplot(totcombined, aes(x = lon, y = lat, color = group)) +
+  geom_point() +
+  labs(title = "Longitude and Latitude for Total and Annular Eclipses",
+       x = "Longitude",
+       y = "Latitude")
+eclipse_tot_an
+```
+Now you may visualize where the paths of the total and annular eclipses would meet. This is around a longitude of -100 and latitude of 30. 
+
+## Question
+After exploring the data, I think it would be interesting to focus on the total eclipse data. This is not only because it is more recent, but it also includes more rows than the annular eclipse data. I chose not to analyze the partial eclipse data because of how scattered the location data is. This will make it hard for me to find location dependent trends, which is what I am most interested in.
+I am interested in examining how location (longitude and latitude) might be related to the time spent in totality.
+To answer this we will first make a column for time spent under totality.
+```{r}
+# new variable for time under totality
+total_ecl <- eclipse_total_2024%>% 
+  mutate(totality = eclipse_4 - eclipse_3) # end of eclipse totality minus beginning of totality
+total_ecl$totality <- as.numeric(total_ecl$totality) # convert to time in totality in seconds
+str(total_ecl) # check structure
+```
+I will create a heat map to visualize longitude and latitude with time spend under totality. This is useful because I can spatially see where totality has the greatest time, in relation to longitude and latitude. A long time will be a darker color on the heat map.
+```{r}
+# create a heat map using ggplot2
+tot_ecl_plot <- ggplot(total_ecl, aes(x = lon, y = lat, fill = totality)) +
+  geom_tile(width = 1, height = 1) +  # Set width and height of tiles to 1 (adjust as needed)
+  scale_fill_gradient(low = "blue", high = "red") +
+  labs(x = "Longitude", y = "Latitude", fill = "Time Under Totality (sec)") +
+  ggtitle("Time Under Totality Based On Location in U.S. 2024 Total Eclipse")
+tot_ecl_plot
+```
+It seems that the time under totality is greatest towards the center of the eclipse path, and the time decreases as you approach the outer edges of the path
+## Fitting
+### Linear Regression
+The simplest way to characterize the relationship between time under totality and latitude/ longitude would be by using linear regression because the longest time under totality follows a nearly linear path in the center of the eclipse path. This, however, may not be able to capture the changing gradient of totality time from the center to the edges of the eclipse path. We will attempt to fit a linear regression with machine learning anyways.
+```{r}
+# split into training and testing data
+split_data <- initial_split(total_ecl, prop = 3/4) # split it 3/4 training to testing data
+train_data <- training(split_data) # create data frame for training data
+test_data  <- testing(split_data) # create data frame for testing data
+
+# Linear Regression
+set.seed(123) # set seed for reproducibility
+glm_recipe <- 
+  recipe(totality ~ lat + lon, data = train_data) # specify the recipe
+
+glm_model <- linear_reg() %>% # set engine and mode for model
+  set_engine("lm") %>% 
+  set_mode("regression") 
+
+glm_workflow <- workflow() %>% # create workflow with recipe and model
+  add_model(glm_model) %>% 
+  add_recipe(glm_recipe) 
+
+glm_fit <- 
+  glm_workflow %>% # fit the model to the training data using the workflow
+  fit(data = train_data) 
+tidy(glm_fit) 
+```
+It looks like latitude is positively related to time under totality and longitude is negatively related. The lat and lon estimates, 4.1 and -3.4 respectively, are fairly close to one another.
+
+Now let's evaluate how well this model performs by producing some predictions and finding performance metrics.
+```{r}
+# Use fit model to make predictions
+glm_aug <- augment(glm_fit, train_data)
+
+# choose multiple metrics to evaluate linear regression
+eval_metrics <- metric_set(mae, rmse, rsq) 
+
+# evaluate model based on the metric set
+eval_metrics(data = glm_aug,
+             truth = totality,
+             estimate = .pred) %>% 
+  select(-2) 
+```
+These do not seem to be the ideal values of performance metrics. The MAE of 50 means that the predictions were about 50 units off from the observed values. The RMSE is slightly higher than MAE because the square root adds weight to error. The R squared value is very low, which is also bad because it means that the model doesn't capture the variance in the variables.
+
+To try and improve this poorly fitting model, we will use cross validation.
+```{r}
+# cross validation
+folds <- vfold_cv(train_data, v = 5) # assign a number of folds
+cv_glm_wf <- 
+  workflow() %>% #define an object for the cv workflow 
+  add_model(glm_model) %>%
+  add_recipe(glm_recipe)
+
+cv_glm_fit <- 
+  cv_glm_wf %>% # apply cv workflow to an object for the cv fit
+  fit_resamples(folds)
+print(cv_glm_fit)
+
+# Examine metrics of the cv fit linear model
+glm_cv_metrics <- cv_glm_fit %>%
+  collect_metrics() %>% # get the metrics for all of the re-sampled folds
+  filter(.metric %in% c("rmse", "mae", "rsq")) # filter by metrics we want
+print(glm_cv_metrics)
+```
+It seems that the cross validation slightly increased the R squared to 0.022, but did not affect the rmse very much, if at all. This means that the model is the slightest bit better, but it seems that the linear model is much too simple for the trends in the data. To determine why this might be, I am going to plot the residuals and see how they are distributed
+```{r}
+plotresiduals <- data.frame(
+  linear_model = c(glm_aug$.pred), 
+  residuals = c(glm_aug$.pred - glm_aug$totality)) #calculate residuals by predicted - observed
+plotresiduals
+# plot predictions versus residuals for model 2
+ggplot(plotresiduals, aes(x=linear_model, y=residuals)) + 
+  geom_point() + 
+  geom_abline(slope = 0, intercept = 0, color = "pink", size = 1.5) + #add straight line at 0
+  labs(x= "Predicted Values", y= "Residuals")
+```
+The residuals clearly show several parabolic lines that are not captured with the linear model. because of this, we will try a slightly more complex model, a polynomial model.
+
+### Polynomial Model
+We can observe that, though nearly linear, the path that the time under totality follows also has curvature. This is why it may be better captured using a polynomial model. 
+```{r}
+# Create fit for first polynomial model
+set.seed(123)  # set seed for reproducibility
+
+poly_recipe <- 
+  recipe(totality ~ lat + lon, data = train_data) %>% 
+  step_poly(lat, lon, degree = 2)
+# use poly() to specify a polynomial model; where the degree is the number of degrees the model is allowed to go to
+
+poly_model <- 
+  linear_reg() %>% 
+  set_engine("lm") %>% # specify the model, which is also in regression mode
+  set_mode("regression")
+
+poly_workflow <- # add a workflow for the polynomial model and recipe
+  workflow() %>% 
+  add_model(poly_model) %>% 
+  add_recipe(poly_recipe) 
+
+poly_fit <- 
+  poly_workflow %>% 
+  fit(data = train_data) # fit the polynomial model to the train data using the workflow
+tidy(poly_fit)
+```
+The estimates for the lat and lon for the polynomial model are much larger than that of the estimates produced from the linear model. However, the standard error for these estimates is relatively high. Let's look at more specific metrics to determine how to tune the degree parameter.
+
+```{r}
+# Use fit model to make predictions
+poly_aug <- augment(poly_fit, train_data)
+
+# choose multiple metrics to evaluate linear regression
+eval_metrics <- metric_set(mae, rmse, rsq) 
+
+# evaluate model based on the metric set
+eval_metrics(data = poly_aug,
+             truth = totality,
+             estimate = .pred) %>% 
+  select(-2) 
+```
+The MAE and RMSE are 49 and 62, respectively, which are slightly less than that for the linear regression model. This is an improvement, but not by much. Additionally, the R squared value is 3.5%, which again, is a slight improvement from the previous model. To tune the degree parameter, we may choose any of these metrics, because they all need some improvement.
+We will use cross validation to tune the polynomial model.
+```{r}
+
+folds_data <- vfold_cv(train_data, v = 5, repeats = 5)
+# Set the number of cores to use
+num_cores <- detectCores() - 1
+# Initialize parallel backend
+doParallel::registerDoParallel(cores = num_cores) # add parallel processing to speed up the computations
+
+set.seed(123) # set seed for reproducibility
+poly_grid <- grid_regular(degree(range = c(1,20)))
+  
+poly_recipe2 <- 
+  recipe(totality ~ lat + lon, data = train_data) %>% 
+  step_poly(lat, lon, degree = tune())
+# use poly() to specify a polynomial model; where the degree is the number of degrees the model is allowed to go to
+
+poly_spec <- 
+  linear_reg() %>% 
+  set_engine("lm") %>% # specify the model, which is also in regression mode
+  set_mode("regression")
+
+poly_tune_wf <- workflow() %>%
+  add_model(poly_spec) %>%  # add the tuning spec and recipe to the workflow
+  add_recipe(poly_recipe2)
+
+poly_tune_cv <- tune_grid(
+  object = poly_tune_wf,  # Specify object as the workflow
+  resamples = folds_data, # use data for tuning from the CV folds
+  grid = expand.grid(degree = poly_grid),  #  add lasso tuning penalty grid
+  control = control_grid(save_pred = TRUE)) # save the predictions
+
+poly_tune_cv %>% 
+  autoplot()
+
+# Stop parallel processing
+stopImplicitCluster()
+```
+When I tune the degree using a possibility of 20 degrees the RMSE is minimized around 11 degrees while the R squared is maximized around 20 degrees. To avoid overfitting, we will choose the cv resampled model that minimizes the RMSE.
+```{r}
+# Select the best degree parameter based on RMSE
+best_degree <- select_best(poly_tune_cv, metric = "rmse")
+
+# View the best degree parameter
+best_degree
+## the best degree is 10.5 and can be used in the tuned recipe
+
+# Re fit the model
+poly_tune_recipe <- 
+  recipe(totality ~ lat + lon, data = train_data) %>% 
+  step_poly(lat, lon, degree = 10.5)
+
+poly_tune_wf2 <- workflow() %>%
+  add_model(poly_model) %>%
+  add_recipe(poly_tune_recipe)
+
+poly_tune_fit <- poly_tune_wf2%>%
+  fit(data = train_data) # use the workflow to fit the rf model to the data
+tidy(poly_tune_fit)
+# Find the metrics
+```
+We can see that as the degree for the lat and lon variables increase, the estimate decreases. The SE also decreases, though it is proportionally higher compared to the estimate. Let's look at the metrics of this fit tuned model.
+```{r}
+# Use fit model to make predictions
+poly_aug2 <- augment(poly_tune_fit, train_data)
+
+# choose multiple metrics to evaluate linear regression
+eval_metrics <- metric_set(mae, rmse, rsq) 
+
+# evaluate model based on the metric set
+eval_metrics(data = poly_aug2,
+             truth = totality,
+             estimate = .pred) %>% 
+  select(-2) 
+```
+This tuning has led to a great increase in R squared, from around 3% to around 12%. That is still not the best, but it is much better than before. The RMSE and MAE have also both significantly decreased to 59 and 47 respectively. This is an improvement, but I am sure that there must be an even better model. Before moving to the next model, we will also look at the residuals to see if this model has been overfit or if there are still trends that it does not capture.
+```{r}
+plotresiduals2 <- data.frame(
+  polynomial_model = c(poly_aug2$.pred), 
+  residuals = c(poly_aug2$.pred - poly_aug2$totality)) #calculate residuals by predicted - observed
+plotresiduals2
+# plot predictions versus residuals for model 2
+ggplot(plotresiduals2, aes(x=polynomial_model, y=residuals)) + 
+  geom_point() + 
+  geom_abline(slope = 0, intercept = 0, color = "pink", size = 1.5) + #add straight line at 0
+  labs(x= "Predicted Values", y= "Residuals")
+```
+From the residual plot, we can clearly see that there are trends remaining that we did not capture. This means that I will move to a more complex model.
+
+### GAM Model
+lastly, we will try the GAM model to fit the data. The advantage of this model is that it is more complex and can allow for separate functions for each predictor. This might be useful to capture complex trends. Additionally, it has a "smoothing" parameter that help's control the effect of each predictor. 
+I will try to initially fit this GAM model.
+```{r}
+set.seed(123) # set seed for reproducibility
+
+gam_recipe <- recipe(totality ~ lat + lon, data = train_data)%>% 
+  step_normalize(all_predictors()) # normalize for all predictors (lat and lon)
+
+# model with selecting features but default for adjusting df
+gam_model <- gen_additive_mod()%>% 
+  set_args(select_features = TRUE)%>% 
+  set_args(adjust_deg_free = NULL)%>% 
+  set_engine("mgcv")%>% 
+  set_mode("regression")
+
+gam_workflow <- workflow()%>% 
+  add_recipe(gam_recipe)%>% 
+  add_model(gam_model, formula = totality ~ s(lon) + s(lat)) # also have to add formula for add_model() for gam
+
+gam_fit <- 
+  gam_workflow %>% 
+  fit(data = train_data) # fit the GAM model to the train data using the workflow
+tidy(gam_fit)
+```
+The estimated degrees of freedom for both are approximately 9, with statistics approximately equal to 29. I will now make soem predictions and examine some performance metrics.
+```{r}
+# Use fit model to make predictions
+gam_aug <- augment(gam_fit, train_data)
+
+# choose multiple metrics to evaluate linear regression
+eval_metrics <- metric_set(mae, rmse, rsq) 
+
+# evaluate model based on the metric set
+eval_metrics(data = gam_aug,
+             truth = totality,
+             estimate = .pred) %>% 
+  select(-2) 
+```
+This resulted in a MAE and RMSE approximately equal to the tuned polynomial model (47 and 59 respectively). I got an R squared value of around 12%. 
+To improve these values, I would like to tune for the adjusted degrees of freedom.
+```{r}
+
+num_cores <- detectCores() - 1
+# Initialize parallel backend
+doParallel::registerDoParallel(cores = num_cores) # add parallel processing to speed up the computations
+
+set.seed(123) # set seed for reproducibility
+gam_grid <- grid_regular(adjust_deg_free(range = c(2,10)))
+
+gam_recipe <- recipe(totality ~ lat + lon, data = train_data)%>% 
+  step_normalize(all_predictors()) # normalize for all predictors (lat and lon)
+
+# model with selecting features but default for adjusting df
+gam_spec <- gen_additive_mod()%>% 
+  set_args(select_features = TRUE)%>% 
+  set_args(adjust_deg_free = tune())%>% 
+  set_engine("mgcv")%>% 
+  set_mode("regression")
+
+gam_tune_workflow <- workflow()%>% 
+  add_recipe(gam_recipe)%>% 
+  add_model(gam_spec, formula = totality ~ s(lon) + s(lat)) # also have to add formula for add_model() for gam tuning
+
+gam_tune_cv <- tune_grid(
+  object = gam_tune_workflow ,  # Specify object as the workflow
+  resamples = folds_data, # use data for tuning from the CV folds
+  grid = expand.grid(adjust_deg_free = gam_grid), 
+  control = control_grid(save_pred = TRUE))
+
+gam_tune_cv %>% 
+  autoplot()
+```
+It seems like the ideal tuning parameter here is a smoothness adjustment of 2. We will select the model based on the best rmse and fit that tuned model.
+```{r}
+
+# Get optimal parameters
+gam_best_rmse <- gam_tune_cv %>% 
+  select_best(metric = "rmse")
+gam_best_rmse
+
+# Finalize workflow
+gam_tune_wf <- gam_tune_workflow %>% 
+  finalize_workflow(gam_best_rmse)
+
+# fit model
+gam_tune_fit <- fit(gam_tune_wf, train_data)
+tidy(gam_tune_fit)
+```
+The estimated degrees of freedom is similar to what was found above. The statistics have slightly decreased, to approximately 28 for both lon and lat. We will not evaluate the model with metrics
+```{r}
+# Use fit model to make predictions
+gam_aug2 <- augment(gam_tune_fit, train_data)
+
+# choose multiple metrics to evaluate linear regression
+eval_metrics <- metric_set(mae, rmse, rsq) 
+
+# evaluate model based on the metric set
+eval_metrics(data = gam_aug2,
+             truth = totality,
+             estimate = .pred) %>% 
+  select(-2) 
+```
+The metrics are the same as before, displaying that there was not much change after tuning. Perhaps, the tuned parameter for smoothing was the same as the default parameter before tuning. We will now examine the residual plot, to compare this to the other models.
+```{r}
+plotresiduals3 <- data.frame(
+  general_additive_model = c(gam_aug2$.pred), 
+  residuals = c(gam_aug2$.pred - gam_aug2$totality)) #calculate residuals by predicted - observed
+plotresiduals3
+# plot predictions versus residuals for model 2
+ggplot(plotresiduals3, aes(x= general_additive_model, y=residuals)) + 
+  geom_point() + 
+  geom_abline(slope = 0, intercept = 0, color = "pink", size = 1.5) + #add straight line at 0
+  labs(x= "Predicted Values", y= "Residuals")
+```
+This model is an improvement upon the previous two model types, but it still does not capture all of the trends within the data.
+## Choosing Best Model
+We will decide which model is best by comparing the predictions that they make. We have already determined that the GAM has the best performance metrics, followed by the tuned polynomial model, and lastly the linear regression. However, it is important to see how the models compare to one another when making predictions. This can be easily compared visually.
+```{r}
+# Comparing all three models
+# set seed for reproducibility
+set.seed(123)
+
+# create data frame with the observed values and 3 sets of predicted values 
+plotdata <- data.frame(
+  observed = c(train_data$totality), 
+  glm_pred = c(glm_aug$.pred),
+  poly_pred = c(poly_aug2$.pred), 
+  gam_pred = c(gam_aug2$.pred), 
+  model = rep(c("Linear regression", "Polynomial model", "General additive model"), each = nrow(train_data))) # add label indicating the model
+plotdata
+# create a visual representation
+ggplot(plotdata, aes(x = observed)) +
+  geom_point(aes(y = glm_pred, color = "Linear regression"), shape = 1) +
+  geom_point(aes(y = poly_pred, color = "Polynomial model"), shape = 2) +
+  geom_point(aes(y = gam_pred, color = "General additive model"), shape = 3) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") + #add the 45 degree line
+  labs(x = "Observed Values", y = "Predicted Values")
+```
+It is difficult to see which model fits the best because they all fit very poorly. Unfortunately, since I cannot tell which model is the best from this plot, I will evaluate the two top contenders for the best model: the GAM and Polynomial model. This is because the tuned polynomial and GAM models had very similar performance metrics.
+## Model Evaluation
+To evaluate the top two contenders for the best (of the worst) models, we will evaluate both models based on the test data.
+To do this, we will use both models to make predictions for the test data, get performance metrics of both, look at their residuals, and choose the "best" of these two. 
+```{r}
+# Fit both models to make predictions
+poly_aug3 <- augment(poly_tune_fit, test_data)
+gam_aug3 <- augment(gam_tune_fit, test_data)
+
+# choose multiple metrics to evaluate linear regression
+eval_metrics <- metric_set(mae, rmse, rsq) 
+
+# evaluate model based on the metric set
+poly_metrics <- eval_metrics(data = gam_aug3,
+             truth = totality,
+             estimate = .pred) %>% 
+  select(-2) 
+print(poly_metrics)
+
+# evaluate model based on the metric set
+gam_metrics <- eval_metrics(data = poly_aug3,
+             truth = totality,
+             estimate = .pred) %>% 
+  select(-2) 
+print(gam_metrics)
+```
+The tuned polynomial model fitted to the test data resulted in an MAE of 46.5, RMSE of 59.8, and R squared of 9.6%. Unsurprisingly, the tuned GAM resulted in nearly the same metric values with a MAE or 46.6, RMSE of 59.8, and R squared of 9.6%. This leads me to believe that there is not really a difference between the model I choose in performance, but there is a difference in interpretability. To be sure, I will look at residual plots for both of these model predictions once again.
+```{r}
+# Polynomial residuals
+plotresiduals4 <- data.frame(
+  polynomial_model = c(poly_aug3$.pred), 
+  residuals = c(poly_aug3$.pred - poly_aug3$totality)) #calculate residuals by predicted - observed
+plotresiduals4
+# plot predictions versus residuals for model 2
+ggplot(plotresiduals4, aes(x= polynomial_model, y=residuals)) + 
+  geom_point() + 
+  geom_abline(slope = 0, intercept = 0, color = "pink", size = 1.5) + #add straight line at 0
+  labs(x= "Predicted Values", y= "Residuals", title = "Residual Plot for Polynomial Model Predictions")
+
+# GAM residuals
+plotresiduals5 <- data.frame(
+  general_additive_model = c(gam_aug3$.pred), 
+  residuals = c(gam_aug3$.pred - gam_aug3$totality)) #calculate residuals by predicted - observed
+plotresiduals5
+# plot predictions versus residuals for model 2
+ggplot(plotresiduals5, aes(x= general_additive_model, y=residuals)) + 
+  geom_point() + 
+  geom_abline(slope = 0, intercept = 0, color = "pink", size = 1.5) + #add straight line at 0
+  labs(x= "Predicted Values", y= "Residuals", title = "Residual Plot for GAM Predictions")
+```
+The residual plot for the polynomial model is very similarly shaped to the residual plot for the GAM, but it has a smaller range. 
+## Discussion
+When both models are so similar, but perform equally well (or bad), the best model boils down to interpret ability. For my question- how is latitude and longitude relate to time spent in totality- the polynomial model will be easiest to interpret. Overall, a polynomial to 6.5 degrees is capable of capturing complex patterns because it can have up to 6 inflection points. The local maxima will represent the longitude and latitude at which the time under totality is maximized. If you want to find the time under totality at a particular longitude and latitude, you can substitute in your location to the equation to make a prediction. However, this prediction is not very reliable because the performance of the model is relatively poor. 
+The poor performance of this model, as well as the GAM model, indicate that there might be confounders or a cause of an un-captured trend in the time under totality. One potential confounder is the distance between the earth, moon, and sun, at any particular point in time. Though I have limited knowledge in astronomy, I know that the distance between the earth and moon differ with the elliptically shaped orbit of the moon around the earth. Additionally the Earth also has an elliptically shaped orbit around the sun, which may affect the distance between these three astral bodies at any given time. Additionally, the model may not be able to capture the gradient of time spend under totality, where the maximum is in the center of the eclipse's path, while the time progressively shortens towards the edges of the eclipse's path. Because of these factors, and additional trends that may not have been mentioned, a more complex model with more predictors is necessary to produce better predictions.
